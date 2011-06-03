@@ -1,0 +1,993 @@
+package onethatwalks.satools;
+
+import java.awt.Color;
+import java.awt.Font;
+import java.awt.Rectangle;
+import java.awt.Toolkit;
+import java.awt.event.KeyEvent;
+import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.util.HashMap;
+
+import javax.swing.BorderFactory;
+import javax.swing.DefaultComboBoxModel;
+import javax.swing.DefaultListModel;
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JList;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTabbedPane;
+import javax.swing.JTextField;
+import javax.swing.ListModel;
+import javax.swing.border.TitledBorder;
+
+import org.bukkit.Location;
+import org.bukkit.command.ConsoleCommandSender;
+import org.bukkit.entity.Player;
+
+public class SAToolsGUI extends JFrame {
+
+	private static final long serialVersionUID = 1L;
+	private JPanel jContentPane = null;
+	private JTabbedPane jTabbedPane = null;
+	private JPanel jPanel_MAIN = null;
+	private static SATools plugin;
+	private JPanel jPanel_PLAYERS = null;
+	private JScrollPane jScrollPane_PLAYERS_PLAYERS = null;
+	static JList jList_PLAYERS_PLAYERS = null;
+	static DefaultListModel DefaultListModel_PLAYERS_PLAYERS = null;
+	static JPanel jPanel_PLAYERS_PLAYER = null;
+	private JPanel jPanel_PLAYERS_MODIFY = null;
+	private JLabel jLabel_PLAYERS_PLAYER_LOCATION = null;
+	static JLabel jLabel_PLAYERS_PLAYER_LOCATION_DATA = null;
+	private JLabel jLabel_PLAYERS_PLAYER_ENTITYID = null;
+	static JLabel jLabel_PLAYERS_PLAYER_ENTITYID_DATA = null;
+	private JLabel jLabel_PLAYERS_PLAYER_HEALTH = null;
+	static JLabel jLabel_PLAYERS_PLAYER_HEALTH_DATA = null;
+	private JLabel jLabel_PLAYERS_PLAYER_ITEM = null;
+	static JLabel jLabel_PLAYERS_PLAYER_ITEM_DATA = null;
+	private JLabel jLabel_PLAYERS_PLAYER_DEAD = null;
+	static JLabel jLabel_PLAYERS_PLAYER_DEAD_DATA = null;
+	private JLabel jLabel_PLAYERS_PLAYER_OP = null;
+	static JLabel jLabel_PLAYERS_PLAYER_OP_DATA = null;
+	private JLabel jLabel_PLAYERS_PLAYER_SLEEP = null;
+	static JLabel jLabel_PLAYERS_PLAYER_SLEEP_DATA = null;
+	private JLabel jLabel_PLAYERS_PLAYER_SNEAK = null;
+	static JLabel jLabel_PLAYERS_PLAYER_SNEAK_DATA = null;
+	static Player player = null;
+	static boolean piAlive = false;
+	public static PlayerInfo pi = new PlayerInfo(); // @jve:decl-index=0:
+	private JLabel jLabel_PLAYERS_MODIFY_GIVE = null;
+	private JComboBox jComboBox_PLAYERS_MODIFY_GIVE = null;
+	private JButton jButton_PLAYERS_MODIFY_GIVE_64 = null;
+	private JButton jButton_PLAYERS_MODIFY_GIVE_1 = null;
+	private JTextField jTextField_PLAYERS_MODIFY_GIVE_INT = null;
+	HashMap<String, Integer> items = new HashMap<String, Integer>(); // @jve:decl-index=0:
+	private DefaultComboBoxModel DefaultComboBoxModel_PLAYERS_MODIFY_GIVE = new DefaultComboBoxModel();
+	private int selected_id = 0;
+	private JPanel jPanel_MAIN_TIME = null;
+	private JPanel jPanel_MAIN_CONSOLE = null;
+	private JLabel jLabel_MAIN_CONSOLE_SAY = null;
+	private JTextField jTextField_MAIN_CONSOLE_SAY = null;
+	private JButton jButton_MAIN_CONSOLE_SAY = null;
+	private JLabel jLabel_MAIN_CONSOLE_MESSAGE = null;
+	static JComboBox jComboBox_MAIN_CONSOLE_MESSAGE = null;
+	static DefaultComboBoxModel DefaultComboBoxModel_MAIN_CONSOLE_MESSAGE = null; // @jve:decl-index=0:visual-constraint="280,837"
+	private JTextField jTextField_MAIN_CONSOLE_MESSAGE = null;
+	private JButton jButton_MAIN_CONSOLE_MESSAGE = null;
+	private JLabel jLabel_MAIN_CONSOLE_COMMAND = null;
+	private JTextField jTextField_MAIN_CONSOLE_COMMAND = null;
+	private JButton jButton_MAIN_CONSOLE_COMMAND = null;
+	private JLabel jLabel_MAIN_TIME = null;
+	private JLabel jLabel_MAIN_TIME_DATA = null;
+	private boolean ttAlive = true;
+	TimeTrack tt = new TimeTrack();
+	private JLabel jLabel_MAIN_TIME_SET = null;
+	private JButton jButton_MAIN_TIME_SET_MIDNIGHT = null;
+	private JButton jButton_MAIN_TIME_SET_MORNING = null;
+	private JButton jButton_MAIN_TIME_SET_NOON = null;
+	private JButton jButton_MAIN_TIME_SET_DUSK = null;
+	private JTextField jTextField_MAIN_TIME_SET_INT = null;
+
+	/**
+	 * This is the default constructor
+	 */
+	public SAToolsGUI(SATools instance) {
+		super();
+		plugin = instance;
+		grabItems();
+		initialize();
+		if (!tt.isAlive()) {
+			tt.start();
+			ttAlive = true;
+		}
+	}
+
+	private void grabItems() {
+		try {
+			// Open the file that is the first
+			// command line parameter
+
+			InputStream is = getClass().getResourceAsStream(
+					"/resources/ItemList.txt");
+			BufferedReader br = new BufferedReader(new InputStreamReader(is));
+			String strLine;
+			// Read File Line By Line
+			while ((strLine = br.readLine()) != null) {
+				String[] token = strLine.split(",");
+				int id = Integer.parseInt(token[0]);
+				String item = token[1];
+				items.put(item, id);
+				DefaultComboBoxModel_PLAYERS_MODIFY_GIVE.addElement(item);
+			}
+			// Close the input stream
+			is.close();
+		} catch (Exception e) {// Catch exception if any
+			System.err.println("Error: " + e.getMessage());
+		}
+	}
+
+	/**
+	 * This method initializes this
+	 * 
+	 * @return void
+	 */
+	private void initialize() {
+		this.setSize(600, 800);
+		this.setContentPane(getJContentPane());
+		this.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+		try {
+			this.setIconImage(Toolkit.getDefaultToolkit().getImage(
+					getClass().getResource("/resources/icon.png")));
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		this.setLocationRelativeTo(this.getOwner());
+	}
+
+	/**
+	 * This method initializes jContentPane
+	 * 
+	 * @return javax.swing.JPanel
+	 */
+	private JPanel getJContentPane() {
+		if (jContentPane == null) {
+			jContentPane = new JPanel();
+			jContentPane.setLayout(null);
+			jContentPane.add(getJTabbedPane(), null); // Generated
+		}
+		return jContentPane;
+	}
+
+	/**
+	 * This method initializes jTabbedPane
+	 * 
+	 * @return javax.swing.JTabbedPane
+	 */
+	private JTabbedPane getJTabbedPane() {
+		if (jTabbedPane == null) {
+			jTabbedPane = new JTabbedPane();
+			jTabbedPane.setBounds(new Rectangle(0, 0, 584, 762)); // Generated
+			jTabbedPane.addTab("Server Main", null, getJPanel_MAIN(),
+					"Main Server Options"); // Generated
+			jTabbedPane.addTab("Players", null, getJPanel_PLAYERS(),
+					"Players and Player Options"); // Generated
+		}
+		return jTabbedPane;
+	}
+
+	/**
+	 * This method initializes jPanel_MAIN
+	 * 
+	 * @return javax.swing.JPanel
+	 */
+	private JPanel getJPanel_MAIN() {
+		if (jPanel_MAIN == null) {
+			jPanel_MAIN = new JPanel();
+			jPanel_MAIN.setLayout(null); // Generated
+			jPanel_MAIN.add(getJPanel_MAIN_TIME(), null); // Generated
+			jPanel_MAIN.add(getJPanel_MAIN_CONSOLE(), null); // Generated
+		}
+		return jPanel_MAIN;
+	}
+
+	/**
+	 * This method initializes jPanel_PLAYERS
+	 * 
+	 * @return javax.swing.JPanel
+	 */
+	private JPanel getJPanel_PLAYERS() {
+		if (jPanel_PLAYERS == null) {
+			jPanel_PLAYERS = new JPanel();
+			jPanel_PLAYERS.setLayout(null); // Generated
+			jPanel_PLAYERS.add(getJScrollPane_PLAYERS_PLAYERS(), null); // Generated
+			jPanel_PLAYERS.add(getJPanel_PLAYERS_PLAYER(), null); // Generated
+			jPanel_PLAYERS.add(getJPanel_PLAYERS_MODIFY(), null); // Generated
+		}
+		return jPanel_PLAYERS;
+	}
+
+	/**
+	 * This method initializes jScrollPane_PLAYERS_PLAYERS
+	 * 
+	 * @return javax.swing.JScrollPane
+	 */
+	private JScrollPane getJScrollPane_PLAYERS_PLAYERS() {
+		if (jScrollPane_PLAYERS_PLAYERS == null) {
+			jScrollPane_PLAYERS_PLAYERS = new JScrollPane();
+			jScrollPane_PLAYERS_PLAYERS.setBounds(new Rectangle(15, 15, 260,
+					230)); // Generated
+			jScrollPane_PLAYERS_PLAYERS
+					.setViewportView(getJList_PLAYERS_PLAYERS()); // Generated
+		}
+		return jScrollPane_PLAYERS_PLAYERS;
+	}
+
+	/**
+	 * This method initializes jList_PLAYERS_PLAYERS
+	 * 
+	 * @return javax.swing.JList
+	 */
+	private JList getJList_PLAYERS_PLAYERS() {
+		if (jList_PLAYERS_PLAYERS == null) {
+			jList_PLAYERS_PLAYERS = new JList(
+					getDefaultListModel_PLAYERS_PLAYERS());
+			jList_PLAYERS_PLAYERS
+					.addListSelectionListener(new javax.swing.event.ListSelectionListener() {
+						public void valueChanged(
+								javax.swing.event.ListSelectionEvent e) {
+							try {
+								int index = jList_PLAYERS_PLAYERS
+										.getSelectedIndex();
+								player = plugin.getServer().getPlayer(
+										DefaultListModel_PLAYERS_PLAYERS.get(
+												index).toString());
+							} catch (Exception e1) {
+								e1.printStackTrace();
+							}
+							if (!jPanel_PLAYERS_PLAYER.isVisible()) {
+								jPanel_PLAYERS_PLAYER.setVisible(true);
+							}
+							if (!pi.isAlive()) {
+								pi.start();
+								piAlive = true;
+							}
+						}
+					});
+		}
+		return jList_PLAYERS_PLAYERS;
+	}
+
+	/**
+	 * This method initializes jDefaultListModel
+	 * 
+	 * @return javax.swing.DefaultListModel
+	 */
+	private ListModel getDefaultListModel_PLAYERS_PLAYERS() {
+		if (DefaultListModel_PLAYERS_PLAYERS == null) {
+			DefaultListModel_PLAYERS_PLAYERS = new DefaultListModel();
+		}
+		return DefaultListModel_PLAYERS_PLAYERS;
+	}
+
+	/**
+	 * This method initializes jPanel_PLAYERS_PLAYER
+	 * 
+	 * @return javax.swing.JPanel
+	 */
+	private JPanel getJPanel_PLAYERS_PLAYER() {
+		if (jPanel_PLAYERS_PLAYER == null) {
+			jLabel_PLAYERS_PLAYER_SNEAK_DATA = new JLabel();
+			jLabel_PLAYERS_PLAYER_SNEAK_DATA.setBounds(new Rectangle(110, 195,
+					140, 20)); // Generated
+			jLabel_PLAYERS_PLAYER_SNEAK_DATA.setText("Null"); // Generated
+			jLabel_PLAYERS_PLAYER_SNEAK = new JLabel();
+			jLabel_PLAYERS_PLAYER_SNEAK
+					.setBounds(new Rectangle(10, 195, 95, 20)); // Generated
+			jLabel_PLAYERS_PLAYER_SNEAK.setText("Sleeping: "); // Generated
+			jLabel_PLAYERS_PLAYER_SLEEP_DATA = new JLabel();
+			jLabel_PLAYERS_PLAYER_SLEEP_DATA.setBounds(new Rectangle(110, 170,
+					140, 20)); // Generated
+			jLabel_PLAYERS_PLAYER_SLEEP_DATA.setText("Null"); // Generated
+			jLabel_PLAYERS_PLAYER_SLEEP = new JLabel();
+			jLabel_PLAYERS_PLAYER_SLEEP
+					.setBounds(new Rectangle(10, 170, 95, 20)); // Generated
+			jLabel_PLAYERS_PLAYER_SLEEP.setText("Sleeping: "); // Generated
+			jLabel_PLAYERS_PLAYER_OP_DATA = new JLabel();
+			jLabel_PLAYERS_PLAYER_OP_DATA.setBounds(new Rectangle(110, 145,
+					140, 20)); // Generated
+			jLabel_PLAYERS_PLAYER_OP_DATA.setText("Null"); // Generated
+			jLabel_PLAYERS_PLAYER_OP = new JLabel();
+			jLabel_PLAYERS_PLAYER_OP.setBounds(new Rectangle(10, 145, 95, 20)); // Generated
+			jLabel_PLAYERS_PLAYER_OP.setText("OP Status: "); // Generated
+			jLabel_PLAYERS_PLAYER_DEAD_DATA = new JLabel();
+			jLabel_PLAYERS_PLAYER_DEAD_DATA.setBounds(new Rectangle(110, 120,
+					140, 20)); // Generated
+			jLabel_PLAYERS_PLAYER_DEAD_DATA.setText("Null"); // Generated
+			jLabel_PLAYERS_PLAYER_DEAD = new JLabel();
+			jLabel_PLAYERS_PLAYER_DEAD
+					.setBounds(new Rectangle(10, 120, 95, 20)); // Generated
+			jLabel_PLAYERS_PLAYER_DEAD.setText("Dead: "); // Generated
+			jLabel_PLAYERS_PLAYER_ITEM_DATA = new JLabel();
+			jLabel_PLAYERS_PLAYER_ITEM_DATA.setBounds(new Rectangle(110, 95,
+					140, 20)); // Generated
+			jLabel_PLAYERS_PLAYER_ITEM_DATA.setText("Null"); // Generated
+			jLabel_PLAYERS_PLAYER_ITEM = new JLabel();
+			jLabel_PLAYERS_PLAYER_ITEM.setBounds(new Rectangle(10, 95, 95, 20)); // Generated
+			jLabel_PLAYERS_PLAYER_ITEM.setText("Current Item: "); // Generated
+			jLabel_PLAYERS_PLAYER_HEALTH_DATA = new JLabel();
+			jLabel_PLAYERS_PLAYER_HEALTH_DATA.setBounds(new Rectangle(110, 70,
+					140, 20)); // Generated
+			jLabel_PLAYERS_PLAYER_HEALTH_DATA.setText("Null"); // Generated
+			jLabel_PLAYERS_PLAYER_HEALTH = new JLabel();
+			jLabel_PLAYERS_PLAYER_HEALTH
+					.setBounds(new Rectangle(10, 70, 95, 20)); // Generated
+			jLabel_PLAYERS_PLAYER_HEALTH.setText("Health: "); // Generated
+			jLabel_PLAYERS_PLAYER_ENTITYID_DATA = new JLabel();
+			jLabel_PLAYERS_PLAYER_ENTITYID_DATA.setBounds(new Rectangle(110,
+					45, 140, 20)); // Generated
+			jLabel_PLAYERS_PLAYER_ENTITYID_DATA.setText("Null"); // Generated
+			jLabel_PLAYERS_PLAYER_ENTITYID = new JLabel();
+			jLabel_PLAYERS_PLAYER_ENTITYID.setBounds(new Rectangle(10, 45, 95,
+					20)); // Generated
+			jLabel_PLAYERS_PLAYER_ENTITYID.setText("Entity ID: "); // Generated
+			jLabel_PLAYERS_PLAYER_LOCATION_DATA = new JLabel();
+			jLabel_PLAYERS_PLAYER_LOCATION_DATA.setBounds(new Rectangle(110,
+					20, 140, 20)); // Generated
+			jLabel_PLAYERS_PLAYER_LOCATION_DATA.setText("Null"); // Generated
+			jLabel_PLAYERS_PLAYER_LOCATION = new JLabel();
+			jLabel_PLAYERS_PLAYER_LOCATION.setText("Player Location: "); // Generated
+			jLabel_PLAYERS_PLAYER_LOCATION.setBounds(new Rectangle(10, 20, 95,
+					20)); // Generated
+			jPanel_PLAYERS_PLAYER = new JPanel();
+			jPanel_PLAYERS_PLAYER.setLayout(null); // Generated
+			jPanel_PLAYERS_PLAYER.setBounds(new Rectangle(300, 15, 260, 230)); // Generated
+			jPanel_PLAYERS_PLAYER.setBorder(BorderFactory.createTitledBorder(
+					null, "Player Details", TitledBorder.DEFAULT_JUSTIFICATION,
+					TitledBorder.DEFAULT_POSITION, null, null)); // Generated
+			jPanel_PLAYERS_PLAYER.setVisible(false); // Generated
+			jPanel_PLAYERS_PLAYER.add(jLabel_PLAYERS_PLAYER_LOCATION, null); // Generated
+			jPanel_PLAYERS_PLAYER
+					.add(jLabel_PLAYERS_PLAYER_LOCATION_DATA, null); // Generated
+			jPanel_PLAYERS_PLAYER.add(jLabel_PLAYERS_PLAYER_ENTITYID, null); // Generated
+			jPanel_PLAYERS_PLAYER
+					.add(jLabel_PLAYERS_PLAYER_ENTITYID_DATA, null); // Generated
+			jPanel_PLAYERS_PLAYER.add(jLabel_PLAYERS_PLAYER_HEALTH, null); // Generated
+			jPanel_PLAYERS_PLAYER.add(jLabel_PLAYERS_PLAYER_HEALTH_DATA, null); // Generated
+			jPanel_PLAYERS_PLAYER.add(jLabel_PLAYERS_PLAYER_ITEM, null); // Generated
+			jPanel_PLAYERS_PLAYER.add(jLabel_PLAYERS_PLAYER_ITEM_DATA, null); // Generated
+			jPanel_PLAYERS_PLAYER.add(jLabel_PLAYERS_PLAYER_DEAD, null); // Generated
+			jPanel_PLAYERS_PLAYER.add(jLabel_PLAYERS_PLAYER_DEAD_DATA, null); // Generated
+			jPanel_PLAYERS_PLAYER.add(jLabel_PLAYERS_PLAYER_OP, null); // Generated
+			jPanel_PLAYERS_PLAYER.add(jLabel_PLAYERS_PLAYER_OP_DATA, null); // Generated
+			jPanel_PLAYERS_PLAYER.add(jLabel_PLAYERS_PLAYER_SLEEP, null); // Generated
+			jPanel_PLAYERS_PLAYER.add(jLabel_PLAYERS_PLAYER_SLEEP_DATA, null); // Generated
+			jPanel_PLAYERS_PLAYER.add(jLabel_PLAYERS_PLAYER_SNEAK, null); // Generated
+			jPanel_PLAYERS_PLAYER.add(jLabel_PLAYERS_PLAYER_SNEAK_DATA, null); // Generated
+		}
+		return jPanel_PLAYERS_PLAYER;
+	}
+
+	/**
+	 * This method initializes jPanel_PLAYERS_MODIFY
+	 * 
+	 * @return javax.swing.JPanel
+	 */
+	private JPanel getJPanel_PLAYERS_MODIFY() {
+		if (jPanel_PLAYERS_MODIFY == null) {
+			jLabel_PLAYERS_MODIFY_GIVE = new JLabel();
+			jLabel_PLAYERS_MODIFY_GIVE.setBounds(new Rectangle(15, 45, 38, 20)); // Generated
+			jLabel_PLAYERS_MODIFY_GIVE.setText("Give: "); // Generated
+			jPanel_PLAYERS_MODIFY = new JPanel();
+			jPanel_PLAYERS_MODIFY.setLayout(null); // Generated
+			jPanel_PLAYERS_MODIFY.setBounds(new Rectangle(15, 255, 545, 470)); // Generated
+			jPanel_PLAYERS_MODIFY.setBorder(BorderFactory.createTitledBorder(
+					null, "Admin Controlls",
+					TitledBorder.DEFAULT_JUSTIFICATION,
+					TitledBorder.DEFAULT_POSITION, new Font("Dialog",
+							Font.BOLD, 12), new Color(51, 51, 51))); // Generated
+			jPanel_PLAYERS_MODIFY.setVisible(true); // Generated
+			jPanel_PLAYERS_MODIFY.add(jLabel_PLAYERS_MODIFY_GIVE, null); // Generated
+			jPanel_PLAYERS_MODIFY.add(getJComboBox_PLAYERS_MODIFY_GIVE(), null); // Generated
+			jPanel_PLAYERS_MODIFY
+					.add(getJButton_PLAYERS_MODIFY_GIVE_64(), null); // Generated
+			jPanel_PLAYERS_MODIFY.add(getJButton_PLAYERS_MODIFY_GIVE_1(), null); // Generated
+			jPanel_PLAYERS_MODIFY.add(getJTextField_PLAYERS_MODIFY_GIVE_INT(),
+					null); // Generated
+		}
+		return jPanel_PLAYERS_MODIFY;
+	}
+
+	public static class PlayerInfo extends Thread {
+
+		public void run() {
+			try {
+				while (piAlive) {
+					if (player != null) { // If player is selected from list
+						Location player_loc = player.getLocation();
+						{ // Location
+							jLabel_PLAYERS_PLAYER_LOCATION_DATA.setText("( "
+									+ player_loc.getBlockX() + ", "
+									+ player_loc.getBlockY() + ", "
+									+ player_loc.getBlockZ() + ")");
+						}
+						{ // Entity ID
+							jLabel_PLAYERS_PLAYER_ENTITYID_DATA.setText(Integer
+									.toString(player.getEntityId()));
+						}
+						{ // Health
+							jLabel_PLAYERS_PLAYER_HEALTH_DATA.setText(Integer
+									.toString(player.getHealth()));
+						}
+						{ // Current Item
+							jLabel_PLAYERS_PLAYER_ITEM_DATA.setText(player
+									.getItemInHand().toString());
+						}
+						{ // Dead?
+							jLabel_PLAYERS_PLAYER_DEAD_DATA.setText(Boolean
+									.toString(player.isDead()));
+							while (plugin.getServer()
+									.getPlayer(player.getDisplayName())
+									.isDead()) {
+								Thread.sleep(1000);
+							}
+							player = plugin.getServer().getPlayer(
+									player.getDisplayName());
+						}
+						{ // isOP ?
+							jLabel_PLAYERS_PLAYER_OP_DATA.setText(Boolean
+									.toString(player.isOp()));
+						}
+						{ // Sleep
+							jLabel_PLAYERS_PLAYER_SLEEP_DATA.setText(Boolean
+									.toString(player.isSleeping()));
+						}
+						{ // Sneak
+							jLabel_PLAYERS_PLAYER_SNEAK_DATA.setText(Boolean
+									.toString(player.isSneaking()));
+						}
+					}
+					Thread.sleep(1000);
+				}
+
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+
+	}
+
+	/**
+	 * This method initializes jComboBox_PLAYERS_MODIFY_GIVE
+	 * 
+	 * @return javax.swing.JComboBox
+	 */
+	private JComboBox getJComboBox_PLAYERS_MODIFY_GIVE() {
+		if (jComboBox_PLAYERS_MODIFY_GIVE == null) {
+			jComboBox_PLAYERS_MODIFY_GIVE = new JComboBox(
+					DefaultComboBoxModel_PLAYERS_MODIFY_GIVE);
+			jComboBox_PLAYERS_MODIFY_GIVE.setBounds(new Rectangle(60, 45, 200,
+					20)); // Generated
+			jComboBox_PLAYERS_MODIFY_GIVE
+					.addItemListener(new java.awt.event.ItemListener() {
+						public void itemStateChanged(java.awt.event.ItemEvent e) {
+							if (jComboBox_PLAYERS_MODIFY_GIVE.getSelectedItem() != null) {
+								selected_id = items
+										.get(jComboBox_PLAYERS_MODIFY_GIVE
+												.getSelectedItem());
+							}
+						}
+					});
+		}
+		return jComboBox_PLAYERS_MODIFY_GIVE;
+	}
+
+	/**
+	 * This method initializes jButton_PLAYERS_MODIFY_GIVE_64
+	 * 
+	 * @return javax.swing.JButton
+	 */
+	private JButton getJButton_PLAYERS_MODIFY_GIVE_64() {
+		if (jButton_PLAYERS_MODIFY_GIVE_64 == null) {
+			jButton_PLAYERS_MODIFY_GIVE_64 = new JButton();
+			jButton_PLAYERS_MODIFY_GIVE_64.setBounds(new Rectangle(275, 45, 60,
+					20)); // Generated
+			jButton_PLAYERS_MODIFY_GIVE_64.setText("64"); // Generated
+			jButton_PLAYERS_MODIFY_GIVE_64
+					.addActionListener(new java.awt.event.ActionListener() {
+						public void actionPerformed(java.awt.event.ActionEvent e) {
+							plugin.getServer()
+									.dispatchCommand(
+											new ConsoleCommandSender(plugin
+													.getServer()),
+											"give " + player.getDisplayName()
+													+ " " + selected_id + " 64");
+						}
+					});
+		}
+		return jButton_PLAYERS_MODIFY_GIVE_64;
+	}
+
+	/**
+	 * This method initializes jButton_PLAYERS_MODIFY_GIVE_1
+	 * 
+	 * @return javax.swing.JButton
+	 */
+	private JButton getJButton_PLAYERS_MODIFY_GIVE_1() {
+		if (jButton_PLAYERS_MODIFY_GIVE_1 == null) {
+			jButton_PLAYERS_MODIFY_GIVE_1 = new JButton();
+			jButton_PLAYERS_MODIFY_GIVE_1.setBounds(new Rectangle(350, 45, 60,
+					20)); // Generated
+			jButton_PLAYERS_MODIFY_GIVE_1.setText("1"); // Generated
+			jButton_PLAYERS_MODIFY_GIVE_1
+					.addActionListener(new java.awt.event.ActionListener() {
+						public void actionPerformed(java.awt.event.ActionEvent e) {
+							plugin.getServer()
+									.dispatchCommand(
+											new ConsoleCommandSender(plugin
+													.getServer()),
+											"give " + player.getDisplayName()
+													+ " " + selected_id + " 1");
+						}
+					});
+		}
+		return jButton_PLAYERS_MODIFY_GIVE_1;
+	}
+
+	/**
+	 * This method initializes jTextField_PLAYERS_MODIFY_GIVE_INT
+	 * 
+	 * @return javax.swing.JTextField
+	 */
+	private JTextField getJTextField_PLAYERS_MODIFY_GIVE_INT() {
+		if (jTextField_PLAYERS_MODIFY_GIVE_INT == null) {
+			jTextField_PLAYERS_MODIFY_GIVE_INT = new JTextField();
+			jTextField_PLAYERS_MODIFY_GIVE_INT.setBounds(new Rectangle(425, 45,
+					105, 20)); // Generated
+			jTextField_PLAYERS_MODIFY_GIVE_INT
+					.addKeyListener(new java.awt.event.KeyAdapter() {
+						public void keyPressed(java.awt.event.KeyEvent e) {
+							if (e.getKeyCode() == (KeyEvent.VK_ENTER)) {
+								if (!jTextField_PLAYERS_MODIFY_GIVE_INT
+										.getText().isEmpty()
+										|| !isNumeric(jTextField_PLAYERS_MODIFY_GIVE_INT
+												.getText())) {
+									plugin.getServer()
+											.dispatchCommand(
+													new ConsoleCommandSender(
+															plugin.getServer()),
+													"give "
+															+ player.getDisplayName()
+															+ " "
+															+ selected_id
+															+ " "
+															+ jTextField_PLAYERS_MODIFY_GIVE_INT
+																	.getText());
+								} else {
+									SATools.log
+											.info("Enter a number between 1-64");
+								}
+							}
+						}
+					});
+		}
+		return jTextField_PLAYERS_MODIFY_GIVE_INT;
+	}
+
+	private boolean isNumeric(String text) {
+		try {
+			Integer.parseInt(text);
+		} catch (NumberFormatException nfe) {
+			return false;
+		}
+		return true;
+	}
+
+	/**
+	 * This method initializes jPanel_MAIN_TIME
+	 * 
+	 * @return javax.swing.JPanel
+	 */
+	private JPanel getJPanel_MAIN_TIME() {
+		if (jPanel_MAIN_TIME == null) {
+			jLabel_MAIN_TIME_SET = new JLabel();
+			jLabel_MAIN_TIME_SET.setBounds(new Rectangle(15, 60, 56, 20)); // Generated
+			jLabel_MAIN_TIME_SET.setText("Set Time"); // Generated
+			jLabel_MAIN_TIME_DATA = new JLabel();
+			jLabel_MAIN_TIME_DATA.setBounds(new Rectangle(110, 30, 85, 16)); // Generated
+			jLabel_MAIN_TIME_DATA.setText("NULL"); // Generated
+			jLabel_MAIN_TIME = new JLabel();
+			jLabel_MAIN_TIME.setBounds(new Rectangle(15, 30, 85, 16)); // Generated
+			jLabel_MAIN_TIME.setText("Current Time:"); // Generated
+			jPanel_MAIN_TIME = new JPanel();
+			jPanel_MAIN_TIME.setLayout(null); // Generated
+			jPanel_MAIN_TIME.setBounds(new Rectangle(15, 245, 550, 100)); // Generated
+			jPanel_MAIN_TIME.setBorder(BorderFactory.createTitledBorder(null,
+					"Time Options", TitledBorder.DEFAULT_JUSTIFICATION,
+					TitledBorder.DEFAULT_POSITION, new Font("Dialog",
+							Font.BOLD, 12), new Color(51, 51, 51))); // Generated
+			jPanel_MAIN_TIME.add(jLabel_MAIN_TIME, null); // Generated
+			jPanel_MAIN_TIME.add(jLabel_MAIN_TIME_DATA, null); // Generated
+			jPanel_MAIN_TIME.add(jLabel_MAIN_TIME_SET, null); // Generated
+			jPanel_MAIN_TIME.add(getJButton_MAIN_TIME_SET_MIDNIGHT(), null); // Generated
+			jPanel_MAIN_TIME.add(getJButton_MAIN_TIME_SET_MORNING(), null); // Generated
+			jPanel_MAIN_TIME.add(getJButton_MAIN_TIME_SET_NOON(), null); // Generated
+			jPanel_MAIN_TIME.add(getJButton_MAIN_TIME_SET_DUSK(), null); // Generated
+			jPanel_MAIN_TIME.add(getJTextField_MAIN_TIME_SET_INT(), null); // Generated
+		}
+		return jPanel_MAIN_TIME;
+	}
+
+	/**
+	 * This method initializes jPanel_MAIN_CONSOLE
+	 * 
+	 * @return javax.swing.JPanel
+	 */
+	private JPanel getJPanel_MAIN_CONSOLE() {
+		if (jPanel_MAIN_CONSOLE == null) {
+			jLabel_MAIN_CONSOLE_COMMAND = new JLabel();
+			jLabel_MAIN_CONSOLE_COMMAND.setBounds(new Rectangle(15, 165, 525,
+					16)); // Generated
+			jLabel_MAIN_CONSOLE_COMMAND.setText("Type a command here."); // Generated
+			jLabel_MAIN_CONSOLE_MESSAGE = new JLabel();
+			jLabel_MAIN_CONSOLE_MESSAGE
+					.setBounds(new Rectangle(15, 80, 524, 16)); // Generated
+			jLabel_MAIN_CONSOLE_MESSAGE.setText("Send a message to a player."); // Generated
+			jLabel_MAIN_CONSOLE_SAY = new JLabel();
+			jLabel_MAIN_CONSOLE_SAY.setBounds(new Rectangle(15, 30, 525, 16)); // Generated
+			jLabel_MAIN_CONSOLE_SAY
+					.setText("Type Something here to make an announcement."); // Generated
+			jPanel_MAIN_CONSOLE = new JPanel();
+			jPanel_MAIN_CONSOLE.setLayout(null); // Generated
+			jPanel_MAIN_CONSOLE.setBounds(new Rectangle(15, 15, 550, 220)); // Generated
+			jPanel_MAIN_CONSOLE.setBorder(BorderFactory.createTitledBorder(
+					null, "Console", TitledBorder.DEFAULT_JUSTIFICATION,
+					TitledBorder.DEFAULT_POSITION, new Font("Dialog",
+							Font.BOLD, 12), new Color(51, 51, 51))); // Generated
+			jPanel_MAIN_CONSOLE.add(jLabel_MAIN_CONSOLE_SAY, null); // Generated
+			jPanel_MAIN_CONSOLE.add(getJTextField_MAIN_CONSOLE_SAY(), null); // Generated
+			jPanel_MAIN_CONSOLE.add(getJButton_MAIN_CONSOLE_SAY(), null); // Generated
+			jPanel_MAIN_CONSOLE.add(jLabel_MAIN_CONSOLE_MESSAGE, null); // Generated
+			jPanel_MAIN_CONSOLE.add(getJComboBox_MAIN_CONSOLE_MESSAGE(), null); // Generated
+			jPanel_MAIN_CONSOLE.add(getJTextField_MAIN_CONSOLE_MESSAGE(), null); // Generated
+			jPanel_MAIN_CONSOLE.add(getJButton_MAIN_CONSOLE_MESSAGE(), null); // Generated
+			jPanel_MAIN_CONSOLE.add(jLabel_MAIN_CONSOLE_COMMAND, null); // Generated
+			jPanel_MAIN_CONSOLE.add(getJTextField_MAIN_CONSOLE_COMMAND(), null); // Generated
+			jPanel_MAIN_CONSOLE.add(getJButton_MAIN_CONSOLE_COMMAND(), null); // Generated
+		}
+		return jPanel_MAIN_CONSOLE;
+	}
+
+	/**
+	 * This method initializes jTextField_MAIN_CONSOLE_SAY
+	 * 
+	 * @return javax.swing.JTextField
+	 */
+	private JTextField getJTextField_MAIN_CONSOLE_SAY() {
+		if (jTextField_MAIN_CONSOLE_SAY == null) {
+			jTextField_MAIN_CONSOLE_SAY = new JTextField();
+			jTextField_MAIN_CONSOLE_SAY
+					.setBounds(new Rectangle(15, 50, 400, 20)); // Generated
+			jTextField_MAIN_CONSOLE_SAY
+					.addKeyListener(new java.awt.event.KeyAdapter() {
+						public void keyPressed(java.awt.event.KeyEvent e) {
+							if (e.getKeyCode() == (KeyEvent.VK_ENTER)) {
+								jButton_MAIN_CONSOLE_SAY.doClick();
+							}
+						}
+					});
+		}
+		return jTextField_MAIN_CONSOLE_SAY;
+	}
+
+	/**
+	 * This method initializes jButton_MAIN_CONSOLE_SAY
+	 * 
+	 * @return javax.swing.JButton
+	 */
+	private JButton getJButton_MAIN_CONSOLE_SAY() {
+		if (jButton_MAIN_CONSOLE_SAY == null) {
+			jButton_MAIN_CONSOLE_SAY = new JButton();
+			jButton_MAIN_CONSOLE_SAY.setBounds(new Rectangle(450, 50, 75, 20)); // Generated
+			jButton_MAIN_CONSOLE_SAY.setText("Say It!"); // Generated
+			jButton_MAIN_CONSOLE_SAY
+					.addActionListener(new java.awt.event.ActionListener() {
+						public void actionPerformed(java.awt.event.ActionEvent e) {
+							if (!jTextField_MAIN_CONSOLE_SAY.getText()
+									.isEmpty()) {
+								plugin.getServer().broadcastMessage(
+										jTextField_MAIN_CONSOLE_SAY.getText());
+							} else {
+								SATools.log.info("Enter a valid message");
+							}
+						}
+					});
+		}
+		return jButton_MAIN_CONSOLE_SAY;
+	}
+
+	/**
+	 * This method initializes jComboBox_MAIN_CONSOLE_MESSAGE
+	 * 
+	 * @return javax.swing.JComboBox
+	 */
+	private JComboBox getJComboBox_MAIN_CONSOLE_MESSAGE() {
+		if (jComboBox_MAIN_CONSOLE_MESSAGE == null) {
+			jComboBox_MAIN_CONSOLE_MESSAGE = new JComboBox(
+					getDefaultComboBoxModel_MAIN_CONSOLE_MESSAGE());
+			jComboBox_MAIN_CONSOLE_MESSAGE.setBounds(new Rectangle(15, 100,
+					210, 20)); // Generated
+		}
+		return jComboBox_MAIN_CONSOLE_MESSAGE;
+	}
+
+	/**
+	 * This method initializes DefaultComboBoxModel_MAIN_CONSOLE_MESSAGE
+	 * 
+	 * @return javax.swing.DefaultComboBoxModel
+	 */
+	private DefaultComboBoxModel getDefaultComboBoxModel_MAIN_CONSOLE_MESSAGE() {
+		if (DefaultComboBoxModel_MAIN_CONSOLE_MESSAGE == null) {
+			DefaultComboBoxModel_MAIN_CONSOLE_MESSAGE = new DefaultComboBoxModel();
+		}
+		return DefaultComboBoxModel_MAIN_CONSOLE_MESSAGE;
+	}
+
+	/**
+	 * This method initializes jTextField_MAIN_CONSOLE_MESSAGE
+	 * 
+	 * @return javax.swing.JTextField
+	 */
+	private JTextField getJTextField_MAIN_CONSOLE_MESSAGE() {
+		if (jTextField_MAIN_CONSOLE_MESSAGE == null) {
+			jTextField_MAIN_CONSOLE_MESSAGE = new JTextField();
+			jTextField_MAIN_CONSOLE_MESSAGE.setBounds(new Rectangle(15, 130,
+					400, 20)); // Generated
+			jTextField_MAIN_CONSOLE_MESSAGE
+					.addKeyListener(new java.awt.event.KeyAdapter() {
+						public void keyPressed(java.awt.event.KeyEvent e) {
+							if (e.getKeyCode() == (KeyEvent.VK_ENTER)) {
+								jButton_MAIN_CONSOLE_MESSAGE.doClick();
+							}
+						}
+					});
+		}
+		return jTextField_MAIN_CONSOLE_MESSAGE;
+	}
+
+	/**
+	 * This method initializes jButton_MAIN_CONSOLE_MESSAGE
+	 * 
+	 * @return javax.swing.JButton
+	 */
+	private JButton getJButton_MAIN_CONSOLE_MESSAGE() {
+		if (jButton_MAIN_CONSOLE_MESSAGE == null) {
+			jButton_MAIN_CONSOLE_MESSAGE = new JButton();
+			jButton_MAIN_CONSOLE_MESSAGE.setBounds(new Rectangle(450, 130, 75,
+					20)); // Generated
+			jButton_MAIN_CONSOLE_MESSAGE.setText("Send!"); // Generated
+			jButton_MAIN_CONSOLE_MESSAGE
+					.addActionListener(new java.awt.event.ActionListener() {
+						public void actionPerformed(java.awt.event.ActionEvent e) {
+							if (!jTextField_MAIN_CONSOLE_MESSAGE.getText()
+									.isEmpty()
+									|| jComboBox_MAIN_CONSOLE_MESSAGE
+											.getSelectedItem() != null
+									|| jComboBox_MAIN_CONSOLE_MESSAGE
+											.getSelectedIndex() != -1) {
+								plugin.getServer()
+										.getPlayer(
+												jComboBox_MAIN_CONSOLE_MESSAGE
+														.getSelectedItem()
+														.toString())
+										.sendMessage(
+												jTextField_MAIN_CONSOLE_MESSAGE
+														.getText());
+							} else {
+								SATools.log
+										.info("No Player Selected or no message typed.");
+							}
+						}
+					});
+		}
+		return jButton_MAIN_CONSOLE_MESSAGE;
+	}
+
+	/**
+	 * This method initializes jTextField_MAIN_CONSOLE_COMMAND
+	 * 
+	 * @return javax.swing.JTextField
+	 */
+	private JTextField getJTextField_MAIN_CONSOLE_COMMAND() {
+		if (jTextField_MAIN_CONSOLE_COMMAND == null) {
+			jTextField_MAIN_CONSOLE_COMMAND = new JTextField();
+			jTextField_MAIN_CONSOLE_COMMAND.setBounds(new Rectangle(15, 185,
+					400, 20)); // Generated
+			jTextField_MAIN_CONSOLE_COMMAND
+					.addKeyListener(new java.awt.event.KeyAdapter() {
+						public void keyPressed(java.awt.event.KeyEvent e) {
+							if (e.getKeyCode() == (KeyEvent.VK_ENTER)) {
+								jButton_MAIN_CONSOLE_COMMAND.doClick();
+							}
+						}
+					});
+		}
+		return jTextField_MAIN_CONSOLE_COMMAND;
+	}
+
+	/**
+	 * This method initializes jButton_MAIN_CONSOLE_COMMAND
+	 * 
+	 * @return javax.swing.JButton
+	 */
+	private JButton getJButton_MAIN_CONSOLE_COMMAND() {
+		if (jButton_MAIN_CONSOLE_COMMAND == null) {
+			jButton_MAIN_CONSOLE_COMMAND = new JButton();
+			jButton_MAIN_CONSOLE_COMMAND.setBounds(new Rectangle(450, 185, 75,
+					20)); // Generated
+			jButton_MAIN_CONSOLE_COMMAND.setText("Send!"); // Generated
+			jButton_MAIN_CONSOLE_COMMAND
+					.addActionListener(new java.awt.event.ActionListener() {
+						public void actionPerformed(java.awt.event.ActionEvent e) {
+							if (!jTextField_MAIN_CONSOLE_COMMAND.getText()
+									.isEmpty()) {
+								plugin.getServer().dispatchCommand(
+										new ConsoleCommandSender(plugin
+												.getServer()),
+										jTextField_MAIN_CONSOLE_COMMAND
+												.getText());
+							} else {
+								SATools.log
+										.info("Please enter text in the box to send a message.");
+							}
+						}
+					});
+		}
+		return jButton_MAIN_CONSOLE_COMMAND;
+	}
+
+	public class TimeTrack extends Thread {
+		public void run() {
+			try {
+				while (ttAlive) {
+					jLabel_MAIN_TIME_DATA.setText(Long.toString(plugin.time));
+					Thread.sleep(1000);
+				}
+			} catch (Exception e) {
+				SATools.log.info(e.getMessage());
+			}
+		}
+	}
+
+	/**
+	 * This method initializes jButton_MAIN_TIME_SET_MIDNIGHT
+	 * 
+	 * @return javax.swing.JButton
+	 */
+	private JButton getJButton_MAIN_TIME_SET_MIDNIGHT() {
+		if (jButton_MAIN_TIME_SET_MIDNIGHT == null) {
+			jButton_MAIN_TIME_SET_MIDNIGHT = new JButton();
+			jButton_MAIN_TIME_SET_MIDNIGHT.setBounds(new Rectangle(90, 60, 90,
+					20)); // Generated
+			jButton_MAIN_TIME_SET_MIDNIGHT.setText("Midnight"); // Generated
+			jButton_MAIN_TIME_SET_MIDNIGHT
+					.addActionListener(new java.awt.event.ActionListener() {
+						public void actionPerformed(java.awt.event.ActionEvent e) {
+							doTime(18000);
+						}
+					});
+		}
+		return jButton_MAIN_TIME_SET_MIDNIGHT;
+	}
+
+	/**
+	 * This method initializes jButton_MAIN_TIME_SET_MORNING
+	 * 
+	 * @return javax.swing.JButton
+	 */
+	private JButton getJButton_MAIN_TIME_SET_MORNING() {
+		if (jButton_MAIN_TIME_SET_MORNING == null) {
+			jButton_MAIN_TIME_SET_MORNING = new JButton();
+			jButton_MAIN_TIME_SET_MORNING.setBounds(new Rectangle(195, 60, 90,
+					20)); // Generated
+			jButton_MAIN_TIME_SET_MORNING.setText("Morning"); // Generated
+			jButton_MAIN_TIME_SET_MORNING
+					.addActionListener(new java.awt.event.ActionListener() {
+						public void actionPerformed(java.awt.event.ActionEvent e) {
+							doTime(0);
+						}
+					});
+		}
+		return jButton_MAIN_TIME_SET_MORNING;
+	}
+
+	/**
+	 * This method initializes jButton_MAIN_TIME_SET_NOON
+	 * 
+	 * @return javax.swing.JButton
+	 */
+	private JButton getJButton_MAIN_TIME_SET_NOON() {
+		if (jButton_MAIN_TIME_SET_NOON == null) {
+			jButton_MAIN_TIME_SET_NOON = new JButton();
+			jButton_MAIN_TIME_SET_NOON
+					.setBounds(new Rectangle(300, 60, 65, 20)); // Generated
+			jButton_MAIN_TIME_SET_NOON.setText("Noon"); // Generated
+			jButton_MAIN_TIME_SET_NOON
+					.addActionListener(new java.awt.event.ActionListener() {
+						public void actionPerformed(java.awt.event.ActionEvent e) {
+							doTime(6000);
+						}
+					});
+		}
+		return jButton_MAIN_TIME_SET_NOON;
+	}
+
+	/**
+	 * This method initializes jButton_MAIN_TIME_SET_DUSK
+	 * 
+	 * @return javax.swing.JButton
+	 */
+	private JButton getJButton_MAIN_TIME_SET_DUSK() {
+		if (jButton_MAIN_TIME_SET_DUSK == null) {
+			jButton_MAIN_TIME_SET_DUSK = new JButton();
+			jButton_MAIN_TIME_SET_DUSK
+					.setBounds(new Rectangle(380, 60, 65, 20)); // Generated
+			jButton_MAIN_TIME_SET_DUSK.setText("Dusk"); // Generated
+			jButton_MAIN_TIME_SET_DUSK
+					.addActionListener(new java.awt.event.ActionListener() {
+						public void actionPerformed(java.awt.event.ActionEvent e) {
+							doTime(12000);
+						}
+					});
+		}
+		return jButton_MAIN_TIME_SET_DUSK;
+	}
+
+	/**
+	 * This method initializes jTextField_MAIN_TIME_SET_INT
+	 * 
+	 * @return javax.swing.JTextField
+	 */
+	private JTextField getJTextField_MAIN_TIME_SET_INT() {
+		if (jTextField_MAIN_TIME_SET_INT == null) {
+			jTextField_MAIN_TIME_SET_INT = new JTextField();
+			jTextField_MAIN_TIME_SET_INT.setBounds(new Rectangle(460, 60, 75,
+					20)); // Generated
+			jTextField_MAIN_TIME_SET_INT
+					.addKeyListener(new java.awt.event.KeyAdapter() {
+						public void keyPressed(java.awt.event.KeyEvent e) {
+							if (e.getKeyCode() == (KeyEvent.VK_ENTER)) {
+								if (!jTextField_MAIN_TIME_SET_INT.getText()
+										.isEmpty()) {
+									doTime(Integer
+											.parseInt(jTextField_MAIN_TIME_SET_INT
+													.getText()));
+								} else {
+									SATools.log
+											.info("No time specified.  Please enter a number between 0 and 24000");
+								}
+							}
+						}
+					});
+		}
+		return jTextField_MAIN_TIME_SET_INT;
+	}
+
+	/**
+	 * doTime
+	 * 
+	 * forces server time
+	 * 
+	 * @param time
+	 *            The time to set on the server.
+	 */
+	private void doTime(int time) {
+		plugin.getServer().dispatchCommand(
+				new ConsoleCommandSender(plugin.getServer()),
+				"time set " + time);
+	}
+}
