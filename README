@@ -1,1 +1,29 @@
-To use SATools and modify its code (giving proper credit) you simply download the source package and create a new project under your Java IDE with the location of the project being the unzipped/uncompressed directory.
+SATools v0
+OneThatWalks
+Bukkit server admistration made easy
+
+This is a pre-release!
+
+Tested on:
+Windows 7
+
+Made with Java
+
+!!!IF you are not a developer take your little cursor
+to the address bar and go back to the release page
+and download the jar!!!
+
+If you are a devloper feel free to download this source
+and modify as you wish, after reading the License.
+
+As this is a pre-release there may be a few problems,
+submit them on the ISSUES page.
+
+Version History:
+0.1
+-Pre-Release release on Bukkit Forums and GitHub Creation
+
+If you have to contact me about something not related to and issue
+send me an email at OneThatWalks@live.com
+
+Copyrights 2011 OneThatWalks.
