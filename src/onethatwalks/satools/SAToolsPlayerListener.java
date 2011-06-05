@@ -1,5 +1,6 @@
 package onethatwalks.satools;
 
+import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerListener;
@@ -24,6 +25,15 @@ public class SAToolsPlayerListener extends PlayerListener {
 					public void run() {
 						player = event.getPlayer(); // register player that
 													// joined
+						if (SATools.godsContents.contains(player
+								.getDisplayName())) {
+							SATools.gods.add(player);
+						}
+						if (SATools.gods.contains(player)) {
+							plugin.getServer().broadcastMessage(
+									ChatColor.GOLD + player.getDisplayName()
+											+ " is a god");
+						}
 						{ // Welcome MEssage info
 							Player[] op = plugin.getServer().getOnlinePlayers();
 							String opString = "";
@@ -53,15 +63,19 @@ public class SAToolsPlayerListener extends PlayerListener {
 							SAToolsGUI.DefaultListModel_PLAYERS_PLAYERS
 									.addElement(player.getDisplayName());
 							if (SAToolsGUI.DefaultListModel_PLAYERS_PLAYERS
-									.getSize() == 0) {
+									.getSize() == 1) {
 								SAToolsGUI.jList_PLAYERS_PLAYERS
 										.setSelectedValue(
 												player.getDisplayName(), true);
+								if (SATools.gods.contains(player)) {
+									SAToolsGUI.jToggleButton_PLAYERS_MODIFY_HEALTH_JESUS
+											.setSelected(true);
+								}
 							}
 							SAToolsGUI.DefaultComboBoxModel_MAIN_CONSOLE_MESSAGE
 									.addElement(player.getDisplayName());
 							if (SAToolsGUI.DefaultComboBoxModel_MAIN_CONSOLE_MESSAGE
-									.getSize() == 0) {
+									.getSize() == 1) {
 								SAToolsGUI.jComboBox_MAIN_CONSOLE_MESSAGE
 										.setSelectedItem(player
 												.getDisplayName());
@@ -76,14 +90,19 @@ public class SAToolsPlayerListener extends PlayerListener {
 				.scheduleAsyncDelayedTask(plugin, new Runnable() {
 					public void run() {
 						player = event.getPlayer(); // register player to quit
+						String otherGuy = null;
+
 						SAToolsGUI.player = null;
 						{ // GUI Options removal
 							SATools.log.info(player
 									+ " should be removed from the list");
-							SAToolsGUI.DefaultListModel_PLAYERS_PLAYERS
-									.removeElement(player.getDisplayName());
 							if (SAToolsGUI.DefaultListModel_PLAYERS_PLAYERS
 									.size() == 0) {
+								SAToolsGUI.player = null;
+								SAToolsGUI.jList_PLAYERS_PLAYERS
+										.setSelectedIndex(-1);
+								SAToolsGUI.DefaultListModel_PLAYERS_PLAYERS
+										.removeElement(player.getDisplayName());
 								SAToolsGUI.jList_PLAYERS_PLAYERS
 										.setSelectedIndex(-1);
 								SAToolsGUI.jLabel_PLAYERS_PLAYER_SNEAK_DATA
@@ -104,14 +123,38 @@ public class SAToolsPlayerListener extends PlayerListener {
 										.setText("Null");
 								SAToolsGUI.jPanel_PLAYERS_PLAYER
 										.setVisible(false);
+							} else if (SAToolsGUI.DefaultListModel_PLAYERS_PLAYERS
+									.size() > 1
+									&& SAToolsGUI.jList_PLAYERS_PLAYERS
+											.getSelectedValue() == player
+											.getDisplayName()) {
+								for (int i = 0; i < plugin.getServer()
+										.getOnlinePlayers().length; i++) {
+									if (plugin.getServer().getOnlinePlayers()[i]
+											.getDisplayName() != player
+											.getDisplayName()) {
+										otherGuy = plugin.getServer()
+												.getOnlinePlayers()[i]
+												.getDisplayName();
+									}
+								}
+								SAToolsGUI.jList_PLAYERS_PLAYERS
+										.setSelectedValue(otherGuy, true);
+								SAToolsGUI.DefaultListModel_PLAYERS_PLAYERS
+										.removeElement(player.getDisplayName());
+
+							} else {
+								SAToolsGUI.DefaultListModel_PLAYERS_PLAYERS
+										.removeElement(player.getDisplayName());
 							}
-							SAToolsGUI.DefaultComboBoxModel_MAIN_CONSOLE_MESSAGE
-									.removeElement(player.getDisplayName());
 							if (SAToolsGUI.DefaultComboBoxModel_MAIN_CONSOLE_MESSAGE
-									.getSize() == 0) {
+									.getSize() == 1) {
 								SAToolsGUI.jComboBox_MAIN_CONSOLE_MESSAGE
 										.setSelectedIndex(-1);
 							}
+							SAToolsGUI.DefaultComboBoxModel_MAIN_CONSOLE_MESSAGE
+									.removeElement(player.getDisplayName());
+
 						}
 					}
 				}, 20);

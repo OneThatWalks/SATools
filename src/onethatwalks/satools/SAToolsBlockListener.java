@@ -3,7 +3,7 @@ package onethatwalks.satools;
 import org.bukkit.event.block.BlockListener;
 
 /**
- * Handle events for all Player related events
+ * Handle events for all Block related events
  * 
  * @author OneThatWalks
  */

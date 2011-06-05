@@ -1,9 +1,23 @@
 package onethatwalks.satools;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Logger;
 
 import org.bukkit.ChatColor;
+import org.bukkit.Location;
+import org.bukkit.World;
+import org.bukkit.entity.CreatureType;
+import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.PluginManager;
@@ -16,6 +30,8 @@ import org.bukkit.plugin.java.JavaPlugin;
  */
 public class SATools extends JavaPlugin {
 	private final SAToolsPlayerListener playerListener = new SAToolsPlayerListener(
+			this);
+	private final SAToolsEntityListener entityListener = new SAToolsEntityListener(
 			this);
 	@SuppressWarnings("unused")
 	private final SAToolsBlockListener blockListener = new SAToolsBlockListener(
@@ -32,8 +48,18 @@ public class SATools extends JavaPlugin {
 	private boolean gcAlive = true;
 	static boolean runGC = false;
 	long time;
+	private String dataFile = null;
+	static ArrayList<String> godsContents = new ArrayList<String>();
+	static World world;
+	static List<Player> gods = new ArrayList<Player>();
+	static ArrayList<String> godsRemoved = new ArrayList<String>();
+
+	static enum Weather {
+		CLEAR, STORM, THUNDER
+	}
 
 	public void onDisable() {
+		save();
 		System.out.println("SATools Disabled, Thanks for using SATools!");
 		SAToolsGUI.piAlive = false;
 		SAToolsGUI.pi.interrupt();
@@ -43,12 +69,68 @@ public class SATools extends JavaPlugin {
 		gc.interrupt();
 	}
 
+	private void save() {
+		try {
+			log.info("Saving SATools data");
+			if (!getDataFolder().exists()) {
+				getDataFolder().mkdirs();
+				log.info("Directory created");
+			}
+			if (!new File(dataFile).exists()) {
+				new File(dataFile).createNewFile();
+				log.info("Created SATools.gods file");
+			} else {
+				log.info("File found, checking database");
+				InputStream is = new FileInputStream(dataFile);
+				BufferedReader br = new BufferedReader(
+						new InputStreamReader(is));
+				FileWriter fw = new FileWriter(dataFile);
+				PrintWriter pw = new PrintWriter(fw);
+				String strLine;
+				// Read File Line By Line
+				while ((strLine = br.readLine()) != null) {
+					if (gods.contains(getServer().getPlayer(strLine))) {
+						gods.remove(getServer().getPlayer(strLine));
+					}
+					if (godsRemoved.contains(strLine)) {
+						pw.println((String) null);
+					}
+				}
+				fw.close();
+				is.close();
+			}
+			log.info("Saving gods");
+			FileWriter fw = new FileWriter(dataFile);
+			PrintWriter pw = new PrintWriter(fw);
+			for (int i = 0; i < gods.size(); i++) {
+				if (gods.get(i) != null) {
+					log.info("Saving: " + gods.get(i).getDisplayName());
+					pw.println(gods.get(i).getDisplayName());
+				}
+			}
+			fw.close();
+			log.info("Gods saved");
+		} catch (Exception e) {// Catch exception if any
+			e.printStackTrace();
+			log.severe("But soft, what codeth in yonder program breaks");
+		}
+	}
+
 	public void onEnable() {
+		if (!getDataFolder().exists()) {
+			getDataFolder().mkdirs();
+			log.info("Directory created");
+		}
+		dataFile = getDataFolder().getPath() + File.separator + "SATools.gods";
+		load();
+		world = getServer().getWorld("DarrisonCraft");
 		// Event Register
 		PluginManager pm = getServer().getPluginManager();
 		pm.registerEvent(Event.Type.PLAYER_JOIN, playerListener,
 				Event.Priority.Normal, this);
 		pm.registerEvent(Event.Type.PLAYER_QUIT, playerListener,
+				Event.Priority.Normal, this);
+		pm.registerEvent(Event.Type.ENTITY_DAMAGE, entityListener,
 				Event.Priority.Normal, this);
 		// Grab plugin.yml file and contents
 		PluginDescriptionFile pdfFile = this.getDescription();
@@ -73,6 +155,58 @@ public class SATools extends JavaPlugin {
 		gui.setVisible(true);
 	}
 
+	private void load() {
+		try {
+			if (new File(dataFile).exists()) {
+				log.info("Loading gods");
+				InputStream is = new FileInputStream(dataFile);
+				BufferedReader br = new BufferedReader(
+						new InputStreamReader(is));
+				String strLine;
+				// Read File Line By Line
+				while ((strLine = br.readLine()) != null) {
+					log.info(strLine);
+					if (!gods.contains(getServer().getPlayer(strLine))) {
+						gods.add(getServer().getPlayer(strLine));
+						godsContents.add(strLine);
+						log.info(gods.toString());
+					}
+				}
+				is.close();
+				log.info("Gods loaded");
+			} else {
+				log.info("No gods were loaded, reason file not found.");
+			}
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
+	public void setWeather(Weather type) {
+		if (type.equals(Weather.CLEAR)) {
+			world.setStorm(false);
+			world.setThundering(false);
+		} else if (type.equals(Weather.STORM)) {
+			world.setStorm(true);
+		} else if (type.equals(Weather.THUNDER)) {
+			world.setStorm(true);
+			world.setThundering(true);
+		} else {
+			log.severe("Error setting weather!!!");
+		}
+	}
+
+	public void spawnCreature(Location loc, CreatureType type) {
+		if (world.spawnCreature(loc, type) == null) {
+			log.severe("Failed to create " + type.getName() + " at "
+					+ loc.toString());
+		}
+	}
+
 	class TimeWatch extends Thread {
 		public void run() {
 			try {
@@ -91,7 +225,7 @@ public class SATools extends JavaPlugin {
 					Thread.sleep(2500);
 				}
 			} catch (InterruptedException e) {
-				log.info(e.getMessage());
+				// Sleep Interrupted
 			}
 		}
 	}
@@ -110,7 +244,7 @@ public class SATools extends JavaPlugin {
 					Thread.sleep(1000);
 				}
 			} catch (InterruptedException e) {
-				log.info(e.getMessage());
+				// Sleep Interrupted
 			}
 		}
 	}
