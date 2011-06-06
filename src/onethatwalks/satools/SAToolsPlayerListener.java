@@ -80,6 +80,13 @@ public class SAToolsPlayerListener extends PlayerListener {
 										.setSelectedItem(player
 												.getDisplayName());
 							}
+							SAToolsGUI.defaultComboBoxModel_MAIN_SPAWN_LOCATION
+									.addElement(player);
+							if (SAToolsGUI.defaultComboBoxModel_MAIN_SPAWN_LOCATION
+									.getSize() == 1) {
+								SAToolsGUI.jComboBox_MAIN_SPAWN_LOCATION
+										.setSelectedItem(player);
+							}
 						}
 					}
 				}, 20);
@@ -154,6 +161,13 @@ public class SAToolsPlayerListener extends PlayerListener {
 							}
 							SAToolsGUI.DefaultComboBoxModel_MAIN_CONSOLE_MESSAGE
 									.removeElement(player.getDisplayName());
+							if (SAToolsGUI.defaultComboBoxModel_MAIN_SPAWN_LOCATION
+									.getSize() == 1) {
+								SAToolsGUI.jComboBox_MAIN_SPAWN_LOCATION
+										.setSelectedIndex(-1);
+							}
+							SAToolsGUI.defaultComboBoxModel_MAIN_SPAWN_LOCATION
+									.removeElement(player);
 
 						}
 					}

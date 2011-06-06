@@ -16,6 +16,7 @@ import java.util.logging.Logger;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.World;
+import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.CreatureType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
@@ -200,10 +201,12 @@ public class SATools extends JavaPlugin {
 		}
 	}
 
-	public void spawnCreature(Location loc, CreatureType type) {
+	public static void spawnCreature(Location loc, CreatureType type) {
 		if (world.spawnCreature(loc, type) == null) {
 			log.severe("Failed to create " + type.getName() + " at "
 					+ loc.toString());
+		} else {
+			log.info("Spawned " + type.getName() + " at " + loc.toString());
 		}
 	}
 

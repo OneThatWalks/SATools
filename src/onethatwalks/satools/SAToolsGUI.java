@@ -33,10 +33,12 @@ import onethatwalks.satools.SATools.Weather;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.command.ConsoleCommandSender;
+import org.bukkit.entity.CreatureType;
 import org.bukkit.entity.Player;
 
 public class SAToolsGUI extends JFrame {
 
+	// Variables
 	private static final long serialVersionUID = 1L;
 	private JPanel jContentPane = null;
 	private JTabbedPane jTabbedPane = null;
@@ -112,8 +114,13 @@ public class SAToolsGUI extends JFrame {
 	private JPanel jPanel_MAIN_SPAWN = null;
 	private JLabel jLabel_MAIN_SPAWN = null;
 	private JComboBox jComboBox_MAIN_SPAWN = null;
-	private JComboBox jComboBox_MAIN_SPAWN_LOCATION = null;
+	private DefaultComboBoxModel defaultComboBoxModel_MAIN_SPAWN = null; // @jve:decl-index=0:visual-constraint="820,743"
+	private JLabel jLabel_MAIN_SPAWN_WHERE = null;
+	static JComboBox jComboBox_MAIN_SPAWN_LOCATION = null;
 	private JButton jButton_MAIN_SPAWN = null;
+	static DefaultComboBoxModel defaultComboBoxModel_MAIN_SPAWN_LOCATION = null; // @jve:decl-index=0:visual-constraint="744,529"
+
+	// Start Class Methods
 
 	/**
 	 * This is the default constructor
@@ -167,11 +174,54 @@ public class SAToolsGUI extends JFrame {
 					getClass().getResource("/resources/icon.png")));
 			this.setLocationRelativeTo(this.getOwner());
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
 
+	private boolean isNumeric(String text) {
+		try {
+			Integer.parseInt(text);
+		} catch (NumberFormatException nfe) {
+			return false;
+		}
+		return true;
+	}
+
+	public String checkConditions() {
+		try {
+			if (SATools.world != null) {
+				if (SATools.world.hasStorm()) {
+					if (SATools.world.isThundering()) {
+						return "Thunder";
+					}
+					return "Storm";
+				} else {
+					return "Clear";
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return "Cannot Compute";
+	}
+
+	/**
+	 * doTime
+	 * 
+	 * forces server time
+	 * 
+	 * @param time
+	 *            The time to set on the server.
+	 */
+	void doTime(int time) {
+		if (plugin.getServer().dispatchCommand(
+				new ConsoleCommandSender(plugin.getServer()),
+				"time set " + time)) {
+			SATools.log.info("Time set to " + time);
+		}
+	}
+
+	// Content Pane
 	/**
 	 * This method initializes jContentPane
 	 * 
@@ -186,6 +236,7 @@ public class SAToolsGUI extends JFrame {
 		return jContentPane;
 	}
 
+	// Tabs
 	/**
 	 * This method initializes jTabbedPane
 	 * 
@@ -203,6 +254,7 @@ public class SAToolsGUI extends JFrame {
 		return jTabbedPane;
 	}
 
+	// JPanels - in order of appearance
 	/**
 	 * This method initializes jPanel_MAIN
 	 * 
@@ -215,6 +267,7 @@ public class SAToolsGUI extends JFrame {
 			jPanel_MAIN.add(getJPanel_MAIN_TIME(), null); // Generated
 			jPanel_MAIN.add(getJPanel_MAIN_CONSOLE(), null); // Generated
 			jPanel_MAIN.add(getJPanel_MAIN_WEATHER(), null);
+			jPanel_MAIN.add(getJPanel_MAIN_SPAWN(), null);
 		}
 		return jPanel_MAIN;
 	}
@@ -233,77 +286,6 @@ public class SAToolsGUI extends JFrame {
 			jPanel_PLAYERS.add(getJPanel_PLAYERS_MODIFY(), null); // Generated
 		}
 		return jPanel_PLAYERS;
-	}
-
-	/**
-	 * This method initializes jScrollPane_PLAYERS_PLAYERS
-	 * 
-	 * @return javax.swing.JScrollPane
-	 */
-	private JScrollPane getJScrollPane_PLAYERS_PLAYERS() {
-		if (jScrollPane_PLAYERS_PLAYERS == null) {
-			jScrollPane_PLAYERS_PLAYERS = new JScrollPane();
-			jScrollPane_PLAYERS_PLAYERS.setBounds(new Rectangle(15, 15, 260,
-					230)); // Generated
-			jScrollPane_PLAYERS_PLAYERS
-					.setViewportView(getJList_PLAYERS_PLAYERS()); // Generated
-		}
-		return jScrollPane_PLAYERS_PLAYERS;
-	}
-
-	/**
-	 * This method initializes jList_PLAYERS_PLAYERS
-	 * 
-	 * @return javax.swing.JList
-	 */
-	private JList getJList_PLAYERS_PLAYERS() {
-		if (jList_PLAYERS_PLAYERS == null) {
-			jList_PLAYERS_PLAYERS = new JList(
-					getDefaultListModel_PLAYERS_PLAYERS());
-			jList_PLAYERS_PLAYERS
-					.addListSelectionListener(new javax.swing.event.ListSelectionListener() {
-						public void valueChanged(
-								javax.swing.event.ListSelectionEvent e) {
-							try {
-								if (jList_PLAYERS_PLAYERS.getSelectedIndex() != -1) {
-									player = plugin.getServer().getPlayer(
-											jList_PLAYERS_PLAYERS
-													.getSelectedValue()
-													.toString());
-									if (SATools.gods.contains(player)) {
-										jToggleButton_PLAYERS_MODIFY_HEALTH_JESUS
-												.setSelected(true);
-									} else {
-										jToggleButton_PLAYERS_MODIFY_HEALTH_JESUS
-												.setSelected(false);
-									}
-									if (!jPanel_PLAYERS_PLAYER.isVisible()) {
-										jPanel_PLAYERS_PLAYER.setVisible(true);
-									}
-									if (!pi.isAlive()) {
-										pi.start();
-										piAlive = true;
-									}
-								}
-							} catch (Exception e1) {
-								e1.printStackTrace();
-							}
-						}
-					});
-		}
-		return jList_PLAYERS_PLAYERS;
-	}
-
-	/**
-	 * This method initializes jDefaultListModel
-	 * 
-	 * @return javax.swing.DefaultListModel
-	 */
-	private ListModel getDefaultListModel_PLAYERS_PLAYERS() {
-		if (DefaultListModel_PLAYERS_PLAYERS == null) {
-			DefaultListModel_PLAYERS_PLAYERS = new DefaultListModel();
-		}
-		return DefaultListModel_PLAYERS_PLAYERS;
 	}
 
 	/**
@@ -447,6 +429,178 @@ public class SAToolsGUI extends JFrame {
 		return jPanel_PLAYERS_MODIFY;
 	}
 
+	/**
+	 * This method initializes jPanel_MAIN_TIME
+	 * 
+	 * @return javax.swing.JPanel
+	 */
+	private JPanel getJPanel_MAIN_TIME() {
+		if (jPanel_MAIN_TIME == null) {
+			jLabel_MAIN_TIME_SET = new JLabel();
+			jLabel_MAIN_TIME_SET.setBounds(new Rectangle(15, 60, 56, 20)); // Generated
+			jLabel_MAIN_TIME_SET.setText("Set Time"); // Generated
+			jLabel_MAIN_TIME_DATA = new JLabel();
+			jLabel_MAIN_TIME_DATA.setBounds(new Rectangle(110, 30, 85, 16)); // Generated
+			jLabel_MAIN_TIME_DATA.setText("NULL"); // Generated
+			jLabel_MAIN_TIME = new JLabel();
+			jLabel_MAIN_TIME.setBounds(new Rectangle(15, 30, 85, 16)); // Generated
+			jLabel_MAIN_TIME.setText("Current Time:"); // Generated
+			jPanel_MAIN_TIME = new JPanel();
+			jPanel_MAIN_TIME.setLayout(null); // Generated
+			jPanel_MAIN_TIME.setBounds(new Rectangle(15, 245, 550, 100)); // Generated
+			jPanel_MAIN_TIME.setBorder(BorderFactory.createTitledBorder(null,
+					"Time Options", TitledBorder.DEFAULT_JUSTIFICATION,
+					TitledBorder.DEFAULT_POSITION, new Font("Dialog",
+							Font.BOLD, 12), new Color(51, 51, 51))); // Generated
+			jPanel_MAIN_TIME.add(jLabel_MAIN_TIME, null); // Generated
+			jPanel_MAIN_TIME.add(jLabel_MAIN_TIME_DATA, null); // Generated
+			jPanel_MAIN_TIME.add(jLabel_MAIN_TIME_SET, null); // Generated
+			jPanel_MAIN_TIME.add(getJButton_MAIN_TIME_SET_MIDNIGHT(), null); // Generated
+			jPanel_MAIN_TIME.add(getJButton_MAIN_TIME_SET_MORNING(), null); // Generated
+			jPanel_MAIN_TIME.add(getJButton_MAIN_TIME_SET_NOON(), null); // Generated
+			jPanel_MAIN_TIME.add(getJButton_MAIN_TIME_SET_DUSK(), null); // Generated
+			jPanel_MAIN_TIME.add(getJTextField_MAIN_TIME_SET_INT(), null); // Generated
+		}
+		return jPanel_MAIN_TIME;
+	}
+
+	/**
+	 * This method initializes jPanel_MAIN_CONSOLE
+	 * 
+	 * @return javax.swing.JPanel
+	 */
+	private JPanel getJPanel_MAIN_CONSOLE() {
+		if (jPanel_MAIN_CONSOLE == null) {
+			jLabel_MAIN_CONSOLE_COMMAND = new JLabel();
+			jLabel_MAIN_CONSOLE_COMMAND.setBounds(new Rectangle(15, 165, 525,
+					16)); // Generated
+			jLabel_MAIN_CONSOLE_COMMAND.setText("Type a command here."); // Generated
+			jLabel_MAIN_CONSOLE_MESSAGE = new JLabel();
+			jLabel_MAIN_CONSOLE_MESSAGE
+					.setBounds(new Rectangle(15, 80, 524, 16)); // Generated
+			jLabel_MAIN_CONSOLE_MESSAGE.setText("Send a message to a player."); // Generated
+			jLabel_MAIN_CONSOLE_SAY = new JLabel();
+			jLabel_MAIN_CONSOLE_SAY.setBounds(new Rectangle(15, 30, 525, 16)); // Generated
+			jLabel_MAIN_CONSOLE_SAY
+					.setText("Type Something here to make an announcement."); // Generated
+			jPanel_MAIN_CONSOLE = new JPanel();
+			jPanel_MAIN_CONSOLE.setLayout(null); // Generated
+			jPanel_MAIN_CONSOLE.setBounds(new Rectangle(15, 15, 550, 220)); // Generated
+			jPanel_MAIN_CONSOLE.setBorder(BorderFactory.createTitledBorder(
+					null, "Console", TitledBorder.DEFAULT_JUSTIFICATION,
+					TitledBorder.DEFAULT_POSITION, new Font("Dialog",
+							Font.BOLD, 12), new Color(51, 51, 51))); // Generated
+			jPanel_MAIN_CONSOLE.add(jLabel_MAIN_CONSOLE_SAY, null); // Generated
+			jPanel_MAIN_CONSOLE.add(getJTextField_MAIN_CONSOLE_SAY(), null); // Generated
+			jPanel_MAIN_CONSOLE.add(getJButton_MAIN_CONSOLE_SAY(), null); // Generated
+			jPanel_MAIN_CONSOLE.add(jLabel_MAIN_CONSOLE_MESSAGE, null); // Generated
+			jPanel_MAIN_CONSOLE.add(getJComboBox_MAIN_CONSOLE_MESSAGE(), null); // Generated
+			jPanel_MAIN_CONSOLE.add(getJTextField_MAIN_CONSOLE_MESSAGE(), null); // Generated
+			jPanel_MAIN_CONSOLE.add(getJButton_MAIN_CONSOLE_MESSAGE(), null); // Generated
+			jPanel_MAIN_CONSOLE.add(jLabel_MAIN_CONSOLE_COMMAND, null); // Generated
+			jPanel_MAIN_CONSOLE.add(getJTextField_MAIN_CONSOLE_COMMAND(), null); // Generated
+			jPanel_MAIN_CONSOLE.add(getJButton_MAIN_CONSOLE_COMMAND(), null); // Generated
+		}
+		return jPanel_MAIN_CONSOLE;
+	}
+
+	private JPanel getJPanel_MAIN_SPAWN() {
+		if (jPanel_MAIN_SPAWN == null) {
+			jLabel_MAIN_SPAWN_WHERE = new JLabel();
+			jLabel_MAIN_SPAWN_WHERE.setBounds(new Rectangle(255, 30, 19, 20)); // Generated
+			jLabel_MAIN_SPAWN_WHERE.setText("to"); // Generated
+			jPanel_MAIN_SPAWN = new JPanel();
+			jPanel_MAIN_SPAWN.setLayout(null); // Generated
+			jPanel_MAIN_SPAWN.setBounds(new Rectangle(15, 470, 550, 90)); // Generated
+			jPanel_MAIN_SPAWN.setBorder(BorderFactory.createTitledBorder(null,
+					"Spawning", TitledBorder.DEFAULT_JUSTIFICATION,
+					TitledBorder.DEFAULT_POSITION, new Font("Dialog",
+							Font.BOLD, 12), new Color(51, 51, 51)));
+			jLabel_MAIN_SPAWN = new JLabel("Spawn:");
+			jLabel_MAIN_SPAWN.setBounds(new Rectangle(10, 30, 75, 20));
+			jPanel_MAIN_SPAWN.add(jLabel_MAIN_SPAWN);
+
+			jPanel_MAIN_SPAWN.add(getJComboBox_MAIN_SPAWN(), null); // Generated
+			jPanel_MAIN_SPAWN.add(jLabel_MAIN_SPAWN_WHERE, null); // Generated
+			jPanel_MAIN_SPAWN.add(getJComboBox_MAIN_SPAWN_LOCATION(), null); // Generated
+			jPanel_MAIN_SPAWN.add(getJButton_MAIN_SPAWN(), null); // Generated
+		}
+		return jPanel_MAIN_SPAWN;
+	}
+
+	// Init component methods.
+
+	/**
+	 * This method initializes jScrollPane_PLAYERS_PLAYERS
+	 * 
+	 * @return javax.swing.JScrollPane
+	 */
+	private JScrollPane getJScrollPane_PLAYERS_PLAYERS() {
+		if (jScrollPane_PLAYERS_PLAYERS == null) {
+			jScrollPane_PLAYERS_PLAYERS = new JScrollPane();
+			jScrollPane_PLAYERS_PLAYERS.setBounds(new Rectangle(15, 15, 260,
+					230)); // Generated
+			jScrollPane_PLAYERS_PLAYERS
+					.setViewportView(getJList_PLAYERS_PLAYERS()); // Generated
+		}
+		return jScrollPane_PLAYERS_PLAYERS;
+	}
+
+	/**
+	 * This method initializes jList_PLAYERS_PLAYERS
+	 * 
+	 * @return javax.swing.JList
+	 */
+	private JList getJList_PLAYERS_PLAYERS() {
+		if (jList_PLAYERS_PLAYERS == null) {
+			jList_PLAYERS_PLAYERS = new JList(
+					getDefaultListModel_PLAYERS_PLAYERS());
+			jList_PLAYERS_PLAYERS
+					.addListSelectionListener(new javax.swing.event.ListSelectionListener() {
+						public void valueChanged(
+								javax.swing.event.ListSelectionEvent e) {
+							try {
+								if (jList_PLAYERS_PLAYERS.getSelectedIndex() != -1) {
+									player = plugin.getServer().getPlayer(
+											jList_PLAYERS_PLAYERS
+													.getSelectedValue()
+													.toString());
+									if (SATools.gods.contains(player)) {
+										jToggleButton_PLAYERS_MODIFY_HEALTH_JESUS
+												.setSelected(true);
+									} else {
+										jToggleButton_PLAYERS_MODIFY_HEALTH_JESUS
+												.setSelected(false);
+									}
+									if (!jPanel_PLAYERS_PLAYER.isVisible()) {
+										jPanel_PLAYERS_PLAYER.setVisible(true);
+									}
+									if (!pi.isAlive()) {
+										pi.start();
+										piAlive = true;
+									}
+								}
+							} catch (Exception e1) {
+								e1.printStackTrace();
+							}
+						}
+					});
+		}
+		return jList_PLAYERS_PLAYERS;
+	}
+
+	/**
+	 * This method initializes jDefaultListModel
+	 * 
+	 * @return javax.swing.DefaultListModel
+	 */
+	private ListModel getDefaultListModel_PLAYERS_PLAYERS() {
+		if (DefaultListModel_PLAYERS_PLAYERS == null) {
+			DefaultListModel_PLAYERS_PLAYERS = new DefaultListModel();
+		}
+		return DefaultListModel_PLAYERS_PLAYERS;
+	}
+
 	private JTextField getJTextField_PLAYERS_MODIFY_HEALTH_INT() {
 		if (jTextField_PLAYERS_MODIFY_HEALTH_INT == null) {
 			jTextField_PLAYERS_MODIFY_HEALTH_INT = new JTextField();
@@ -539,65 +693,6 @@ public class SAToolsGUI extends JFrame {
 		return jButton_PLAYERS_MODIFY_HEALTH_FULL;
 	}
 
-	public static class PlayerInfo extends Thread {
-
-		public void run() {
-			try {
-				while (piAlive) {
-					if (player != null) { // If player is selected from list
-						Location player_loc = player.getLocation();
-						{ // Location
-							jLabel_PLAYERS_PLAYER_LOCATION_DATA.setText("( "
-									+ player_loc.getBlockX() + ", "
-									+ player_loc.getBlockY() + ", "
-									+ player_loc.getBlockZ() + ")");
-						}
-						{ // Entity ID
-							jLabel_PLAYERS_PLAYER_ENTITYID_DATA.setText(Integer
-									.toString(player.getEntityId()));
-						}
-						{ // Health
-							jLabel_PLAYERS_PLAYER_HEALTH_DATA.setText(Integer
-									.toString(player.getHealth()));
-						}
-						{ // Current Item
-							jLabel_PLAYERS_PLAYER_ITEM_DATA.setText(player
-									.getItemInHand().toString());
-						}
-						{ // Dead?
-							jLabel_PLAYERS_PLAYER_DEAD_DATA.setText(Boolean
-									.toString(player.isDead()));
-							while (plugin.getServer()
-									.getPlayer(player.getDisplayName())
-									.isDead()) {
-								Thread.sleep(1000);
-							}
-							player = plugin.getServer().getPlayer(
-									player.getDisplayName());
-						}
-						{ // isOP ?
-							jLabel_PLAYERS_PLAYER_OP_DATA.setText(Boolean
-									.toString(player.isOp()));
-						}
-						{ // Sleep
-							jLabel_PLAYERS_PLAYER_SLEEP_DATA.setText(Boolean
-									.toString(player.isSleeping()));
-						}
-						{ // Sneak
-							jLabel_PLAYERS_PLAYER_SNEAK_DATA.setText(Boolean
-									.toString(player.isSneaking()));
-						}
-					}
-					Thread.sleep(1000);
-				}
-
-			} catch (Exception e) {
-				// Sleep interrupted
-			}
-		}
-
-	}
-
 	/**
 	 * This method initializes jComboBox_PLAYERS_MODIFY_GIVE
 	 * 
@@ -620,7 +715,6 @@ public class SAToolsGUI extends JFrame {
 													.getSelectedItem());
 								}
 							} catch (Exception e1) {
-								// TODO Auto-generated catch block
 								e1.printStackTrace();
 							}
 						}
@@ -650,7 +744,6 @@ public class SAToolsGUI extends JFrame {
 										"give " + player.getDisplayName() + " "
 												+ selected_id + " 64");
 							} catch (Exception e1) {
-								// TODO Auto-generated catch block
 								e1.printStackTrace();
 							}
 						}
@@ -680,7 +773,6 @@ public class SAToolsGUI extends JFrame {
 										"give " + player.getDisplayName() + " "
 												+ selected_id + " 1");
 							} catch (Exception e1) {
-								// TODO Auto-generated catch block
 								e1.printStackTrace();
 							}
 						}
@@ -727,97 +819,12 @@ public class SAToolsGUI extends JFrame {
 									}
 								}
 							} catch (Exception e1) {
-								// TODO Auto-generated catch block
 								e1.printStackTrace();
 							}
 						}
 					});
 		}
 		return jTextField_PLAYERS_MODIFY_GIVE_INT;
-	}
-
-	private boolean isNumeric(String text) {
-		try {
-			Integer.parseInt(text);
-		} catch (NumberFormatException nfe) {
-			return false;
-		}
-		return true;
-	}
-
-	/**
-	 * This method initializes jPanel_MAIN_TIME
-	 * 
-	 * @return javax.swing.JPanel
-	 */
-	private JPanel getJPanel_MAIN_TIME() {
-		if (jPanel_MAIN_TIME == null) {
-			jLabel_MAIN_TIME_SET = new JLabel();
-			jLabel_MAIN_TIME_SET.setBounds(new Rectangle(15, 60, 56, 20)); // Generated
-			jLabel_MAIN_TIME_SET.setText("Set Time"); // Generated
-			jLabel_MAIN_TIME_DATA = new JLabel();
-			jLabel_MAIN_TIME_DATA.setBounds(new Rectangle(110, 30, 85, 16)); // Generated
-			jLabel_MAIN_TIME_DATA.setText("NULL"); // Generated
-			jLabel_MAIN_TIME = new JLabel();
-			jLabel_MAIN_TIME.setBounds(new Rectangle(15, 30, 85, 16)); // Generated
-			jLabel_MAIN_TIME.setText("Current Time:"); // Generated
-			jPanel_MAIN_TIME = new JPanel();
-			jPanel_MAIN_TIME.setLayout(null); // Generated
-			jPanel_MAIN_TIME.setBounds(new Rectangle(15, 245, 550, 100)); // Generated
-			jPanel_MAIN_TIME.setBorder(BorderFactory.createTitledBorder(null,
-					"Time Options", TitledBorder.DEFAULT_JUSTIFICATION,
-					TitledBorder.DEFAULT_POSITION, new Font("Dialog",
-							Font.BOLD, 12), new Color(51, 51, 51))); // Generated
-			jPanel_MAIN_TIME.add(jLabel_MAIN_TIME, null); // Generated
-			jPanel_MAIN_TIME.add(jLabel_MAIN_TIME_DATA, null); // Generated
-			jPanel_MAIN_TIME.add(jLabel_MAIN_TIME_SET, null); // Generated
-			jPanel_MAIN_TIME.add(getJButton_MAIN_TIME_SET_MIDNIGHT(), null); // Generated
-			jPanel_MAIN_TIME.add(getJButton_MAIN_TIME_SET_MORNING(), null); // Generated
-			jPanel_MAIN_TIME.add(getJButton_MAIN_TIME_SET_NOON(), null); // Generated
-			jPanel_MAIN_TIME.add(getJButton_MAIN_TIME_SET_DUSK(), null); // Generated
-			jPanel_MAIN_TIME.add(getJTextField_MAIN_TIME_SET_INT(), null); // Generated
-		}
-		return jPanel_MAIN_TIME;
-	}
-
-	/**
-	 * This method initializes jPanel_MAIN_CONSOLE
-	 * 
-	 * @return javax.swing.JPanel
-	 */
-	private JPanel getJPanel_MAIN_CONSOLE() {
-		if (jPanel_MAIN_CONSOLE == null) {
-			jLabel_MAIN_CONSOLE_COMMAND = new JLabel();
-			jLabel_MAIN_CONSOLE_COMMAND.setBounds(new Rectangle(15, 165, 525,
-					16)); // Generated
-			jLabel_MAIN_CONSOLE_COMMAND.setText("Type a command here."); // Generated
-			jLabel_MAIN_CONSOLE_MESSAGE = new JLabel();
-			jLabel_MAIN_CONSOLE_MESSAGE
-					.setBounds(new Rectangle(15, 80, 524, 16)); // Generated
-			jLabel_MAIN_CONSOLE_MESSAGE.setText("Send a message to a player."); // Generated
-			jLabel_MAIN_CONSOLE_SAY = new JLabel();
-			jLabel_MAIN_CONSOLE_SAY.setBounds(new Rectangle(15, 30, 525, 16)); // Generated
-			jLabel_MAIN_CONSOLE_SAY
-					.setText("Type Something here to make an announcement."); // Generated
-			jPanel_MAIN_CONSOLE = new JPanel();
-			jPanel_MAIN_CONSOLE.setLayout(null); // Generated
-			jPanel_MAIN_CONSOLE.setBounds(new Rectangle(15, 15, 550, 220)); // Generated
-			jPanel_MAIN_CONSOLE.setBorder(BorderFactory.createTitledBorder(
-					null, "Console", TitledBorder.DEFAULT_JUSTIFICATION,
-					TitledBorder.DEFAULT_POSITION, new Font("Dialog",
-							Font.BOLD, 12), new Color(51, 51, 51))); // Generated
-			jPanel_MAIN_CONSOLE.add(jLabel_MAIN_CONSOLE_SAY, null); // Generated
-			jPanel_MAIN_CONSOLE.add(getJTextField_MAIN_CONSOLE_SAY(), null); // Generated
-			jPanel_MAIN_CONSOLE.add(getJButton_MAIN_CONSOLE_SAY(), null); // Generated
-			jPanel_MAIN_CONSOLE.add(jLabel_MAIN_CONSOLE_MESSAGE, null); // Generated
-			jPanel_MAIN_CONSOLE.add(getJComboBox_MAIN_CONSOLE_MESSAGE(), null); // Generated
-			jPanel_MAIN_CONSOLE.add(getJTextField_MAIN_CONSOLE_MESSAGE(), null); // Generated
-			jPanel_MAIN_CONSOLE.add(getJButton_MAIN_CONSOLE_MESSAGE(), null); // Generated
-			jPanel_MAIN_CONSOLE.add(jLabel_MAIN_CONSOLE_COMMAND, null); // Generated
-			jPanel_MAIN_CONSOLE.add(getJTextField_MAIN_CONSOLE_COMMAND(), null); // Generated
-			jPanel_MAIN_CONSOLE.add(getJButton_MAIN_CONSOLE_COMMAND(), null); // Generated
-		}
-		return jPanel_MAIN_CONSOLE;
 	}
 
 	/**
@@ -838,7 +845,6 @@ public class SAToolsGUI extends JFrame {
 									jButton_MAIN_CONSOLE_SAY.doClick();
 								}
 							} catch (Exception e1) {
-								// TODO Auto-generated catch block
 								e1.printStackTrace();
 							}
 						}
@@ -871,7 +877,6 @@ public class SAToolsGUI extends JFrame {
 									SATools.log.info("Enter a valid message");
 								}
 							} catch (Exception e1) {
-								// TODO Auto-generated catch block
 								e1.printStackTrace();
 							}
 						}
@@ -925,7 +930,6 @@ public class SAToolsGUI extends JFrame {
 									jButton_MAIN_CONSOLE_MESSAGE.doClick();
 								}
 							} catch (Exception e1) {
-								// TODO Auto-generated catch block
 								e1.printStackTrace();
 							}
 						}
@@ -967,7 +971,6 @@ public class SAToolsGUI extends JFrame {
 											.info("No Player Selected or no message typed.");
 								}
 							} catch (Exception e1) {
-								// TODO Auto-generated catch block
 								e1.printStackTrace();
 							}
 						}
@@ -994,7 +997,6 @@ public class SAToolsGUI extends JFrame {
 									jButton_MAIN_CONSOLE_COMMAND.doClick();
 								}
 							} catch (Exception e1) {
-								// TODO Auto-generated catch block
 								e1.printStackTrace();
 							}
 						}
@@ -1031,27 +1033,12 @@ public class SAToolsGUI extends JFrame {
 											.info("Please enter text in the box to send a message.");
 								}
 							} catch (Exception e1) {
-								// TODO Auto-generated catch block
 								e1.printStackTrace();
 							}
 						}
 					});
 		}
 		return jButton_MAIN_CONSOLE_COMMAND;
-	}
-
-	public class TimeTrack extends Thread {
-		public void run() {
-			try {
-				while (ttAlive) {
-					jLabel_MAIN_TIME_DATA.setText(Long.toString(plugin.time));
-					jLabel_MAIN_WEATHER_DATA.setText(checkConditions());
-					Thread.sleep(1000);
-				}
-			} catch (Exception e) {
-				// Sleep Interrupted
-			}
-		}
 	}
 
 	/**
@@ -1071,32 +1058,12 @@ public class SAToolsGUI extends JFrame {
 							try {
 								doTime(18000);
 							} catch (Exception e1) {
-								// TODO Auto-generated catch block
 								e1.printStackTrace();
 							}
 						}
 					});
 		}
 		return jButton_MAIN_TIME_SET_MIDNIGHT;
-	}
-
-	public String checkConditions() {
-		try {
-			if (SATools.world != null) {
-				if (SATools.world.hasStorm()) {
-					if (SATools.world.isThundering()) {
-						return "Thunder";
-					}
-					return "Storm";
-				} else {
-					return "Clear";
-				}
-			}
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		return "Cannot Compute";
 	}
 
 	/**
@@ -1188,32 +1155,12 @@ public class SAToolsGUI extends JFrame {
 									}
 								}
 							} catch (NumberFormatException e1) {
-								// TODO Auto-generated catch block
 								e1.printStackTrace();
 							}
 						}
 					});
 		}
 		return jTextField_MAIN_TIME_SET_INT;
-	}
-
-	/**
-	 * doTime
-	 * 
-	 * forces server time
-	 * 
-	 * @param time
-	 *            The time to set on the server.
-	 */
-	private void doTime(int time) {
-		try {
-			plugin.getServer().dispatchCommand(
-					new ConsoleCommandSender(plugin.getServer()),
-					"time set " + time);
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
 	}
 
 	/**
@@ -1224,7 +1171,7 @@ public class SAToolsGUI extends JFrame {
 	private JPanel getJPanel_MAIN_WEATHER() {
 		if (jPanel_MAIN_WEATHER == null) {
 			jLabel_MAIN_WEATHER_DATA = new JLabel();
-			jLabel_MAIN_WEATHER_DATA.setBounds(new Rectangle(120, 30, 85, 16)); // Generated
+			jLabel_MAIN_WEATHER_DATA.setBounds(new Rectangle(130, 30, 85, 16)); // Generated
 			jLabel_MAIN_WEATHER_DATA.setText("NULL"); // Generated
 			jLabel_MAIN_WEATHER = new JLabel();
 			jLabel_MAIN_WEATHER.setBounds(new Rectangle(15, 30, 105, 16)); // Generated
@@ -1291,4 +1238,199 @@ public class SAToolsGUI extends JFrame {
 		}
 		return jButton_MAIN_WEATHER_THUNDER;
 	}
+
+	// Threads and other classes
+
+	public class TimeTrack extends Thread {
+		public void run() {
+			try {
+				while (ttAlive) {
+					jLabel_MAIN_TIME_DATA.setText(Long.toString(plugin.time));
+					jLabel_MAIN_WEATHER_DATA.setText(checkConditions());
+					Thread.sleep(1000);
+				}
+			} catch (Exception e) {
+				// Sleep Interrupted
+			}
+		}
+	}
+
+	public static class PlayerInfo extends Thread {
+
+		public void run() {
+			try {
+				while (piAlive) {
+					if (player != null) { // If player is selected from list
+						Location player_loc = player.getLocation();
+						{ // Location
+							jLabel_PLAYERS_PLAYER_LOCATION_DATA.setText("( "
+									+ player_loc.getBlockX() + ", "
+									+ player_loc.getBlockY() + ", "
+									+ player_loc.getBlockZ() + ")");
+						}
+						{ // Entity ID
+							jLabel_PLAYERS_PLAYER_ENTITYID_DATA.setText(Integer
+									.toString(player.getEntityId()));
+						}
+						{ // Health
+							jLabel_PLAYERS_PLAYER_HEALTH_DATA.setText(Integer
+									.toString(player.getHealth()));
+						}
+						{ // Current Item
+							jLabel_PLAYERS_PLAYER_ITEM_DATA.setText(player
+									.getItemInHand().toString());
+						}
+						{ // Dead?
+							jLabel_PLAYERS_PLAYER_DEAD_DATA.setText(Boolean
+									.toString(player.isDead()));
+							while (plugin.getServer()
+									.getPlayer(player.getDisplayName())
+									.isDead()) {
+								Thread.sleep(1000);
+							}
+							player = plugin.getServer().getPlayer(
+									player.getDisplayName());
+						}
+						{ // isOP ?
+							jLabel_PLAYERS_PLAYER_OP_DATA.setText(Boolean
+									.toString(player.isOp()));
+						}
+						{ // Sleep
+							jLabel_PLAYERS_PLAYER_SLEEP_DATA.setText(Boolean
+									.toString(player.isSleeping()));
+						}
+						{ // Sneak
+							jLabel_PLAYERS_PLAYER_SNEAK_DATA.setText(Boolean
+									.toString(player.isSneaking()));
+						}
+					}
+					Thread.sleep(1000);
+				}
+
+			} catch (Exception e) {
+				// Sleep interrupted
+			}
+		}
+
+	}
+
+	/**
+	 * This method initializes jComboBox_MAIN_SPAWN1
+	 * 
+	 * @return javax.swing.JComboBox
+	 */
+	private JComboBox getJComboBox_MAIN_SPAWN() {
+		if (jComboBox_MAIN_SPAWN == null) {
+			jComboBox_MAIN_SPAWN = new JComboBox(
+					getDefaultComboBoxModel_MAIN_SPAWN());
+			jComboBox_MAIN_SPAWN.setBounds(new Rectangle(90, 30, 150, 20)); // Generated
+		}
+		return jComboBox_MAIN_SPAWN;
+	}
+
+	/**
+	 * This method initializes defaultComboBoxModel_MAIN_SPAWN
+	 * 
+	 * @return javax.swing.DefaultComboBoxModel
+	 */
+	private DefaultComboBoxModel getDefaultComboBoxModel_MAIN_SPAWN() {
+		if (defaultComboBoxModel_MAIN_SPAWN == null) {
+			defaultComboBoxModel_MAIN_SPAWN = new DefaultComboBoxModel();
+			for (int i = 0; i < CreatureType.values().length; i++) {
+				defaultComboBoxModel_MAIN_SPAWN.addElement(CreatureType
+						.values()[i].getName());
+			}
+		}
+		return defaultComboBoxModel_MAIN_SPAWN;
+	}
+
+	/**
+	 * This method initializes jComboBox_MAIN_SPAWN_LOCATION
+	 * 
+	 * @return javax.swing.JComboBox
+	 */
+	private JComboBox getJComboBox_MAIN_SPAWN_LOCATION() {
+		if (jComboBox_MAIN_SPAWN_LOCATION == null) {
+			jComboBox_MAIN_SPAWN_LOCATION = new JComboBox(
+					getDefaultComboBoxModel_MAIN_SPAWN_LOCATION());
+			jComboBox_MAIN_SPAWN_LOCATION.setBounds(new Rectangle(285, 30, 255,
+					20)); // Generated
+			jComboBox_MAIN_SPAWN_LOCATION.setEditable(true); // Generated
+		}
+		return jComboBox_MAIN_SPAWN_LOCATION;
+	}
+
+	/**
+	 * This method initializes jButton_MAIN_SPAWN
+	 * 
+	 * @return javax.swing.JButton
+	 */
+	private JButton getJButton_MAIN_SPAWN() {
+		if (jButton_MAIN_SPAWN == null) {
+			jButton_MAIN_SPAWN = new JButton();
+			jButton_MAIN_SPAWN.setBounds(new Rectangle(10, 60, 530, 20)); // Generated
+			jButton_MAIN_SPAWN.setText("Spawn"); // Generated
+			jButton_MAIN_SPAWN
+					.addActionListener(new java.awt.event.ActionListener() {
+						public void actionPerformed(java.awt.event.ActionEvent e) {
+							Location location = null;
+							CreatureType creature = null;
+							if (jComboBox_MAIN_SPAWN.getSelectedIndex() != -1) {
+								creature = CreatureType
+										.valueOf(jComboBox_MAIN_SPAWN
+												.getSelectedItem().toString()
+												.toUpperCase());
+							}
+							if (jComboBox_MAIN_SPAWN_LOCATION.getSelectedItem() != null) {
+								if (jComboBox_MAIN_SPAWN_LOCATION
+										.getSelectedItem() instanceof Player) {
+									Player p = (Player) jComboBox_MAIN_SPAWN_LOCATION
+											.getSelectedItem();
+									location = p.getTargetBlock(null, 10)
+											.getLocation();
+								} else {
+									String text = jComboBox_MAIN_SPAWN_LOCATION
+											.getSelectedItem().toString();
+									if (text.trim().contains(",")) {
+										String[] token = text.split(",");
+										if (isNumeric(token[0])
+												&& isNumeric(token[1])
+												&& isNumeric(token[2])) {
+											int x = Integer.parseInt(token[0]
+													.trim());
+											int y = Integer.parseInt(token[1]
+													.trim());
+											int z = Integer.parseInt(token[2]
+													.trim());
+											location = new Location(
+													SATools.world, x, y, z);
+										} else {
+											SATools.log
+													.severe("I don't know what to say, you messed up in defining a location bro.");
+										}
+									}
+								}
+							} else {
+								SATools.log.severe("Failed to spawn creature");
+							}
+							if (location != null && creature != null)
+								SATools.spawnCreature(location, creature);
+						}
+					});
+		}
+		return jButton_MAIN_SPAWN;
+	}
+
+	/**
+	 * This method initializes defaultComboBoxModel_MAIN_SPAWN_LOCATION
+	 * 
+	 * @return javax.swing.DefaultComboBoxModel
+	 */
+	private DefaultComboBoxModel getDefaultComboBoxModel_MAIN_SPAWN_LOCATION() {
+		if (defaultComboBoxModel_MAIN_SPAWN_LOCATION == null) {
+			defaultComboBoxModel_MAIN_SPAWN_LOCATION = new DefaultComboBoxModel();
+		}
+		return defaultComboBoxModel_MAIN_SPAWN_LOCATION;
+	}
+
 }
