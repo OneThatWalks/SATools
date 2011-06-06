@@ -16,7 +16,6 @@ import java.util.logging.Logger;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.World;
-import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.CreatureType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
@@ -70,6 +69,48 @@ public class SATools extends JavaPlugin {
 		gc.interrupt();
 	}
 
+	public void onEnable() {
+		if (!getDataFolder().exists()) {
+			getDataFolder().mkdirs();
+			log.info("Directory created");
+		}
+		dataFile = getDataFolder().getPath() + File.separator + "SATools.gods";
+		load();
+		world = getServer().getWorld("DarrisonCraft");
+		// Event Register
+		PluginManager pm = getServer().getPluginManager();
+		pm.registerEvent(Event.Type.PLAYER_JOIN, playerListener,
+				Event.Priority.Normal, this);
+		pm.registerEvent(Event.Type.PLAYER_QUIT, playerListener,
+				Event.Priority.Normal, this);
+		pm.registerEvent(Event.Type.ENTITY_DAMAGE, entityListener,
+				Event.Priority.Normal, this);
+		// Grab plugin.yml file and contents
+		PluginDescriptionFile pdfFile = this.getDescription();
+		// Enable Text to be seen in server log
+		System.out.println(pdfFile.getName() + " version "
+				+ pdfFile.getVersion() + " is enabled!");
+		// Start Threads
+		gc.start();
+		runGC = true;
+		tw.start();
+		// plugin info setting
+		version = Double.parseDouble(pdfFile.getVersion());
+		name = pdfFile.getName();
+		authors_RAW = pdfFile.getAuthors();
+		for (int i = 0; i < authors_RAW.size(); i++) { // Set up author line
+			authors = authors + authors_RAW.get(i)
+					+ (authors_RAW.size() == 1 ? "" : ", ");
+		}
+		// Gui set up and start
+		gui.setTitle(name + " v" + version
+				+ (authors_RAW.isEmpty() ? "" : " - " + authors));
+		gui.setVisible(true);
+	}
+
+	/**
+	 * Saves the current data [Currently only saves gods]
+	 */
 	private void save() {
 		try {
 			log.info("Saving SATools data");
@@ -117,45 +158,9 @@ public class SATools extends JavaPlugin {
 		}
 	}
 
-	public void onEnable() {
-		if (!getDataFolder().exists()) {
-			getDataFolder().mkdirs();
-			log.info("Directory created");
-		}
-		dataFile = getDataFolder().getPath() + File.separator + "SATools.gods";
-		load();
-		world = getServer().getWorld("DarrisonCraft");
-		// Event Register
-		PluginManager pm = getServer().getPluginManager();
-		pm.registerEvent(Event.Type.PLAYER_JOIN, playerListener,
-				Event.Priority.Normal, this);
-		pm.registerEvent(Event.Type.PLAYER_QUIT, playerListener,
-				Event.Priority.Normal, this);
-		pm.registerEvent(Event.Type.ENTITY_DAMAGE, entityListener,
-				Event.Priority.Normal, this);
-		// Grab plugin.yml file and contents
-		PluginDescriptionFile pdfFile = this.getDescription();
-		// Enable Text to be seen in server log
-		System.out.println(pdfFile.getName() + " version "
-				+ pdfFile.getVersion() + " is enabled!");
-		// Start Threads
-		gc.start();
-		runGC = true;
-		tw.start();
-		// plugin info setting
-		version = Double.parseDouble(pdfFile.getVersion());
-		name = pdfFile.getName();
-		authors_RAW = pdfFile.getAuthors();
-		for (int i = 0; i < authors_RAW.size(); i++) { // Set up author line
-			authors = authors + authors_RAW.get(i)
-					+ (authors_RAW.size() == 1 ? "" : ", ");
-		}
-		// Gui set up and start
-		gui.setTitle(name + " v" + version
-				+ (authors_RAW.isEmpty() ? "" : " - " + authors));
-		gui.setVisible(true);
-	}
-
+	/**
+	 * Loads the data
+	 */
 	private void load() {
 		try {
 			if (new File(dataFile).exists()) {
@@ -179,14 +184,20 @@ public class SATools extends JavaPlugin {
 				log.info("No gods were loaded, reason file not found.");
 			}
 		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
 
+	/**
+	 * setWeather
+	 * 
+	 * Sets the weather for the current world
+	 * 
+	 * @param type
+	 *            Weather to set to
+	 */
 	public void setWeather(Weather type) {
 		if (type.equals(Weather.CLEAR)) {
 			world.setStorm(false);
@@ -201,6 +212,15 @@ public class SATools extends JavaPlugin {
 		}
 	}
 
+	/**
+	 * spawnCreature Spawns a creature and makes sure it happens using
+	 * spawnCreature in org.bukkit.world
+	 * 
+	 * @param loc
+	 *            Location to spawn (based on input)
+	 * @param type
+	 *            type of creature to spawn
+	 */
 	public static void spawnCreature(Location loc, CreatureType type) {
 		if (world.spawnCreature(loc, type) == null) {
 			log.severe("Failed to create " + type.getName() + " at "
