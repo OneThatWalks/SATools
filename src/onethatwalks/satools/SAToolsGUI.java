@@ -206,7 +206,7 @@ public class SAToolsGUI extends JFrame {
 	 *            The text to check for numbers
 	 * @return whether the text is a number
 	 */
-	private boolean isNumeric(String text) {
+	static boolean isNumeric(String text) {
 		try {
 			Integer.parseInt(text);
 		} catch (NumberFormatException nfe) {

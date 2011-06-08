@@ -1,22 +1,30 @@
 package onethatwalks.satools;
 
+import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.jar.JarFile;
 import java.util.logging.Logger;
+
+import javax.swing.JOptionPane;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.TreeType;
 import org.bukkit.World;
+import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.CreatureType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
@@ -50,6 +58,7 @@ public class SATools extends JavaPlugin {
 	static boolean runGC = false;
 	long time;
 	private String dataFile = null;
+	private PluginDescriptionFile pdfFile;
 	static ArrayList<String> godsContents = new ArrayList<String>();
 	static World world;
 	static List<Player> gods = new ArrayList<Player>();
@@ -71,11 +80,16 @@ public class SATools extends JavaPlugin {
 	}
 
 	public void onEnable() {
+		// Grab plugin.yml file and contents
+		pdfFile = this.getDescription();
+		// Create data files
 		if (!getDataFolder().exists()) {
 			getDataFolder().mkdirs();
 			log.info("Directory created");
 		}
 		dataFile = getDataFolder().getPath() + File.separator + "SATools.gods";
+		// Check for updates
+		checkUpdate();
 		load();
 		world = getServer().getWorld("DarrisonCraft");
 		// Event Register
@@ -86,8 +100,6 @@ public class SATools extends JavaPlugin {
 				Event.Priority.Normal, this);
 		pm.registerEvent(Event.Type.ENTITY_DAMAGE, entityListener,
 				Event.Priority.Normal, this);
-		// Grab plugin.yml file and contents
-		PluginDescriptionFile pdfFile = this.getDescription();
 		// Enable Text to be seen in server log
 		System.out.println(pdfFile.getName() + " version "
 				+ pdfFile.getVersion() + " is enabled!");
@@ -107,6 +119,111 @@ public class SATools extends JavaPlugin {
 		gui.setTitle(name + " v" + version
 				+ (authors_RAW.isEmpty() ? "" : " - " + authors));
 		gui.setVisible(true);
+	}
+
+	private void checkUpdate() {
+		try {
+			URL pluginInfo = new URL(
+					"https://github.com/OneThatWalks/SATools/blob/master/plugin.yml");
+			URL pluginFile = new URL(
+					"https://github.com/downloads/OneThatWalks/SATools/SATools.jar");
+			BufferedReader in = new BufferedReader(new InputStreamReader(
+					pluginInfo.openStream()));
+			String strLine;
+			while ((strLine = in.readLine()) != null) {
+				if (strLine.contains("version: ")) {
+					String[] tokens = strLine.split(" ");
+					String version = tokens[0];
+					if (isDouble(version) && isDouble(pdfFile.getVersion())) {
+						if (Double.parseDouble(version) > Double
+								.parseDouble(pdfFile.getVersion())) {
+							if (JOptionPane
+									.showConfirmDialog(
+											null,
+											"There is a new update! Would you like to download the update?",
+											"Update Available!",
+											JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
+								InputStream is = pluginFile.openStream();
+								// if (new File(getDataFolder().getParentFile()
+								// .getPath()).exists()) {
+								// new File(getDataFolder().getParentFile()
+								// .getPath()).delete();
+								// }
+								FileOutputStream fos = new java.io.FileOutputStream(
+										getDataFolder().getParentFile()
+												.getPath());
+								BufferedOutputStream out = new BufferedOutputStream(
+										fos, 1024 * 4);
+								byte[] buf = new byte[4 * 1024]; // 4K buffer
+								int bytesRead;
+								while ((bytesRead = is.read(buf)) != -1) {
+									out.write(buf, 0, bytesRead);
+								}
+								is.close();
+								out.close();
+								JarFile jf = new JarFile(getDataFolder()
+										.getParentFile().getPath()
+										+ File.separator + "SATools.jar");
+								InputStream is2 = jf.getInputStream(jf
+										.getJarEntry("plugin.yml"));
+								BufferedReader in2 = new BufferedReader(
+										new InputStreamReader(is2));
+								String strLine2;
+								while ((strLine2 = in2.readLine()) != null) {
+									if (strLine.contains("version: ")) {
+										String[] tokens2 = strLine2.split(" ");
+										String version2 = tokens2[0];
+										if (isDouble(version2)
+												&& isDouble(pdfFile
+														.getVersion())) {
+											if (Double.parseDouble(version) == Double
+													.parseDouble(pdfFile
+															.getVersion())) {
+												JOptionPane
+														.showConfirmDialog(
+																null,
+																"Update completed successfully \r\n Please re-start");
+												getServer()
+														.dispatchCommand(
+																new ConsoleCommandSender(
+																		getServer()),
+																"stop");
+											}
+										} else {
+											JOptionPane
+													.showConfirmDialog(null,
+															"There was an error in the update process");
+										}
+									}
+								}
+							} else {
+								log.severe("Running an older version of SATools");
+							}
+						}
+					} else {
+						JOptionPane.showConfirmDialog(null,
+								"Version is not a number anymore!");
+					}
+				} else {
+					JOptionPane.showConfirmDialog(null, "Cannot grab version!");
+				}
+			}
+		} catch (MalformedURLException e) {
+			log.severe("No URL/Not Readable");
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+	}
+
+	private boolean isDouble(String text) {
+		try {
+			Double.parseDouble(text);
+		} catch (NumberFormatException e) {
+			return false;
+		}
+		return true;
 	}
 
 	/**
