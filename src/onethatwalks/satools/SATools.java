@@ -124,9 +124,9 @@ public class SATools extends JavaPlugin {
 	private void checkUpdate() {
 		try {
 			URL pluginInfo = new URL(
-					"https://github.com/OneThatWalks/SATools/blob/master/plugin.yml");
+					"https://raw.github.com/OneThatWalks/SATools/master/plugin.yml");
 			URL pluginFile = new URL(
-					"https://github.com/downloads/OneThatWalks/SATools/SATools.jar");
+					"http://github.com/downloads/OneThatWalks/SATools/SATools.jar");
 			BufferedReader in = new BufferedReader(new InputStreamReader(
 					pluginInfo.openStream()));
 			String strLine;
