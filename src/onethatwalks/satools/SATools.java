@@ -133,7 +133,7 @@ public class SATools extends JavaPlugin {
 			while ((strLine = in.readLine()) != null) {
 				if (strLine.contains("version: ")) {
 					String[] tokens = strLine.split(" ");
-					String version = tokens[0];
+					String version = tokens[1];
 					if (isDouble(version) && isDouble(pdfFile.getVersion())) {
 						if (Double.parseDouble(version) > Double
 								.parseDouble(pdfFile.getVersion())) {
@@ -200,12 +200,6 @@ public class SATools extends JavaPlugin {
 								log.severe("Running an older version of SATools");
 							}
 						}
-					} else {
-						JOptionPane.showConfirmDialog(
-								null,
-								"Version is not a number anymore!"
-										+ isDouble(version)
-										+ isDouble(pdfFile.getVersion()));
 					}
 				} else {
 					JOptionPane.showConfirmDialog(null, "Cannot grab version!");
