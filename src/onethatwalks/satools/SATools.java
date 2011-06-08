@@ -15,6 +15,7 @@ import java.util.logging.Logger;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
+import org.bukkit.TreeType;
 import org.bukkit.World;
 import org.bukkit.entity.CreatureType;
 import org.bukkit.entity.Player;
@@ -228,6 +229,72 @@ public class SATools extends JavaPlugin {
 		} else {
 			log.info("Spawned " + type.getName() + " at " + loc.toString());
 		}
+	}
+
+	/**
+	 * Spawn an object at the desired location and checks if it happens
+	 * 
+	 * @param location
+	 *            Location to spawn the object
+	 * @param object
+	 *            the object to spawn
+	 */
+	public static void spawnObject(Location location, String object) {
+		if (object == "tree") {
+			if (world.generateTree(location,
+					TreeType.values()[random(0, TreeType.values().length)])) {
+				log.info("Tree created successfully");
+			} else {
+				log.severe("Failed to create tree");
+			}
+		} else if (object == "boat") {
+			if (world.spawnBoat(location) != null) {
+				log.info("Boat created successfully");
+			} else {
+				log.severe("Failed to create boat");
+			}
+		} else if (object == "minecart") {
+			if (world.spawnMinecart(location) != null) {
+				log.info("Minecart created successfully");
+			} else {
+				log.severe("Failed to create minecart");
+			}
+		} else if (object == "powered minecart") {
+			if (world.spawnPoweredMinecart(location) != null) {
+				log.info("Powered minecart created successfully");
+			} else {
+				log.severe("Failed to create powered minecart");
+			}
+		} else if (object == "storage minecart") {
+			if (world.spawnStorageMinecart(location) != null) {
+				log.info("Storage minecart created successfully");
+			} else {
+				log.severe("Failed to create storage minecart");
+			}
+		} else if (object == "lightning") {
+			if (world.strikeLightning(location) != null) {
+				log.info("Lightning created successfully");
+			} else {
+				log.severe("Failed to create lightning");
+			}
+		} else {
+			log.severe("Failed to spawn object");
+		}
+
+	}
+
+	/**
+	 * Creates a random integer between the Minimum and the Maximum including
+	 * those integers
+	 * 
+	 * @param Min
+	 *            Minimum value
+	 * @param Max
+	 *            Maximum Value
+	 * @return random int between Min and Max
+	 */
+	private static int random(int Min, int Max) {
+		return Min + (int) (Math.random() * ((Max - Min) + 1));
 	}
 
 	class TimeWatch extends Thread {

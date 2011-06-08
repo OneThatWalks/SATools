@@ -35,7 +35,13 @@ import org.bukkit.Location;
 import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.CreatureType;
 import org.bukkit.entity.Player;
+import javax.swing.JSeparator;
 
+/**
+ * GUI for SATools
+ * 
+ * @author OneThatWalks
+ */
 public class SAToolsGUI extends JFrame {
 
 	// Variables
@@ -49,7 +55,7 @@ public class SAToolsGUI extends JFrame {
 	static JList jList_PLAYERS_PLAYERS = null;
 	static DefaultListModel DefaultListModel_PLAYERS_PLAYERS = null; // @jve:decl-index=1:visual-constraint="280,1000"
 	static JPanel jPanel_PLAYERS_PLAYER = null;
-	private JPanel jPanel_PLAYERS_MODIFY = null;
+	static JPanel jPanel_PLAYERS_MODIFY = null;
 	private JLabel jLabel_PLAYERS_PLAYER_LOCATION = null;
 	static JLabel jLabel_PLAYERS_PLAYER_LOCATION_DATA = null;
 	private JLabel jLabel_PLAYERS_PLAYER_ENTITYID = null;
@@ -119,7 +125,17 @@ public class SAToolsGUI extends JFrame {
 	static JComboBox jComboBox_MAIN_SPAWN_LOCATION = null;
 	private JButton jButton_MAIN_SPAWN = null;
 	static DefaultComboBoxModel defaultComboBoxModel_MAIN_SPAWN_LOCATION = null; // @jve:decl-index=0:visual-constraint="744,529"
+	private JSeparator jSeparator_MAIN_SPAWN = null;
+	private JLabel jLabel_MAIN_SPAWN_OBJECT = null;
+	private JComboBox jComboBox_MAIN_SPAWN_OBJECT = null;
+	private DefaultComboBoxModel defaultComboBoxModel_MAIN_SPAWN_OBJECT = null;
+	private JLabel jLabel_MAIN_SPAWN_WHERE_OBJECT = null;
+	static JComboBox jComboBox_MAIN_SPAWN_LOCATION_OBJECT = null;
+	static DefaultComboBoxModel defaultComboBoxModel_MAIN_SPAWN_LOCATION_OBJECT = null;
+	private JButton jButton_MAIN_SPAWN_OBJECT = null;
 	private JLabel jLabel_MAIN_SPAWN_WARNING = null;
+	private String[] objects = { "Tree", "Boat", "Minecart",
+			"Powered minecart", "Stoarage minecart", "Lightning" };
 
 	// Start Class Methods
 
@@ -396,15 +412,23 @@ public class SAToolsGUI extends JFrame {
 	private JPanel getJPanel_MAIN_SPAWN() {
 		if (jPanel_MAIN_SPAWN == null) {
 			jLabel_MAIN_SPAWN_WARNING = new JLabel();
-			jLabel_MAIN_SPAWN_WARNING.setBounds(new Rectangle(10, 90, 530, 16)); // Generated
+			jLabel_MAIN_SPAWN_WARNING
+					.setBounds(new Rectangle(10, 225, 529, 16)); // Generated
 			jLabel_MAIN_SPAWN_WARNING
 					.setText("In orrder to use a custom location please enter the location in x,y,z format with no spaces"); // Generated
+			jLabel_MAIN_SPAWN_WHERE_OBJECT = new JLabel();
+			jLabel_MAIN_SPAWN_WHERE_OBJECT.setBounds(new Rectangle(255, 135,
+					11, 20)); // Generated
+			jLabel_MAIN_SPAWN_WHERE_OBJECT.setText("to"); // Generated
+			jLabel_MAIN_SPAWN_OBJECT = new JLabel("Spawn:");
+			jLabel_MAIN_SPAWN_OBJECT.setBounds(new Rectangle(10, 135, 75, 20)); // Generated
+			jLabel_MAIN_SPAWN_OBJECT.setText("Spawn:"); // Generated
 			jLabel_MAIN_SPAWN_WHERE = new JLabel();
 			jLabel_MAIN_SPAWN_WHERE.setBounds(new Rectangle(255, 30, 20, 20)); // Generated
 			jLabel_MAIN_SPAWN_WHERE.setText("to"); // Generated
 			jPanel_MAIN_SPAWN = new JPanel();
 			jPanel_MAIN_SPAWN.setLayout(null); // Generated
-			jPanel_MAIN_SPAWN.setBounds(new Rectangle(15, 470, 550, 120)); // Generated
+			jPanel_MAIN_SPAWN.setBounds(new Rectangle(15, 470, 550, 249)); // Generated
 			jPanel_MAIN_SPAWN.setBorder(BorderFactory.createTitledBorder(null,
 					"Spawning", TitledBorder.DEFAULT_JUSTIFICATION,
 					TitledBorder.DEFAULT_POSITION, new Font("Dialog",
@@ -417,9 +441,149 @@ public class SAToolsGUI extends JFrame {
 			jPanel_MAIN_SPAWN.add(jLabel_MAIN_SPAWN_WHERE, null); // Generated
 			jPanel_MAIN_SPAWN.add(getJComboBox_MAIN_SPAWN_LOCATION(), null); // Generated
 			jPanel_MAIN_SPAWN.add(getJButton_MAIN_SPAWN(), null); // Generated
+			jPanel_MAIN_SPAWN.add(getJSeparator_MAIN_SPAWN(), null); // Generated
+			jPanel_MAIN_SPAWN.add(jLabel_MAIN_SPAWN_OBJECT, null); // Generated
+			jPanel_MAIN_SPAWN.add(getJComboBox_MAIN_SPAWN_OBJECT(), null); // Generated
+			jPanel_MAIN_SPAWN.add(jLabel_MAIN_SPAWN_WHERE_OBJECT, null); // Generated
+			jPanel_MAIN_SPAWN.add(getJComboBox_MAIN_SPAWN_LOCATION_OBJECT(),
+					null); // Generated
+			jPanel_MAIN_SPAWN.add(getJButton_MAIN_SPAWN_OBJECT(), null); // Generated
 			jPanel_MAIN_SPAWN.add(jLabel_MAIN_SPAWN_WARNING, null); // Generated
 		}
 		return jPanel_MAIN_SPAWN;
+	}
+
+	/**
+	 * This method initializes jSeparator_MAIN_SPAWN
+	 * 
+	 * @return javax.swing.JSeparator
+	 */
+	private JSeparator getJSeparator_MAIN_SPAWN() {
+		if (jSeparator_MAIN_SPAWN == null) {
+			jSeparator_MAIN_SPAWN = new JSeparator();
+			jSeparator_MAIN_SPAWN.setBounds(new Rectangle(10, 115, 530, 8)); // Generated
+		}
+		return jSeparator_MAIN_SPAWN;
+	}
+
+	/**
+	 * This method initializes defaultComboBoxModel_MAIN_SPAWN_OBJECT
+	 * 
+	 * @return javax.swing.DefaultComboBoxModel
+	 */
+	private DefaultComboBoxModel getDefaultComboBoxModel_MAIN_SPAWN_OBJECT() {
+		if (defaultComboBoxModel_MAIN_SPAWN_OBJECT == null) {
+			defaultComboBoxModel_MAIN_SPAWN_OBJECT = new DefaultComboBoxModel();
+			for (int i = 0; i < objects.length; i++) {
+				defaultComboBoxModel_MAIN_SPAWN_OBJECT.addElement(objects[i]);
+			}
+		}
+		return defaultComboBoxModel_MAIN_SPAWN_OBJECT;
+	}
+
+	/**
+	 * This method initializes jComboBox_MAIN_SPAWN_OBJECT
+	 * 
+	 * @return javax.swing.JComboBox
+	 */
+	private JComboBox getJComboBox_MAIN_SPAWN_OBJECT() {
+		if (jComboBox_MAIN_SPAWN_OBJECT == null) {
+			jComboBox_MAIN_SPAWN_OBJECT = new JComboBox(
+					getDefaultComboBoxModel_MAIN_SPAWN_OBJECT());
+			jComboBox_MAIN_SPAWN_OBJECT.setBounds(new Rectangle(90, 135, 150,
+					20)); // Generated
+		}
+		return jComboBox_MAIN_SPAWN_OBJECT;
+	}
+
+	/**
+	 * This method initializes defaultComboBoxModel_MAIN_SPAWN_LOCATION_OBJECT
+	 * 
+	 * @return javax.swing.DefaultComboBoxModel
+	 */
+	private DefaultComboBoxModel getDefaultComboBoxModel_MAIN_SPAWN_LOCATION_OBJECT() {
+		if (defaultComboBoxModel_MAIN_SPAWN_LOCATION_OBJECT == null) {
+			defaultComboBoxModel_MAIN_SPAWN_LOCATION_OBJECT = new DefaultComboBoxModel();
+		}
+		return defaultComboBoxModel_MAIN_SPAWN_LOCATION_OBJECT;
+	}
+
+	/**
+	 * This method initializes jComboBox_MAIN_SPAWN_LOCATION_OBJECT
+	 * 
+	 * @return javax.swing.JComboBox
+	 */
+	private JComboBox getJComboBox_MAIN_SPAWN_LOCATION_OBJECT() {
+		if (jComboBox_MAIN_SPAWN_LOCATION_OBJECT == null) {
+			jComboBox_MAIN_SPAWN_LOCATION_OBJECT = new JComboBox(
+					getDefaultComboBoxModel_MAIN_SPAWN_LOCATION_OBJECT());
+			jComboBox_MAIN_SPAWN_LOCATION_OBJECT.setBounds(new Rectangle(285,
+					135, 255, 20)); // Generated
+			jComboBox_MAIN_SPAWN_LOCATION_OBJECT.setEditable(true); // Generated
+		}
+		return jComboBox_MAIN_SPAWN_LOCATION_OBJECT;
+	}
+
+	/**
+	 * This method initializes jButton_MAIN_SPAWN_OBJECT
+	 * 
+	 * @return javax.swing.JButton
+	 */
+	private JButton getJButton_MAIN_SPAWN_OBJECT() {
+		if (jButton_MAIN_SPAWN_OBJECT == null) {
+			jButton_MAIN_SPAWN_OBJECT = new JButton();
+			jButton_MAIN_SPAWN_OBJECT
+					.setBounds(new Rectangle(10, 165, 530, 30)); // Generated
+			jButton_MAIN_SPAWN_OBJECT.setText("Spawn"); // Generated
+			jButton_MAIN_SPAWN_OBJECT
+					.addActionListener(new java.awt.event.ActionListener() {
+						public void actionPerformed(java.awt.event.ActionEvent e) {
+							Location location = null;
+							String object = null;
+							if (jComboBox_MAIN_SPAWN_OBJECT.getSelectedIndex() != -1) {
+								object = jComboBox_MAIN_SPAWN_OBJECT
+										.getSelectedItem().toString()
+										.toLowerCase();
+							}
+							if (jComboBox_MAIN_SPAWN_LOCATION_OBJECT
+									.getSelectedItem() != null) {
+								if (jComboBox_MAIN_SPAWN_LOCATION_OBJECT
+										.getSelectedItem() instanceof Player) {
+									Player p = (Player) jComboBox_MAIN_SPAWN_LOCATION_OBJECT
+											.getSelectedItem();
+									location = p.getTargetBlock(null, 10)
+											.getLocation();
+								} else {
+									String text = jComboBox_MAIN_SPAWN_LOCATION_OBJECT
+											.getSelectedItem().toString();
+									if (text.trim().contains(",")) {
+										String[] token = text.split(",");
+										if (isNumeric(token[0])
+												&& isNumeric(token[1])
+												&& isNumeric(token[2])) {
+											int x = Integer.parseInt(token[0]
+													.trim());
+											int y = Integer.parseInt(token[1]
+													.trim());
+											int z = Integer.parseInt(token[2]
+													.trim());
+											location = new Location(
+													SATools.world, x, y, z);
+										} else {
+											SATools.log
+													.severe("I don't know what to say, you messed up in defining a location bro.");
+										}
+									}
+								}
+							} else {
+								SATools.log.severe("Failed to spawn creature");
+							}
+							if (location != null && object != null)
+								SATools.spawnObject(location, object);
+						}
+					});
+		}
+		return jButton_MAIN_SPAWN_OBJECT;
 	}
 
 	/**
@@ -558,7 +722,7 @@ public class SAToolsGUI extends JFrame {
 					TitledBorder.DEFAULT_JUSTIFICATION,
 					TitledBorder.DEFAULT_POSITION, new Font("Dialog",
 							Font.BOLD, 12), new Color(51, 51, 51))); // Generated
-			jPanel_PLAYERS_MODIFY.setVisible(true); // Generated
+			jPanel_PLAYERS_MODIFY.setVisible(false); // Generated
 			jPanel_PLAYERS_MODIFY.add(jLabel_PLAYERS_MODIFY_GIVE, null); // Generated
 			jPanel_PLAYERS_MODIFY.add(jLabel_PLAYERS_MODIFY_HEALTH, null);
 			jPanel_PLAYERS_MODIFY.add(getJComboBox_PLAYERS_MODIFY_GIVE(), null); // Generated
@@ -626,9 +790,19 @@ public class SAToolsGUI extends JFrame {
 									if (!jPanel_PLAYERS_PLAYER.isVisible()) {
 										jPanel_PLAYERS_PLAYER.setVisible(true);
 									}
+									if (!jPanel_PLAYERS_MODIFY.isVisible()) {
+										jPanel_PLAYERS_MODIFY.setVisible(true);
+									}
 									if (!pi.isAlive()) {
 										pi.start();
 										piAlive = true;
+									}
+								} else {
+									if (jPanel_PLAYERS_PLAYER.isVisible()) {
+										jPanel_PLAYERS_PLAYER.setVisible(false);
+									}
+									if (jPanel_PLAYERS_MODIFY.isVisible()) {
+										jPanel_PLAYERS_MODIFY.setVisible(false);
 									}
 								}
 							} catch (Exception e1) {
@@ -1301,7 +1475,7 @@ public class SAToolsGUI extends JFrame {
 	private JButton getJButton_MAIN_SPAWN() {
 		if (jButton_MAIN_SPAWN == null) {
 			jButton_MAIN_SPAWN = new JButton();
-			jButton_MAIN_SPAWN.setBounds(new Rectangle(10, 60, 530, 20)); // Generated
+			jButton_MAIN_SPAWN.setBounds(new Rectangle(10, 60, 530, 30)); // Generated
 			jButton_MAIN_SPAWN.setText("Spawn"); // Generated
 			jButton_MAIN_SPAWN
 					.addActionListener(new java.awt.event.ActionListener() {

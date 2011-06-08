@@ -34,7 +34,7 @@ public class SAToolsPlayerListener extends PlayerListener {
 									ChatColor.GOLD + player.getDisplayName()
 											+ " is a god");
 						}
-						{ // Welcome MEssage info
+						{ // Welcome Message info
 							Player[] op = plugin.getServer().getOnlinePlayers();
 							String opString = "";
 							for (int i = 0; i < op.length; i++) {
@@ -59,6 +59,7 @@ public class SAToolsPlayerListener extends PlayerListener {
 							player.sendMessage("Connected users: " + opString);
 						}
 						{ // Run GUI Options
+							// List Add
 							SATools.log.info(player + " should be in the list");
 							SAToolsGUI.DefaultListModel_PLAYERS_PLAYERS
 									.addElement(player.getDisplayName());
@@ -72,6 +73,7 @@ public class SAToolsPlayerListener extends PlayerListener {
 											.setSelected(true);
 								}
 							}
+							// Console Message
 							SAToolsGUI.DefaultComboBoxModel_MAIN_CONSOLE_MESSAGE
 									.addElement(player.getDisplayName());
 							if (SAToolsGUI.DefaultComboBoxModel_MAIN_CONSOLE_MESSAGE
@@ -80,11 +82,20 @@ public class SAToolsPlayerListener extends PlayerListener {
 										.setSelectedItem(player
 												.getDisplayName());
 							}
+							// Spawn Creature
 							SAToolsGUI.defaultComboBoxModel_MAIN_SPAWN_LOCATION
 									.addElement(player);
 							if (SAToolsGUI.defaultComboBoxModel_MAIN_SPAWN_LOCATION
 									.getSize() == 1) {
 								SAToolsGUI.jComboBox_MAIN_SPAWN_LOCATION
+										.setSelectedItem(player);
+							}
+							// Spawn Object
+							SAToolsGUI.defaultComboBoxModel_MAIN_SPAWN_LOCATION_OBJECT
+									.addElement(player);
+							if (SAToolsGUI.defaultComboBoxModel_MAIN_SPAWN_LOCATION_OBJECT
+									.getSize() == 1) {
+								SAToolsGUI.jComboBox_MAIN_SPAWN_LOCATION_OBJECT
 										.setSelectedItem(player);
 							}
 						}
@@ -101,6 +112,7 @@ public class SAToolsPlayerListener extends PlayerListener {
 
 						SAToolsGUI.player = null;
 						{ // GUI Options removal
+							// Player List
 							SATools.log.info(player
 									+ " should be removed from the list");
 							if (SAToolsGUI.DefaultListModel_PLAYERS_PLAYERS
@@ -130,6 +142,8 @@ public class SAToolsPlayerListener extends PlayerListener {
 										.setText("Null");
 								SAToolsGUI.jPanel_PLAYERS_PLAYER
 										.setVisible(false);
+								SAToolsGUI.jPanel_PLAYERS_MODIFY
+										.setVisible(false);
 							} else if (SAToolsGUI.DefaultListModel_PLAYERS_PLAYERS
 									.size() > 1
 									&& SAToolsGUI.jList_PLAYERS_PLAYERS
@@ -154,6 +168,7 @@ public class SAToolsPlayerListener extends PlayerListener {
 								SAToolsGUI.DefaultListModel_PLAYERS_PLAYERS
 										.removeElement(player.getDisplayName());
 							}
+							// Console Message
 							if (SAToolsGUI.DefaultComboBoxModel_MAIN_CONSOLE_MESSAGE
 									.getSize() == 1) {
 								SAToolsGUI.jComboBox_MAIN_CONSOLE_MESSAGE
@@ -161,6 +176,7 @@ public class SAToolsPlayerListener extends PlayerListener {
 							}
 							SAToolsGUI.DefaultComboBoxModel_MAIN_CONSOLE_MESSAGE
 									.removeElement(player.getDisplayName());
+							// Spawn Creature
 							if (SAToolsGUI.defaultComboBoxModel_MAIN_SPAWN_LOCATION
 									.getSize() == 1) {
 								SAToolsGUI.jComboBox_MAIN_SPAWN_LOCATION
@@ -168,7 +184,14 @@ public class SAToolsPlayerListener extends PlayerListener {
 							}
 							SAToolsGUI.defaultComboBoxModel_MAIN_SPAWN_LOCATION
 									.removeElement(player);
-
+							// Spawn Object
+							if (SAToolsGUI.defaultComboBoxModel_MAIN_SPAWN_LOCATION_OBJECT
+									.getSize() == 1) {
+								SAToolsGUI.jComboBox_MAIN_SPAWN_LOCATION_OBJECT
+										.setSelectedIndex(-1);
+							}
+							SAToolsGUI.defaultComboBoxModel_MAIN_SPAWN_LOCATION_OBJECT
+									.removeElement(player);
 						}
 					}
 				}, 20);
