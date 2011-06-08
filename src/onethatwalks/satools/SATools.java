@@ -143,10 +143,11 @@ public class SATools extends JavaPlugin {
 										"stop");
 							}
 						} else {
-							JOptionPane.showConfirmDialog(null,
-									"Your version is up to date!", "Update",
-									JOptionPane.OK_OPTION);
+							JOptionPane.showMessageDialog(null,
+									"Your version is up to date!");
 						}
+					} else {
+						log.severe("Error");
 					}
 				}
 			}
