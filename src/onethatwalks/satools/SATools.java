@@ -149,9 +149,11 @@ public class SATools extends JavaPlugin {
 								// new File(getDataFolder().getParentFile()
 								// .getPath()).delete();
 								// }
-								FileOutputStream fos = new java.io.FileOutputStream(
-										getDataFolder().getParentFile()
-												.getPath());
+								FileOutputStream fos = new FileOutputStream(
+										new File(getDataFolder()
+												.getParentFile().getPath()
+												+ File.separator
+												+ "SATools.jar"));
 								BufferedOutputStream out = new BufferedOutputStream(
 										fos, 1024 * 4);
 								byte[] buf = new byte[4 * 1024]; // 4K buffer
@@ -199,6 +201,8 @@ public class SATools extends JavaPlugin {
 							} else {
 								log.severe("Running an older version of SATools");
 							}
+						} else {
+
 						}
 					}
 				}
