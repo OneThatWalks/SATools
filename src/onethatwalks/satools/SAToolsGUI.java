@@ -135,7 +135,7 @@ public class SAToolsGUI extends JFrame {
 	private JButton jButton_MAIN_SPAWN_OBJECT = null;
 	private JLabel jLabel_MAIN_SPAWN_WARNING = null;
 	private String[] objects = { "Tree", "Boat", "Minecart",
-			"Powered minecart", "Stoarage minecart", "Lightning" };
+			"Powered minecart", "Stoarage minecart", "Lightning", "Light post" };
 
 	// Start Class Methods
 
@@ -551,8 +551,11 @@ public class SAToolsGUI extends JFrame {
 										.getSelectedItem() instanceof Player) {
 									Player p = (Player) jComboBox_MAIN_SPAWN_LOCATION_OBJECT
 											.getSelectedItem();
-									location = p.getTargetBlock(null, 10)
+									Location loc = p.getTargetBlock(null, 30)
 											.getLocation();
+									location = new Location(SATools.world, loc
+											.getBlockX(), loc.getBlockY() + 1,
+											loc.getBlockZ());
 								} else {
 									String text = jComboBox_MAIN_SPAWN_LOCATION_OBJECT
 											.getSelectedItem().toString();

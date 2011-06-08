@@ -19,8 +19,10 @@ import javax.swing.JOptionPane;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.TreeType;
 import org.bukkit.World;
+import org.bukkit.block.Block;
 import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.CreatureType;
 import org.bukkit.entity.Player;
@@ -35,6 +37,7 @@ import org.bukkit.plugin.java.JavaPlugin;
  * @author OneThatWalks
  */
 public class SATools extends JavaPlugin {
+	// Localize needed files
 	private final SAToolsPlayerListener playerListener = new SAToolsPlayerListener(
 			this);
 	private final SAToolsEntityListener entityListener = new SAToolsEntityListener(
@@ -42,11 +45,15 @@ public class SATools extends JavaPlugin {
 	@SuppressWarnings("unused")
 	private final SAToolsBlockListener blockListener = new SAToolsBlockListener(
 			this);
+	private PluginDescriptionFile pdfFile;
+	// Grab the logger
 	public static final Logger log = Logger.getLogger("Minecraft");
+	// Init plugin info holders
 	public static double version;
 	public static String name;
 	public static ArrayList<String> authors_RAW;
 	public static String authors = "";
+	// Init other classes and their attributes
 	SAToolsGUI gui = new SAToolsGUI(this);
 	TimeWatch tw = new TimeWatch();
 	GarbageCollection gc = new GarbageCollection();
@@ -54,9 +61,12 @@ public class SATools extends JavaPlugin {
 	private boolean gcAlive = true;
 	static boolean runGC = false;
 	long time;
+	// Update feature data
 	private String dataFile = null;
-	private PluginDescriptionFile pdfFile;
+	URL pluginInfo;
+	// Save data
 	static ArrayList<String> godsContents = new ArrayList<String>();
+	// Actual plugin variables
 	static World world;
 	static List<Player> gods = new ArrayList<Player>();
 	static ArrayList<String> godsRemoved = new ArrayList<String>();
@@ -66,8 +76,11 @@ public class SATools extends JavaPlugin {
 	}
 
 	public void onDisable() {
+		// Save data
 		save();
+		// Thank the user
 		System.out.println("SATools Disabled, Thanks for using SATools!");
+		// End those pesky threads
 		SAToolsGUI.piAlive = false;
 		SAToolsGUI.pi.interrupt();
 		twAlive = false;
@@ -118,9 +131,14 @@ public class SATools extends JavaPlugin {
 		gui.setVisible(true);
 	}
 
+	/**
+	 * WIP Auto-Update method
+	 * 
+	 * Will check if you need to update version
+	 */
 	private void checkUpdate() {
 		try {
-			URL pluginInfo = new URL(
+			pluginInfo = new URL(
 					"https://raw.github.com/OneThatWalks/SATools/master/plugin.yml");
 			BufferedReader in = new BufferedReader(new InputStreamReader(
 					pluginInfo.openStream()));
@@ -141,6 +159,8 @@ public class SATools extends JavaPlugin {
 								getServer().dispatchCommand(
 										new ConsoleCommandSender(getServer()),
 										"stop");
+							} else {
+								log.warning("You are running an older version of SATools to prevent errors you may want to update your plugin.");
 							}
 						} else {
 							JOptionPane.showMessageDialog(null,
@@ -152,13 +172,20 @@ public class SATools extends JavaPlugin {
 				}
 			}
 		} catch (MalformedURLException e) {
-			log.severe("No URL/Not Readable");
+			log.severe("Malformed URL");
 		} catch (IOException e) {
-			e.printStackTrace();
+			log.severe("Could no connect");
 		}
 
 	}
 
+	/**
+	 * Checks for a double in the text
+	 * 
+	 * @param text
+	 *            String to check
+	 * @return true is the text contains a double, otherwise false
+	 */
 	private boolean isDouble(String text) {
 		try {
 			Double.parseDouble(text);
@@ -186,19 +213,15 @@ public class SATools extends JavaPlugin {
 				InputStream is = new FileInputStream(dataFile);
 				BufferedReader br = new BufferedReader(
 						new InputStreamReader(is));
-				FileWriter fw = new FileWriter(dataFile);
-				PrintWriter pw = new PrintWriter(fw);
 				String strLine;
 				// Read File Line By Line
 				while ((strLine = br.readLine()) != null) {
-					if (gods.contains(getServer().getPlayer(strLine))) {
-						gods.remove(getServer().getPlayer(strLine));
-					}
-					if (godsRemoved.contains(strLine)) {
-						pw.println((String) null);
+					if (!gods.contains(getServer().getPlayer(strLine))
+							&& !godsRemoved.contains(getServer().getPlayer(
+									strLine))) {
+						gods.add(getServer().getPlayer(strLine));
 					}
 				}
-				fw.close();
 				is.close();
 			}
 			log.info("Saving gods");
@@ -299,47 +322,71 @@ public class SATools extends JavaPlugin {
 	 *            the object to spawn
 	 */
 	public static void spawnObject(Location location, String object) {
-		if (object == "tree") {
+		if (object.trim().equalsIgnoreCase("tree")) {
 			if (world.generateTree(location,
-					TreeType.values()[random(0, TreeType.values().length)])) {
+					TreeType.values()[random(0, TreeType.values().length - 1)])) {
 				log.info("Tree created successfully");
 			} else {
 				log.severe("Failed to create tree");
 			}
-		} else if (object == "boat") {
+		} else if (object.trim().equalsIgnoreCase("boat")) {
 			if (world.spawnBoat(location) != null) {
 				log.info("Boat created successfully");
 			} else {
 				log.severe("Failed to create boat");
 			}
-		} else if (object == "minecart") {
+		} else if (object.trim().equalsIgnoreCase("minecart")) {
 			if (world.spawnMinecart(location) != null) {
 				log.info("Minecart created successfully");
 			} else {
-				log.severe("Failed to create minecart");
+				log.severe("Failed to create boat");
 			}
-		} else if (object == "powered minecart") {
+		} else if (object.trim().equalsIgnoreCase("powered minecart")) {
 			if (world.spawnPoweredMinecart(location) != null) {
 				log.info("Powered minecart created successfully");
 			} else {
 				log.severe("Failed to create powered minecart");
 			}
-		} else if (object == "storage minecart") {
+		} else if (object.trim().equalsIgnoreCase("storage minecart")) {
 			if (world.spawnStorageMinecart(location) != null) {
 				log.info("Storage minecart created successfully");
 			} else {
 				log.severe("Failed to create storage minecart");
 			}
-		} else if (object == "lightning") {
+		} else if (object.trim().equalsIgnoreCase("lightning")) {
 			if (world.strikeLightning(location) != null) {
 				log.info("Lightning created successfully");
 			} else {
 				log.severe("Failed to create lightning");
 			}
+		} else if (object.trim().equalsIgnoreCase("light post")) {
+			if (createLightPost(location)) {
+				log.info("Lightning created successfully");
+			} else {
+				log.severe("Failed to create lightning");
+			}
 		} else {
-			log.severe("Failed to spawn object");
+			log.severe("Failed to spawn object " + object);
+			world.getBlockAt(location).setType(org.bukkit.Material.TNT);
 		}
 
+	}
+
+	private static boolean createLightPost(Location loc) {
+		Block block_1 = world.getBlockAt(loc);
+		Block block_2 = world.getBlockAt(loc.getBlockX(), loc.getBlockY() + 1,
+				loc.getBlockZ());
+		Block block_3 = world.getBlockAt(loc.getBlockX(), loc.getBlockY() + 2,
+				loc.getBlockZ());
+		block_1.setType(Material.FENCE);
+		block_2.setType(Material.FENCE);
+		block_3.setType(Material.GLOWSTONE);
+		if (block_1.getType() == Material.FENCE
+				&& block_2.getType() == Material.FENCE
+				&& block_3.getType() == Material.GLOWSTONE) {
+			return true;
+		}
+		return false;
 	}
 
 	/**
