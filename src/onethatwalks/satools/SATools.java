@@ -201,8 +201,6 @@ public class SATools extends JavaPlugin {
 							}
 						}
 					}
-				} else {
-					JOptionPane.showConfirmDialog(null, "Cannot grab version!");
 				}
 			}
 		} catch (MalformedURLException e) {
