@@ -201,8 +201,11 @@ public class SATools extends JavaPlugin {
 							}
 						}
 					} else {
-						JOptionPane.showConfirmDialog(null,
-								"Version is not a number anymore!");
+						JOptionPane.showConfirmDialog(
+								null,
+								"Version is not a number anymore!"
+										+ isDouble(version)
+										+ isDouble(pdfFile.getVersion()));
 					}
 				} else {
 					JOptionPane.showConfirmDialog(null, "Cannot grab version!");
