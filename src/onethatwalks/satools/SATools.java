@@ -219,7 +219,11 @@ public class SATools extends JavaPlugin {
 					if (!gods.contains(getServer().getPlayer(strLine))
 							&& !godsRemoved.contains(getServer().getPlayer(
 									strLine))) {
-						gods.add(getServer().getPlayer(strLine));
+						if (godsContents.contains(strLine)) {
+							log.info("Adding: " + strLine);
+						} else {
+							log.warning("Will not save god: " + strLine);
+						}
 					}
 				}
 				is.close();
@@ -228,10 +232,17 @@ public class SATools extends JavaPlugin {
 			FileWriter fw = new FileWriter(dataFile);
 			PrintWriter pw = new PrintWriter(fw);
 			for (int i = 0; i < gods.size(); i++) {
+				if (godsContents.contains(gods.get(i).getDisplayName())) {
+					godsContents.remove(gods.get(i).getDisplayName());
+				}
 				if (gods.get(i) != null) {
 					log.info("Saving: " + gods.get(i).getDisplayName());
 					pw.println(gods.get(i).getDisplayName());
 				}
+			}
+			for (int i = 0; i < godsContents.size(); i++) {
+				log.info("Saving: " + godsContents.get(i));
+				pw.println(godsContents.get(i));
 			}
 			fw.close();
 			log.info("Gods saved");
