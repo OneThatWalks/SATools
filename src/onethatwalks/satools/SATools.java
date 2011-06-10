@@ -17,7 +17,6 @@ import java.util.logging.Logger;
 
 import javax.swing.JOptionPane;
 
-import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.TreeType;
@@ -60,6 +59,7 @@ public class SATools extends JavaPlugin {
 	private boolean twAlive = true;
 	private boolean gcAlive = true;
 	static boolean runGC = false;
+	Tasker tasker = new Tasker(this);
 	long time;
 	// Update feature data
 	private String dataFile = null;
@@ -101,7 +101,7 @@ public class SATools extends JavaPlugin {
 		// Check for updates
 		checkUpdate();
 		load();
-		world = getServer().getWorld("DarrisonCraft");
+		world = getServer().getWorld(getServer().getWorlds().get(0).getName());
 		// Event Register
 		PluginManager pm = getServer().getPluginManager();
 		pm.registerEvent(Event.Type.PLAYER_JOIN, playerListener,
@@ -305,11 +305,15 @@ public class SATools extends JavaPlugin {
 	 *            type of creature to spawn
 	 */
 	public static void spawnCreature(Location loc, CreatureType type) {
-		if (world.spawnCreature(loc, type) == null) {
-			log.severe("Failed to create " + type.getName() + " at "
-					+ loc.toString());
-		} else {
-			log.info("Spawned " + type.getName() + " at " + loc.toString());
+		try {
+			if (world.spawnCreature(loc, type) == null) {
+				log.severe("Failed to create " + type.getName() + " at "
+						+ loc.toString());
+			} else {
+				log.info("Spawned " + type.getName() + " at " + loc.toString());
+			}
+		} catch (Exception e) {
+			log.severe(e.getMessage());
 		}
 	}
 
@@ -322,71 +326,82 @@ public class SATools extends JavaPlugin {
 	 *            the object to spawn
 	 */
 	public static void spawnObject(Location location, String object) {
-		if (object.trim().equalsIgnoreCase("tree")) {
-			if (world.generateTree(location,
-					TreeType.values()[random(0, TreeType.values().length - 1)])) {
-				log.info("Tree created successfully");
+		try {
+			if (object.trim().equalsIgnoreCase("tree")) {
+				if (world.generateTree(
+						location,
+						TreeType.values()[random(0,
+								TreeType.values().length - 1)])) {
+					log.info("Tree created successfully");
+				} else {
+					log.severe("Failed to create tree");
+				}
+			} else if (object.trim().equalsIgnoreCase("boat")) {
+				if (world.spawnBoat(location) != null) {
+					log.info("Boat created successfully");
+				} else {
+					log.severe("Failed to create boat");
+				}
+			} else if (object.trim().equalsIgnoreCase("minecart")) {
+				if (world.spawnMinecart(location) != null) {
+					log.info("Minecart created successfully");
+				} else {
+					log.severe("Failed to create boat");
+				}
+			} else if (object.trim().equalsIgnoreCase("powered minecart")) {
+				if (world.spawnPoweredMinecart(location) != null) {
+					log.info("Powered minecart created successfully");
+				} else {
+					log.severe("Failed to create powered minecart");
+				}
+			} else if (object.trim().equalsIgnoreCase("storage minecart")) {
+				if (world.spawnStorageMinecart(location) != null) {
+					log.info("Storage minecart created successfully");
+				} else {
+					log.severe("Failed to create storage minecart");
+				}
+			} else if (object.trim().equalsIgnoreCase("lightning")) {
+				if (world.strikeLightning(location) != null) {
+					log.info("Lightning created successfully");
+				} else {
+					log.severe("Failed to create lightning");
+				}
+			} else if (object.trim().equalsIgnoreCase("light post")) {
+				if (createLightPost(location)) {
+					log.info("Lightning created successfully");
+				} else {
+					log.severe("Failed to create lightning");
+				}
 			} else {
-				log.severe("Failed to create tree");
+				log.severe("Failed to spawn object " + object);
+				world.getBlockAt(location).setType(org.bukkit.Material.TNT);
 			}
-		} else if (object.trim().equalsIgnoreCase("boat")) {
-			if (world.spawnBoat(location) != null) {
-				log.info("Boat created successfully");
-			} else {
-				log.severe("Failed to create boat");
-			}
-		} else if (object.trim().equalsIgnoreCase("minecart")) {
-			if (world.spawnMinecart(location) != null) {
-				log.info("Minecart created successfully");
-			} else {
-				log.severe("Failed to create boat");
-			}
-		} else if (object.trim().equalsIgnoreCase("powered minecart")) {
-			if (world.spawnPoweredMinecart(location) != null) {
-				log.info("Powered minecart created successfully");
-			} else {
-				log.severe("Failed to create powered minecart");
-			}
-		} else if (object.trim().equalsIgnoreCase("storage minecart")) {
-			if (world.spawnStorageMinecart(location) != null) {
-				log.info("Storage minecart created successfully");
-			} else {
-				log.severe("Failed to create storage minecart");
-			}
-		} else if (object.trim().equalsIgnoreCase("lightning")) {
-			if (world.strikeLightning(location) != null) {
-				log.info("Lightning created successfully");
-			} else {
-				log.severe("Failed to create lightning");
-			}
-		} else if (object.trim().equalsIgnoreCase("light post")) {
-			if (createLightPost(location)) {
-				log.info("Lightning created successfully");
-			} else {
-				log.severe("Failed to create lightning");
-			}
-		} else {
-			log.severe("Failed to spawn object " + object);
-			world.getBlockAt(location).setType(org.bukkit.Material.TNT);
+		} catch (Exception e) {
+			log.severe(e.getMessage());
 		}
 
 	}
 
 	private static boolean createLightPost(Location loc) {
-		Block block_1 = world.getBlockAt(loc);
-		Block block_2 = world.getBlockAt(loc.getBlockX(), loc.getBlockY() + 1,
-				loc.getBlockZ());
-		Block block_3 = world.getBlockAt(loc.getBlockX(), loc.getBlockY() + 2,
-				loc.getBlockZ());
-		block_1.setType(Material.FENCE);
-		block_2.setType(Material.FENCE);
-		block_3.setType(Material.GLOWSTONE);
-		if (block_1.getType() == Material.FENCE
-				&& block_2.getType() == Material.FENCE
-				&& block_3.getType() == Material.GLOWSTONE) {
-			return true;
+		try {
+			Block block_1 = world.getBlockAt(loc);
+			Block block_2 = world.getBlockAt(loc.getBlockX(),
+					loc.getBlockY() + 1, loc.getBlockZ());
+			Block block_3 = world.getBlockAt(loc.getBlockX(),
+					loc.getBlockY() + 2, loc.getBlockZ());
+			block_1.setType(Material.FENCE);
+			block_2.setType(Material.FENCE);
+			block_3.setType(Material.GLOWSTONE);
+			if (block_1.getType() == Material.FENCE
+					&& block_2.getType() == Material.FENCE
+					&& block_3.getType() == Material.GLOWSTONE) {
+				return true;
+			}
+			return false;
+		} catch (Exception e) {
+			log.severe(e.getMessage());
+			return false;
 		}
-		return false;
 	}
 
 	/**
@@ -407,16 +422,14 @@ public class SATools extends JavaPlugin {
 		public void run() {
 			try {
 				while (twAlive) {
-					time = getServer().getWorld("DarrisonCraft").getTime();
-					if (time >= 13000 && time <= 13200) {
-						getServer().broadcastMessage(
-								ChatColor.RED + "Time to sleep");
+					time = world.getTime();
+					if (time >= 12000 && time <= 12100) {
 						runGC = true;
-						Thread.sleep(10000);
+						Thread.sleep(3000);
 					}
-					if (time >= 0 && time <= 200) {
+					if (time >= 0 && time <= 100) {
 						runGC = true;
-						Thread.sleep(10000);
+						Thread.sleep(3000);
 					}
 					Thread.sleep(2500);
 				}

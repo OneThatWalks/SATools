@@ -36,6 +36,8 @@ import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.CreatureType;
 import org.bukkit.entity.Player;
 import javax.swing.JSeparator;
+import java.awt.GridBagLayout;
+import javax.swing.JTextPane;
 
 /**
  * GUI for SATools
@@ -136,8 +138,31 @@ public class SAToolsGUI extends JFrame {
 	private JLabel jLabel_MAIN_SPAWN_WARNING = null;
 	private String[] objects = { "Tree", "Boat", "Minecart",
 			"Powered minecart", "Stoarage minecart", "Lightning", "Light post" };
-
-	// Start Class Methods
+	private JPanel jPanel_SCHEDULE = null;
+	private JScrollPane jScrollPane_SCHEDULE_TASKS = null;
+	private JLabel jLabel_SCHEDULE_TASKS = null;
+	private JPanel jPanel_SCHEDULE_TASKS_INFO = null;
+	private JSeparator jSeparator_SCHEDULE_TASKS = null;
+	private JSeparator jSeparator_MAIN_SCHEDULE_MODIFY = null;
+	private JButton jButton_SCHEDULE_TASKS_ADD = null;
+	private JButton jButton_SCHEDULE_TASKS_REMOVE = null;
+	private JButton jButton_SCHEDULE_TASKS_MODIFY = null;
+	private JLabel jLabel_SCHEDULE_TASKS_MODIFY_NAME = null;
+	private JTextField jTextField_SCHEDULE_TASKS_MODIFY_NAME_DATA = null;
+	private JLabel jLabel_SCHEDULE_TASKS_MODIFY_WHEN = null;
+	private JComboBox jComboBox_SCHEDULE_TASKS_MODIFY_WHEN_DATA = null;
+	private JLabel jLabel_SCHEDULE_TASKS_MODIFY_TODO = null;
+	private JComboBox jComboBox_SCHEDULE_TASKS_MODIFY_TODO_DATA = null;
+	private JList jList_SCHEDULE_TASKS = null;
+	private JButton jButton_SCHEDULE_TASKS_MODIFY_ADD = null;
+	private JTextPane jTextPane_SCHEDULE_TASKS_MODIFY_PREVIEW = null;
+	private JLabel jLabel_SCHEDULE_TASKS_PREVIEW = null;
+	private DefaultComboBoxModel defaultComboBoxModel_SCHEDULE_TASKS_MODIFY_TODO_DATA = null; // @jve:decl-index=0:visual-constraint="749,437"
+	private String[] actions = { "announcement", "send message", "command",
+			"time set", "weather set", "mob spawn", "object spawn",
+			"give player", "player health", "custom macro" };
+	private DefaultComboBoxModel defaultComboBoxModel_SCHEDULE_TASKS_MODIFY_WHEN_DATA = null; // @jve:decl-index=0:visual-constraint="754,352"
+	private String[] times = { "midnight", "morning", "noon", "dusk" };
 
 	/**
 	 * This is the default constructor
@@ -279,10 +304,13 @@ public class SAToolsGUI extends JFrame {
 		if (jTabbedPane == null) {
 			jTabbedPane = new JTabbedPane();
 			jTabbedPane.setBounds(new Rectangle(0, 0, 584, 762)); // Generated
+			jTabbedPane.setEnabled(true); // Generated
 			jTabbedPane.addTab("Server Main", null, getJPanel_MAIN(),
 					"Main Server Options"); // Generated
 			jTabbedPane.addTab("Players", null, getJPanel_PLAYERS(),
 					"Players and Player Options"); // Generated
+			// jTabbedPane.addTab("Schedule Tasks", null, getJPanel_SCHEDULE(),
+			// "Schedule tasks here!"); // Generated
 		}
 		return jTabbedPane;
 	}
@@ -1630,6 +1658,296 @@ public class SAToolsGUI extends JFrame {
 			}
 		}
 
+	}
+
+	/**
+	 * This method initializes jPanel_SCHEDULE
+	 * 
+	 * @return javax.swing.JPanel
+	 */
+	private JPanel getJPanel_SCHEDULE() {
+		if (jPanel_SCHEDULE == null) {
+			jLabel_SCHEDULE_TASKS_PREVIEW = new JLabel();
+			jLabel_SCHEDULE_TASKS_PREVIEW.setBounds(new Rectangle(14, 480, 90,
+					16)); // Generated
+			jLabel_SCHEDULE_TASKS_PREVIEW.setText("Preview:"); // Generated
+			jLabel_SCHEDULE_TASKS_MODIFY_TODO = new JLabel();
+			jLabel_SCHEDULE_TASKS_MODIFY_TODO.setBounds(new Rectangle(15, 435,
+					38, 20)); // Generated
+			jLabel_SCHEDULE_TASKS_MODIFY_TODO.setText("Todo:"); // Generated
+			jLabel_SCHEDULE_TASKS_MODIFY_WHEN = new JLabel();
+			jLabel_SCHEDULE_TASKS_MODIFY_WHEN.setBounds(new Rectangle(15, 405,
+					38, 20)); // Generated
+			jLabel_SCHEDULE_TASKS_MODIFY_WHEN.setText("When:"); // Generated
+			jLabel_SCHEDULE_TASKS_MODIFY_NAME = new JLabel();
+			jLabel_SCHEDULE_TASKS_MODIFY_NAME.setBounds(new Rectangle(15, 375,
+					38, 20)); // Generated
+			jLabel_SCHEDULE_TASKS_MODIFY_NAME.setText("Name:"); // Generated
+			jLabel_SCHEDULE_TASKS = new JLabel();
+			jLabel_SCHEDULE_TASKS.setBounds(new Rectangle(15, 15, 108, 16)); // Generated
+			jLabel_SCHEDULE_TASKS.setText("Scheduled Tasks"); // Generated
+			jPanel_SCHEDULE = new JPanel();
+			jPanel_SCHEDULE.setLayout(null); // Generated
+			jPanel_SCHEDULE.setEnabled(true); // Generated
+			jPanel_SCHEDULE.add(getJScrollPane_SCHEDULE_TASKS(), null); // Generated
+			jPanel_SCHEDULE.add(jLabel_SCHEDULE_TASKS, null); // Generated
+			jPanel_SCHEDULE.add(getJPanel_SCHEDULE_TASKS_INFO(), null); // Generated
+			jPanel_SCHEDULE.add(getJSeparator_SCHEDULE_TASKS(), null); // Generated
+			jPanel_SCHEDULE.add(getJSeparator_MAIN_SCHEDULE_MODIFY(), null); // Generated
+			jPanel_SCHEDULE.add(getJButton_SCHEDULE_TASKS_ADD(), null); // Generated
+			jPanel_SCHEDULE.add(getJButton_SCHEDULE_TASKS_REMOVE(), null); // Generated
+			jPanel_SCHEDULE.add(getJButton_SCHEDULE_TASKS_MODIFY(), null); // Generated
+			jPanel_SCHEDULE.add(jLabel_SCHEDULE_TASKS_MODIFY_NAME, null); // Generated
+			jPanel_SCHEDULE.add(
+					getJTextField_SCHEDULE_TASKS_MODIFY_NAME_DATA(), null); // Generated
+			jPanel_SCHEDULE.add(jLabel_SCHEDULE_TASKS_MODIFY_WHEN, null); // Generated
+			jPanel_SCHEDULE.add(getJComboBox_SCHEDULE_TASKS_MODIFY_WHEN_DATA(),
+					null); // Generated
+			jPanel_SCHEDULE.add(jLabel_SCHEDULE_TASKS_MODIFY_TODO, null); // Generated
+			jPanel_SCHEDULE.add(getJComboBox_SCHEDULE_TASKS_MODIFY_TODO_DATA(),
+					null); // Generated
+			jPanel_SCHEDULE.add(getJButton_SCHEDULE_TASKS_MODIFY_ADD(), null); // Generated
+			jPanel_SCHEDULE.add(getJTextPane_SCHEDULE_TASKS_MODIFY_PREVIEW(),
+					null); // Generated
+			jPanel_SCHEDULE.add(jLabel_SCHEDULE_TASKS_PREVIEW, null); // Generated
+		}
+		return jPanel_SCHEDULE;
+	}
+
+	/**
+	 * This method initializes jScrollPane_SCHEDULE_TASKS
+	 * 
+	 * @return javax.swing.JScrollPane
+	 */
+	private JScrollPane getJScrollPane_SCHEDULE_TASKS() {
+		if (jScrollPane_SCHEDULE_TASKS == null) {
+			jScrollPane_SCHEDULE_TASKS = new JScrollPane();
+			jScrollPane_SCHEDULE_TASKS
+					.setBounds(new Rectangle(15, 60, 250, 255)); // Generated
+			jScrollPane_SCHEDULE_TASKS
+					.setViewportView(getJList_SCHEDULE_TASKS()); // Generated
+		}
+		return jScrollPane_SCHEDULE_TASKS;
+	}
+
+	/**
+	 * This method initializes jPanel_SCHEDULE_TASKS_INFO
+	 * 
+	 * @return javax.swing.JPanel
+	 */
+	private JPanel getJPanel_SCHEDULE_TASKS_INFO() {
+		if (jPanel_SCHEDULE_TASKS_INFO == null) {
+			jPanel_SCHEDULE_TASKS_INFO = new JPanel();
+			jPanel_SCHEDULE_TASKS_INFO.setLayout(new GridBagLayout()); // Generated
+			jPanel_SCHEDULE_TASKS_INFO.setBounds(new Rectangle(310, 60, 255,
+					255)); // Generated
+			jPanel_SCHEDULE_TASKS_INFO.setBorder(BorderFactory
+					.createTitledBorder(null, "Info",
+							TitledBorder.DEFAULT_JUSTIFICATION,
+							TitledBorder.DEFAULT_POSITION, new Font("Dialog",
+									Font.BOLD, 12), new Color(51, 51, 51))); // Generated
+		}
+		return jPanel_SCHEDULE_TASKS_INFO;
+	}
+
+	/**
+	 * This method initializes jSeparator_SCHEDULE_TASKS
+	 * 
+	 * @return javax.swing.JSeparator
+	 */
+	private JSeparator getJSeparator_SCHEDULE_TASKS() {
+		if (jSeparator_SCHEDULE_TASKS == null) {
+			jSeparator_SCHEDULE_TASKS = new JSeparator();
+			jSeparator_SCHEDULE_TASKS.setOrientation(JSeparator.VERTICAL);
+			jSeparator_SCHEDULE_TASKS
+					.setBounds(new Rectangle(285, 60, 10, 256)); // Generated
+		}
+		return jSeparator_SCHEDULE_TASKS;
+	}
+
+	/**
+	 * This method initializes jSeparator_MAIN_SCHEDULE_MODIFY
+	 * 
+	 * @return javax.swing.JSeparator
+	 */
+	private JSeparator getJSeparator_MAIN_SCHEDULE_MODIFY() {
+		if (jSeparator_MAIN_SCHEDULE_MODIFY == null) {
+			jSeparator_MAIN_SCHEDULE_MODIFY = new JSeparator();
+			jSeparator_MAIN_SCHEDULE_MODIFY.setBounds(new Rectangle(15, 355,
+					550, 10)); // Generated
+		}
+		return jSeparator_MAIN_SCHEDULE_MODIFY;
+	}
+
+	/**
+	 * This method initializes jButton_SCHEDULE_TASKS_ADD
+	 * 
+	 * @return javax.swing.JButton
+	 */
+	private JButton getJButton_SCHEDULE_TASKS_ADD() {
+		if (jButton_SCHEDULE_TASKS_ADD == null) {
+			jButton_SCHEDULE_TASKS_ADD = new JButton();
+			jButton_SCHEDULE_TASKS_ADD
+					.setBounds(new Rectangle(15, 325, 100, 20)); // Generated
+			jButton_SCHEDULE_TASKS_ADD.setText("Add"); // Generated
+		}
+		return jButton_SCHEDULE_TASKS_ADD;
+	}
+
+	/**
+	 * This method initializes jButton_SCHEDULE_TASKS_REMOVE
+	 * 
+	 * @return javax.swing.JButton
+	 */
+	private JButton getJButton_SCHEDULE_TASKS_REMOVE() {
+		if (jButton_SCHEDULE_TASKS_REMOVE == null) {
+			jButton_SCHEDULE_TASKS_REMOVE = new JButton();
+			jButton_SCHEDULE_TASKS_REMOVE.setBounds(new Rectangle(165, 325,
+					100, 20)); // Generated
+			jButton_SCHEDULE_TASKS_REMOVE.setText("Remove"); // Generated
+		}
+		return jButton_SCHEDULE_TASKS_REMOVE;
+	}
+
+	/**
+	 * This method initializes jButton_SCHEDULE_TASKS_MODIFY
+	 * 
+	 * @return javax.swing.JButton
+	 */
+	private JButton getJButton_SCHEDULE_TASKS_MODIFY() {
+		if (jButton_SCHEDULE_TASKS_MODIFY == null) {
+			jButton_SCHEDULE_TASKS_MODIFY = new JButton();
+			jButton_SCHEDULE_TASKS_MODIFY.setBounds(new Rectangle(380, 325,
+					115, 20)); // Generated
+			jButton_SCHEDULE_TASKS_MODIFY.setText("Modify Task"); // Generated
+		}
+		return jButton_SCHEDULE_TASKS_MODIFY;
+	}
+
+	/**
+	 * This method initializes jTextField_SCHEDULE_TASKS_MODIFY_NAME_DATA
+	 * 
+	 * @return javax.swing.JTextField
+	 */
+	private JTextField getJTextField_SCHEDULE_TASKS_MODIFY_NAME_DATA() {
+		if (jTextField_SCHEDULE_TASKS_MODIFY_NAME_DATA == null) {
+			jTextField_SCHEDULE_TASKS_MODIFY_NAME_DATA = new JTextField();
+			jTextField_SCHEDULE_TASKS_MODIFY_NAME_DATA.setBounds(new Rectangle(
+					60, 375, 315, 20)); // Generated
+		}
+		return jTextField_SCHEDULE_TASKS_MODIFY_NAME_DATA;
+	}
+
+	/**
+	 * This method initializes jComboBox_SCHEDULE_TASKS_MODIFY_WHEN_DATA
+	 * 
+	 * @return javax.swing.JComboBox
+	 */
+	private JComboBox getJComboBox_SCHEDULE_TASKS_MODIFY_WHEN_DATA() {
+		if (jComboBox_SCHEDULE_TASKS_MODIFY_WHEN_DATA == null) {
+			jComboBox_SCHEDULE_TASKS_MODIFY_WHEN_DATA = new JComboBox(
+					getDefaultComboBoxModel_SCHEDULE_TASKS_MODIFY_WHEN_DATA());
+			jComboBox_SCHEDULE_TASKS_MODIFY_WHEN_DATA.setBounds(new Rectangle(
+					60, 405, 315, 20)); // Generated
+			jComboBox_SCHEDULE_TASKS_MODIFY_WHEN_DATA.setEditable(true); // Generated
+		}
+		return jComboBox_SCHEDULE_TASKS_MODIFY_WHEN_DATA;
+	}
+
+	/**
+	 * This method initializes jComboBox_SCHEDULE_TASKS_MODIFY_TODO_DATA
+	 * 
+	 * @return javax.swing.JComboBox
+	 */
+	private JComboBox getJComboBox_SCHEDULE_TASKS_MODIFY_TODO_DATA() {
+		if (jComboBox_SCHEDULE_TASKS_MODIFY_TODO_DATA == null) {
+			jComboBox_SCHEDULE_TASKS_MODIFY_TODO_DATA = new JComboBox(
+					getDefaultComboBoxModel_SCHEDULE_TASKS_MODIFY_TODO_DATA());
+			jComboBox_SCHEDULE_TASKS_MODIFY_TODO_DATA.setBounds(new Rectangle(
+					60, 435, 315, 20)); // Generated
+		}
+		return jComboBox_SCHEDULE_TASKS_MODIFY_TODO_DATA;
+	}
+
+	/**
+	 * This method initializes jList_SCHEDULE_TASKS
+	 * 
+	 * @return javax.swing.JList
+	 */
+	private JList getJList_SCHEDULE_TASKS() {
+		if (jList_SCHEDULE_TASKS == null) {
+			jList_SCHEDULE_TASKS = new JList();
+		}
+		return jList_SCHEDULE_TASKS;
+	}
+
+	/**
+	 * This method initializes jButton_SCHEDULE_TASKS_MODIFY_ADD
+	 * 
+	 * @return javax.swing.JButton
+	 */
+	private JButton getJButton_SCHEDULE_TASKS_MODIFY_ADD() {
+		if (jButton_SCHEDULE_TASKS_MODIFY_ADD == null) {
+			jButton_SCHEDULE_TASKS_MODIFY_ADD = new JButton();
+			jButton_SCHEDULE_TASKS_MODIFY_ADD.setBounds(new Rectangle(390, 435,
+					59, 20)); // Generated
+			jButton_SCHEDULE_TASKS_MODIFY_ADD.setText("Add"); // Generated
+		}
+		return jButton_SCHEDULE_TASKS_MODIFY_ADD;
+	}
+
+	/**
+	 * This method initializes jTextPane_SCHEDULE_TASKS_MODIFY_PREVIEW
+	 * 
+	 * @return javax.swing.JTextPane
+	 */
+	private JTextPane getJTextPane_SCHEDULE_TASKS_MODIFY_PREVIEW() {
+		if (jTextPane_SCHEDULE_TASKS_MODIFY_PREVIEW == null) {
+			jTextPane_SCHEDULE_TASKS_MODIFY_PREVIEW = new JTextPane();
+			jTextPane_SCHEDULE_TASKS_MODIFY_PREVIEW.setBounds(new Rectangle(15,
+					510, 550, 210)); // Generated
+			jTextPane_SCHEDULE_TASKS_MODIFY_PREVIEW.setFont(new Font(
+					"Lucida Console", Font.PLAIN, 12)); // Generated
+			jTextPane_SCHEDULE_TASKS_MODIFY_PREVIEW.setEditable(false); // Generated
+			jTextPane_SCHEDULE_TASKS_MODIFY_PREVIEW.setText(""); // Generated
+			jTextPane_SCHEDULE_TASKS_MODIFY_PREVIEW.setForeground(Color.white); // Generated
+			jTextPane_SCHEDULE_TASKS_MODIFY_PREVIEW.setBackground(Color.black); // Generated
+		}
+		return jTextPane_SCHEDULE_TASKS_MODIFY_PREVIEW;
+	}
+
+	/**
+	 * This method initializes
+	 * defaultComboBoxModel_SCHEDULE_TASKS_MODIFY_TODO_DATA
+	 * 
+	 * @return javax.swing.DefaultComboBoxModel
+	 */
+	private DefaultComboBoxModel getDefaultComboBoxModel_SCHEDULE_TASKS_MODIFY_TODO_DATA() {
+		if (defaultComboBoxModel_SCHEDULE_TASKS_MODIFY_TODO_DATA == null) {
+			defaultComboBoxModel_SCHEDULE_TASKS_MODIFY_TODO_DATA = new DefaultComboBoxModel();
+			for (int i = 0; i < actions.length; i++) {
+				defaultComboBoxModel_SCHEDULE_TASKS_MODIFY_TODO_DATA
+						.addElement(actions[i]);
+			}
+		}
+		return defaultComboBoxModel_SCHEDULE_TASKS_MODIFY_TODO_DATA;
+	}
+
+	/**
+	 * This method initializes
+	 * defaultComboBoxModel_SCHEDULE_TASKS_MODIFY_WHEN_DATA
+	 * 
+	 * @return javax.swing.DefaultComboBoxModel
+	 */
+	private DefaultComboBoxModel getDefaultComboBoxModel_SCHEDULE_TASKS_MODIFY_WHEN_DATA() {
+		if (defaultComboBoxModel_SCHEDULE_TASKS_MODIFY_WHEN_DATA == null) {
+			defaultComboBoxModel_SCHEDULE_TASKS_MODIFY_WHEN_DATA = new DefaultComboBoxModel();
+			for (int i = 0; i < times.length; i++) {
+				defaultComboBoxModel_SCHEDULE_TASKS_MODIFY_WHEN_DATA
+						.addElement(times[i]);
+			}
+		}
+		return defaultComboBoxModel_SCHEDULE_TASKS_MODIFY_WHEN_DATA;
 	}
 
 }
