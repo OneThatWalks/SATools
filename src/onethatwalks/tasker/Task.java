@@ -10,25 +10,26 @@ public class Task implements Runnable {
 	private File macro;
 	private long time;
 	String name;
-	private final Tasks tasks = SATools.tasks;
+	private final TaskScheduler tasks = SATools.tasks;
 	public static final Logger log = Logger.getLogger("Minecraft");
 
 	public Task(String name, long time, String file) {
 		this.macro = new File(file);
 		this.time = time;
 		this.name = name;
-		tasks.addTask(this);
+	}
+
+	public long getExecutionTime() {
+		return time;
+	}
+
+	public Task getTask() {
+		return this;
 	}
 
 	@Override
 	public void run() {
-		if (time != 0L) {
-			if (name != null) {
 
-			}
-		} else {
-			log.severe("Task Failiure");
-			tasks.killTask(this);
-		}
 	}
+
 }

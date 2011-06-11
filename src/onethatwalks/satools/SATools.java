@@ -20,7 +20,7 @@ import javax.swing.JOptionPane;
 import onethatwalks.satools.listeners.SAToolsBlockListener;
 import onethatwalks.satools.listeners.SAToolsEntityListener;
 import onethatwalks.satools.listeners.SAToolsPlayerListener;
-import onethatwalks.tasker.Tasks;
+import onethatwalks.tasker.TaskScheduler;
 
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -64,7 +64,7 @@ public class SATools extends JavaPlugin {
 	private boolean twAlive = true;
 	private boolean gcAlive = true;
 	static boolean runGC = false;
-	long time;
+	public static long time;
 	// Update feature data
 	private String dataFile = null;
 	URL pluginInfo;
@@ -74,7 +74,7 @@ public class SATools extends JavaPlugin {
 	static World world;
 	public static List<Player> gods = new ArrayList<Player>();
 	static ArrayList<String> godsRemoved = new ArrayList<String>();
-	public static Tasks tasks = new Tasks();
+	public static TaskScheduler tasks = new TaskScheduler();
 
 	static enum Weather {
 		CLEAR, STORM, THUNDER
