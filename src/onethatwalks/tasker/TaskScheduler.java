@@ -1,6 +1,7 @@
 package onethatwalks.tasker;
 
 import java.util.Collection;
+import java.util.LinkedList;
 import java.util.TreeMap;
 
 import onethatwalks.satools.SATools;
@@ -11,34 +12,46 @@ import onethatwalks.satools.SATools;
  * @author OneThatWalks
  * 
  */
-public class TaskScheduler implements Tasker, Runnable {
-	private TreeMap<String, Task> tasks = new TreeMap<String, Task>();
+public class TaskScheduler implements Runnable {
+	private TreeMap<String, Task> tasksQueue = new TreeMap<String, Task>();
+	private LinkedList<Task> tasks = new LinkedList<Task>();
+	private SATools plugin;
 
-	public TaskScheduler() {
+	public TaskScheduler(SATools instance) {
+		plugin = instance;
 		Thread t = new Thread(this);
 		t.start();
 	}
 
 	protected void addTask(Task task) {
-		tasks.put(task.name, task);
+		tasksQueue.put(task.name, task);
+		scheduleTask(task);
+	}
+
+	private void scheduleTask(Task task) {
+		if (!tasks.isEmpty()) {
+			// TODO
+		} else {
+			tasks.add(task);
+		}
 	}
 
 	public void registerTask(String name, long time, String file) {
 		if (getTask(name) != null) {
-			Task newTask = new Task(name, time, file);
+			Task newTask = new Task(name, time, file, plugin);
 			addTask(newTask);
 		}
 	}
 
 	private Task getTask(String name) {
-		if (tasks.containsKey(name)) {
-			return tasks.get(name);
+		if (tasksQueue.containsKey(name)) {
+			return tasksQueue.get(name);
 		}
 		return null;
 	}
 
 	public Collection<Task> getTasks() {
-		return tasks.values();
+		return tasksQueue.values();
 	}
 
 	public void killTask(Task task) {
@@ -53,7 +66,7 @@ public class TaskScheduler implements Tasker, Runnable {
 	public void run() {
 		while (true) {
 			boolean stop = false;
-			long firstTime = -1;
+			long taskTime = -1;
 			long currentTime = -1;
 			Task first = null;
 			int taskQueue = 0;
@@ -61,14 +74,20 @@ public class TaskScheduler implements Tasker, Runnable {
 				synchronized (tasks) {
 					first = null;
 					if (!tasks.isEmpty()) {
-						first = tasks.get(getTasks().toArray()[taskQueue]);
+						first = tasks.get(taskQueue);
 						if (first != null) {
 							currentTime = SATools.time;
 
-							firstTime = first.getExecutionTime();
+							taskTime = first.getExecutionTime();
 
-							if (currentTime >= firstTime) {
+							if (currentTime >= taskTime
+									&& currentTime <= taskTime + 100) {
 								processTask(first);
+								if (taskQueue == tasks.size() - 1) {
+									taskQueue = 0;
+								} else {
+									taskQueue++;
+								}
 							} else {
 								stop = true;
 							}
@@ -86,7 +105,7 @@ public class TaskScheduler implements Tasker, Runnable {
 				sleepTime = 6000;
 			} else {
 				currentTime = SATools.time;
-				sleepTime = (firstTime - currentTime);
+				sleepTime = (taskTime - currentTime);
 			}
 
 			if (sleepTime < 50) {
