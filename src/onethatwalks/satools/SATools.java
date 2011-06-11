@@ -17,6 +17,11 @@ import java.util.logging.Logger;
 
 import javax.swing.JOptionPane;
 
+import onethatwalks.satools.listeners.SAToolsBlockListener;
+import onethatwalks.satools.listeners.SAToolsEntityListener;
+import onethatwalks.satools.listeners.SAToolsPlayerListener;
+import onethatwalks.tasker.Tasks;
+
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.TreeType;
@@ -59,17 +64,17 @@ public class SATools extends JavaPlugin {
 	private boolean twAlive = true;
 	private boolean gcAlive = true;
 	static boolean runGC = false;
-	Tasker tasker = new Tasker(this);
 	long time;
 	// Update feature data
 	private String dataFile = null;
 	URL pluginInfo;
 	// Save data
-	static ArrayList<String> godsContents = new ArrayList<String>();
+	public static ArrayList<String> godsContents = new ArrayList<String>();
 	// Actual plugin variables
 	static World world;
-	static List<Player> gods = new ArrayList<Player>();
+	public static List<Player> gods = new ArrayList<Player>();
 	static ArrayList<String> godsRemoved = new ArrayList<String>();
+	public static Tasks tasks = new Tasks();
 
 	static enum Weather {
 		CLEAR, STORM, THUNDER

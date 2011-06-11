@@ -1,4 +1,7 @@
-package onethatwalks.satools;
+package onethatwalks.satools.listeners;
+
+import onethatwalks.satools.SATools;
+import onethatwalks.satools.SAToolsGUI;
 
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;

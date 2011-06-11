@@ -54,27 +54,27 @@ public class SAToolsGUI extends JFrame {
 	private static SATools plugin;
 	private JPanel jPanel_PLAYERS = null;
 	private JScrollPane jScrollPane_PLAYERS_PLAYERS = null;
-	static JList jList_PLAYERS_PLAYERS = null;
-	static DefaultListModel DefaultListModel_PLAYERS_PLAYERS = null; // @jve:decl-index=1:visual-constraint="280,1000"
-	static JPanel jPanel_PLAYERS_PLAYER = null;
-	static JPanel jPanel_PLAYERS_MODIFY = null;
+	public static JList jList_PLAYERS_PLAYERS = null;
+	public static DefaultListModel DefaultListModel_PLAYERS_PLAYERS = null; // @jve:decl-index=1:visual-constraint="280,1000"
+	public static JPanel jPanel_PLAYERS_PLAYER = null;
+	public static JPanel jPanel_PLAYERS_MODIFY = null;
 	private JLabel jLabel_PLAYERS_PLAYER_LOCATION = null;
-	static JLabel jLabel_PLAYERS_PLAYER_LOCATION_DATA = null;
+	public static JLabel jLabel_PLAYERS_PLAYER_LOCATION_DATA = null;
 	private JLabel jLabel_PLAYERS_PLAYER_ENTITYID = null;
-	static JLabel jLabel_PLAYERS_PLAYER_ENTITYID_DATA = null;
+	public static JLabel jLabel_PLAYERS_PLAYER_ENTITYID_DATA = null;
 	private JLabel jLabel_PLAYERS_PLAYER_HEALTH = null;
-	static JLabel jLabel_PLAYERS_PLAYER_HEALTH_DATA = null;
+	public static JLabel jLabel_PLAYERS_PLAYER_HEALTH_DATA = null;
 	private JLabel jLabel_PLAYERS_PLAYER_ITEM = null;
-	static JLabel jLabel_PLAYERS_PLAYER_ITEM_DATA = null;
+	public static JLabel jLabel_PLAYERS_PLAYER_ITEM_DATA = null;
 	private JLabel jLabel_PLAYERS_PLAYER_DEAD = null;
-	static JLabel jLabel_PLAYERS_PLAYER_DEAD_DATA = null;
+	public static JLabel jLabel_PLAYERS_PLAYER_DEAD_DATA = null;
 	private JLabel jLabel_PLAYERS_PLAYER_OP = null;
-	static JLabel jLabel_PLAYERS_PLAYER_OP_DATA = null;
+	public static JLabel jLabel_PLAYERS_PLAYER_OP_DATA = null;
 	private JLabel jLabel_PLAYERS_PLAYER_SLEEP = null;
-	static JLabel jLabel_PLAYERS_PLAYER_SLEEP_DATA = null;
+	public static JLabel jLabel_PLAYERS_PLAYER_SLEEP_DATA = null;
 	private JLabel jLabel_PLAYERS_PLAYER_SNEAK = null;
-	static JLabel jLabel_PLAYERS_PLAYER_SNEAK_DATA = null;
-	static Player player = null;
+	public static JLabel jLabel_PLAYERS_PLAYER_SNEAK_DATA = null;
+	public static Player player = null;
 	static boolean piAlive = false;
 	public static PlayerInfo pi = new PlayerInfo(); // @jve:decl-index=0:
 	private JLabel jLabel_PLAYERS_MODIFY_GIVE = null;
@@ -91,8 +91,8 @@ public class SAToolsGUI extends JFrame {
 	private JTextField jTextField_MAIN_CONSOLE_SAY = null;
 	private JButton jButton_MAIN_CONSOLE_SAY = null;
 	private JLabel jLabel_MAIN_CONSOLE_MESSAGE = null;
-	static JComboBox jComboBox_MAIN_CONSOLE_MESSAGE = null;
-	static DefaultComboBoxModel DefaultComboBoxModel_MAIN_CONSOLE_MESSAGE = null; // @jve:decl-index=2:visual-constraint="280,900"
+	public static JComboBox jComboBox_MAIN_CONSOLE_MESSAGE = null;
+	public static DefaultComboBoxModel DefaultComboBoxModel_MAIN_CONSOLE_MESSAGE = null; // @jve:decl-index=2:visual-constraint="280,900"
 	private JTextField jTextField_MAIN_CONSOLE_MESSAGE = null;
 	private JButton jButton_MAIN_CONSOLE_MESSAGE = null;
 	private JLabel jLabel_MAIN_CONSOLE_COMMAND = null;
@@ -117,23 +117,23 @@ public class SAToolsGUI extends JFrame {
 	private JLabel jLabel_PLAYERS_MODIFY_HEALTH = null;
 	private JButton jButton_PLAYERS_MODIFY_HEALTH_FULL = null;
 	private JButton jButton_PLAYERS_MODIFY_HEALTH_KILL = null;
-	static JToggleButton jToggleButton_PLAYERS_MODIFY_HEALTH_JESUS = null;
+	public static JToggleButton jToggleButton_PLAYERS_MODIFY_HEALTH_JESUS = null;
 	private JTextField jTextField_PLAYERS_MODIFY_HEALTH_INT = null;
 	private JPanel jPanel_MAIN_SPAWN = null;
 	private JLabel jLabel_MAIN_SPAWN = null;
 	private JComboBox jComboBox_MAIN_SPAWN = null;
 	private DefaultComboBoxModel defaultComboBoxModel_MAIN_SPAWN = null; // @jve:decl-index=0:visual-constraint="820,743"
 	private JLabel jLabel_MAIN_SPAWN_WHERE = null;
-	static JComboBox jComboBox_MAIN_SPAWN_LOCATION = null;
+	public static JComboBox jComboBox_MAIN_SPAWN_LOCATION = null;
 	private JButton jButton_MAIN_SPAWN = null;
-	static DefaultComboBoxModel defaultComboBoxModel_MAIN_SPAWN_LOCATION = null; // @jve:decl-index=0:visual-constraint="744,529"
+	public static DefaultComboBoxModel defaultComboBoxModel_MAIN_SPAWN_LOCATION = null; // @jve:decl-index=0:visual-constraint="744,529"
 	private JSeparator jSeparator_MAIN_SPAWN = null;
 	private JLabel jLabel_MAIN_SPAWN_OBJECT = null;
 	private JComboBox jComboBox_MAIN_SPAWN_OBJECT = null;
 	private DefaultComboBoxModel defaultComboBoxModel_MAIN_SPAWN_OBJECT = null;
 	private JLabel jLabel_MAIN_SPAWN_WHERE_OBJECT = null;
-	static JComboBox jComboBox_MAIN_SPAWN_LOCATION_OBJECT = null;
-	static DefaultComboBoxModel defaultComboBoxModel_MAIN_SPAWN_LOCATION_OBJECT = null;
+	public static JComboBox jComboBox_MAIN_SPAWN_LOCATION_OBJECT = null;
+	public static DefaultComboBoxModel defaultComboBoxModel_MAIN_SPAWN_LOCATION_OBJECT = null;
 	private JButton jButton_MAIN_SPAWN_OBJECT = null;
 	private JLabel jLabel_MAIN_SPAWN_WARNING = null;
 	private String[] objects = { "Tree", "Boat", "Minecart",
@@ -309,8 +309,8 @@ public class SAToolsGUI extends JFrame {
 					"Main Server Options"); // Generated
 			jTabbedPane.addTab("Players", null, getJPanel_PLAYERS(),
 					"Players and Player Options"); // Generated
-			// jTabbedPane.addTab("Schedule Tasks", null, getJPanel_SCHEDULE(),
-			// "Schedule tasks here!"); // Generated
+			jTabbedPane.addTab("Schedule Tasks", null, getJPanel_SCHEDULE(),
+					"Schedule tasks here!"); // Generated
 		}
 		return jTabbedPane;
 	}

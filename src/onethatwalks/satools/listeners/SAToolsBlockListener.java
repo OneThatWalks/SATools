@@ -1,4 +1,6 @@
-package onethatwalks.satools;
+package onethatwalks.satools.listeners;
+
+import onethatwalks.satools.SATools;
 
 import org.bukkit.event.block.BlockListener;
 
