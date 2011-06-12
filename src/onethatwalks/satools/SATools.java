@@ -71,10 +71,10 @@ public class SATools extends JavaPlugin {
 	// Save data
 	public static ArrayList<String> godsContents = new ArrayList<String>();
 	// Actual plugin variables
-	static World world;
+	public static World world;
 	public static List<Player> gods = new ArrayList<Player>();
 	static ArrayList<String> godsRemoved = new ArrayList<String>();
-	public static TaskScheduler tasks = new TaskScheduler();
+	public static TaskScheduler tasks = new TaskScheduler(null); // TODO
 
 	static enum Weather {
 		CLEAR, STORM, THUNDER
@@ -191,7 +191,7 @@ public class SATools extends JavaPlugin {
 	 *            String to check
 	 * @return true is the text contains a double, otherwise false
 	 */
-	private boolean isDouble(String text) {
+	public boolean isDouble(String text) {
 		try {
 			Double.parseDouble(text);
 		} catch (NumberFormatException e) {

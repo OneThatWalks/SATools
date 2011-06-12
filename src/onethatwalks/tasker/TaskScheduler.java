@@ -3,6 +3,7 @@ package onethatwalks.tasker;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.TreeMap;
+import java.util.logging.Logger;
 
 import onethatwalks.satools.SATools;
 
@@ -16,21 +17,52 @@ public class TaskScheduler implements Runnable {
 	private TreeMap<String, Task> tasksQueue = new TreeMap<String, Task>();
 	private LinkedList<Task> tasks = new LinkedList<Task>();
 	private SATools plugin;
+	public static final Logger log = Logger.getLogger("Minecraft");
+	Thread t;
+	int taskQueue = 0;
 
 	public TaskScheduler(SATools instance) {
 		plugin = instance;
-		Thread t = new Thread(this);
+		t = new Thread(this);
 		t.start();
 	}
 
 	protected void addTask(Task task) {
+		t.interrupt();
 		tasksQueue.put(task.name, task);
 		scheduleTask(task);
+		t.notify();
 	}
 
 	private void scheduleTask(Task task) {
 		if (!tasks.isEmpty()) {
-			// TODO
+			long theTime = task.getExecutionTime();
+			int where = -1;
+			for (Task tt : tasks) {
+				long compareTime = tt.getExecutionTime();
+				if (theTime >= compareTime) {
+					if (tasks.indexOf(tt) != tasks.size() - 1) {
+						where = tasks.indexOf(tt) + 1;
+						continue;
+					} else {
+						where = tasks.indexOf(tt) + 1;
+					}
+				} else if (theTime < compareTime) {
+					if (tasks.indexOf(tt) != 0) {
+						where = tasks.indexOf(tt) - 1;
+						continue;
+					} else {
+						where = 0;
+					}
+				} else {
+					log.severe("Error: scheduleTask(Task task) TaskScheduler.class");
+				}
+			}
+			try {
+				tasks.add(where, task);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
 		} else {
 			tasks.add(task);
 		}
@@ -69,7 +101,6 @@ public class TaskScheduler implements Runnable {
 			long taskTime = -1;
 			long currentTime = -1;
 			Task first = null;
-			int taskQueue = 0;
 			do {
 				synchronized (tasks) {
 					first = null;
@@ -107,13 +138,6 @@ public class TaskScheduler implements Runnable {
 				currentTime = SATools.time;
 				sleepTime = (taskTime - currentTime);
 			}
-
-			if (sleepTime < 50) {
-				sleepTime = 50;
-			} else if (sleepTime > 60000) {
-				sleepTime = 60000;
-			}
-
 			synchronized (tasks) {
 				try {
 					tasks.wait(sleepTime);

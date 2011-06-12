@@ -5,11 +5,15 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.logging.Logger;
 
-import org.bukkit.command.ConsoleCommandSender;
-
 import onethatwalks.satools.SATools;
+import onethatwalks.satools.SAToolsGUI;
+
+import org.bukkit.Location;
+import org.bukkit.command.ConsoleCommandSender;
+import org.bukkit.entity.CreatureType;
 
 public class Task implements Runnable {
 
@@ -17,15 +21,23 @@ public class Task implements Runnable {
 	private long time;
 	String name;
 	private String[] instructions;
-	private Exception InstructionSetInvalidException;
+	private Exception InvalidInstructionException;
 	private SATools plugin;
 	public static final Logger log = Logger.getLogger("Minecraft");
+	private Exception NullInstructionException;
+	public String[] raw_commands = { "serverSay", "playerSay", "setTime",
+			"setWeather", "spawnMob", "spawnObject", "givePlayer",
+			"playerHealth" };
+	public ArrayList<String> commands = new ArrayList<String>();
 
 	public Task(String name, long time, String file, SATools instance) {
 		this.macro = new File(file);
 		this.time = time;
 		this.name = name;
 		plugin = instance;
+		for (String c : raw_commands) {
+			commands.add(c);
+		}
 	}
 
 	public long getExecutionTime() {
@@ -44,22 +56,124 @@ public class Task implements Runnable {
 				try {
 					doInstruction(instructions[i]);
 				} catch (Exception e) {
+					log.severe("Error on line: " + (i + 1) + " of "
+							+ macro.getName());
 					e.printStackTrace();
 				}
 			}
 		}
 	}
 
-	private void doInstruction(String string) throws Exception {
+	private void doInstruction(String string) throws Exception { // TODO add
+																	// line
+																	// number
+																	// regognition.
 		if (!string.isEmpty()) {
 			if (string.startsWith("/")) {
 				doCommand(string);
-			} else {
+			} else if (string.startsWith(commands.get(0))) { // serverSay
+				String[] tokens = string.split(" ");
+				String message = tokens[1];
+				plugin.getServer().broadcastMessage(message);
+			} else if (string.startsWith(commands.get(1))) { // playerSay
+				String[] tokens = string.split(" ");
+				String message = tokens[1];
+				String player = tokens[2];
+				// check if player online
+				if (plugin.getServer().getPlayer(player) != null) {
+					plugin.getServer().getPlayer(player).sendMessage(message);
+				} else {
+					log.warning(player
+							+ " is not online.  Skipping instruction");
+				}
+			} else if (string.startsWith(commands.get(2))) { // setTime
+				String[] tokens = string.split(" ");
+				String arg = tokens[1];
+				if (isLong(arg)) {
+					SATools.world.setTime(Long.parseLong(arg));
+				} else {
+					log.warning("Your instruction was not a valid time.");
+				}
+			} else if (string.startsWith(commands.get(3))) { // setWeather
+				String[] tokens = string.split(" ");
+				String arg = tokens[1];
+				if (arg.equalsIgnoreCase("clear")) {
+					SAToolsGUI.jButton_MAIN_WEATHER_CLEAR.doClick();
+				} else if (arg.equalsIgnoreCase("storm")) {
+					SAToolsGUI.jButton_MAIN_WEATHER_STORM.doClick();
+				} else if (arg.equalsIgnoreCase("thunder")) {
+					SAToolsGUI.jButton_MAIN_WEATHER_THUNDER.doClick();
+				}
+			} else if (string.startsWith(commands.get(4))) {
+				String[] tokens = string.split(" ");
+				String creatureText = tokens[1];
+				String where = tokens[2];
+				String[] xyz = where.split(",");
+				CreatureType creature = getCreature(creatureText);
+				if (creature != null) {
+					if (SAToolsGUI.isNumeric(xyz[0])
+							&& SAToolsGUI.isNumeric(xyz[1])
+							&& SAToolsGUI.isNumeric(xyz[2])) {
+						int x = Integer.parseInt(xyz[0]);
+						int y = Integer.parseInt(xyz[1]);
+						int z = Integer.parseInt(xyz[2]);
+						Location loc = new Location(SATools.world, x, y, z);
+						SATools.world.spawnCreature(loc, creature);
+					} else {
+						log.warning("x,y,z invalid, skipping instruction.");
+					}
+				} else {
+					log.warning("Creature not found in instruction. Skipping");
+				}
+			} else if (string.startsWith(commands.get(5))) { // spawnObject
+				String[] tokens = string.split(" ");
+				String object = tokens[1];
+				String where = tokens[2];
+				String[] xyz = where.split(",");
+				if (object != null) {
+					if (SAToolsGUI.isNumeric(xyz[0])
+							&& SAToolsGUI.isNumeric(xyz[1])
+							&& SAToolsGUI.isNumeric(xyz[2])) {
+						int x = Integer.parseInt(xyz[0]);
+						int y = Integer.parseInt(xyz[1]);
+						int z = Integer.parseInt(xyz[2]);
+						Location loc = new Location(SATools.world, x, y, z);
+						// TODO object regocnition from combo bocx in GUI
+					} else {
+						log.warning("x,y,z invalid, skipping instruction.");
+					}
+				} else {
+					log.warning("Object not found in instruction. Skipping");
+				}
+			} else if (string.startsWith(commands.get(6))) { // givePlayer TODO
 
+			} else if (string.startsWith(commands.get(7))) { // playerHealth
+																// TODO
+
+			} else {
+				throw InvalidInstructionException;
 			}
 		} else {
-			throw InstructionSetInvalidException;
+			throw NullInstructionException;
 		}
+	}
+
+	private CreatureType getCreature(String creature) {
+		for (CreatureType ct : CreatureType.values()) {
+			if (creature.equalsIgnoreCase(ct.getName())) {
+				return ct;
+			}
+		}
+		return null;
+	}
+
+	private boolean isLong(String arg) {
+		try {
+			Long.parseLong(arg);
+		} catch (NumberFormatException e) {
+			return false;
+		}
+		return true;
 	}
 
 	private void doCommand(String string) {
@@ -79,7 +193,6 @@ public class Task implements Runnable {
 				line++;
 			}
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 			return null;
 		}

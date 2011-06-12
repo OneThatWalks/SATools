@@ -110,9 +110,9 @@ public class SAToolsGUI extends JFrame {
 	private JTextField jTextField_MAIN_TIME_SET_INT = null;
 	private JPanel jPanel_MAIN_WEATHER = null;
 	private JLabel jLabel_MAIN_WEATHER = null;
-	private JButton jButton_MAIN_WEATHER_CLEAR = null;
-	private JButton jButton_MAIN_WEATHER_STORM = null;
-	private JButton jButton_MAIN_WEATHER_THUNDER = null;
+	public static JButton jButton_MAIN_WEATHER_CLEAR = null;
+	public static JButton jButton_MAIN_WEATHER_STORM = null;
+	public static JButton jButton_MAIN_WEATHER_THUNDER = null;
 	private JLabel jLabel_MAIN_WEATHER_DATA = null;
 	private JLabel jLabel_PLAYERS_MODIFY_HEALTH = null;
 	private JButton jButton_PLAYERS_MODIFY_HEALTH_FULL = null;
@@ -163,6 +163,7 @@ public class SAToolsGUI extends JFrame {
 			"give player", "player health", "custom macro" };
 	private DefaultComboBoxModel defaultComboBoxModel_SCHEDULE_TASKS_MODIFY_WHEN_DATA = null; // @jve:decl-index=0:visual-constraint="754,352"
 	private String[] times = { "midnight", "morning", "noon", "dusk" };
+	private JButton jButton_SCHEDULE_TASKS_MODIFY_SAVE = null;
 
 	/**
 	 * This is the default constructor
@@ -231,7 +232,7 @@ public class SAToolsGUI extends JFrame {
 	 *            The text to check for numbers
 	 * @return whether the text is a number
 	 */
-	static boolean isNumeric(String text) {
+	public static boolean isNumeric(String text) {
 		try {
 			Integer.parseInt(text);
 		} catch (NumberFormatException nfe) {
@@ -1591,7 +1592,7 @@ public class SAToolsGUI extends JFrame {
 		public void run() {
 			try {
 				while (ttAlive) {
-					jLabel_MAIN_TIME_DATA.setText(Long.toString(plugin.time));
+					jLabel_MAIN_TIME_DATA.setText(Long.toString(SATools.time));
 					jLabel_MAIN_WEATHER_DATA.setText(checkConditions());
 					Thread.sleep(1000);
 				}
@@ -1710,6 +1711,7 @@ public class SAToolsGUI extends JFrame {
 			jPanel_SCHEDULE.add(getJTextPane_SCHEDULE_TASKS_MODIFY_PREVIEW(),
 					null); // Generated
 			jPanel_SCHEDULE.add(jLabel_SCHEDULE_TASKS_PREVIEW, null); // Generated
+			jPanel_SCHEDULE.add(getJButton_SCHEDULE_TASKS_MODIFY_SAVE(), null); // Generated
 		}
 		return jPanel_SCHEDULE;
 	}
@@ -1892,6 +1894,11 @@ public class SAToolsGUI extends JFrame {
 			jButton_SCHEDULE_TASKS_MODIFY_ADD.setBounds(new Rectangle(390, 435,
 					59, 20)); // Generated
 			jButton_SCHEDULE_TASKS_MODIFY_ADD.setText("Add"); // Generated
+			jButton_SCHEDULE_TASKS_MODIFY_ADD
+					.addActionListener(new java.awt.event.ActionListener() {
+						public void actionPerformed(java.awt.event.ActionEvent e) {
+						}
+					});
 		}
 		return jButton_SCHEDULE_TASKS_MODIFY_ADD;
 	}
@@ -1948,6 +1955,21 @@ public class SAToolsGUI extends JFrame {
 			}
 		}
 		return defaultComboBoxModel_SCHEDULE_TASKS_MODIFY_WHEN_DATA;
+	}
+
+	/**
+	 * This method initializes jButton_SCHEDULE_TASKS_MODIFY_SAVE
+	 * 
+	 * @return javax.swing.JButton
+	 */
+	private JButton getJButton_SCHEDULE_TASKS_MODIFY_SAVE() {
+		if (jButton_SCHEDULE_TASKS_MODIFY_SAVE == null) {
+			jButton_SCHEDULE_TASKS_MODIFY_SAVE = new JButton();
+			jButton_SCHEDULE_TASKS_MODIFY_SAVE.setBounds(new Rectangle(465,
+					480, 100, 20)); // Generated
+			jButton_SCHEDULE_TASKS_MODIFY_SAVE.setText("Save"); // Generated
+		}
+		return jButton_SCHEDULE_TASKS_MODIFY_SAVE;
 	}
 
 }
