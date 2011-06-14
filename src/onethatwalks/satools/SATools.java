@@ -1,16 +1,20 @@
 package onethatwalks.satools;
 
+import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
@@ -27,7 +31,6 @@ import org.bukkit.Material;
 import org.bukkit.TreeType;
 import org.bukkit.World;
 import org.bukkit.block.Block;
-import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.CreatureType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
@@ -74,7 +77,7 @@ public class SATools extends JavaPlugin {
 	public static World world;
 	public static List<Player> gods = new ArrayList<Player>();
 	static ArrayList<String> godsRemoved = new ArrayList<String>();
-	public static TaskScheduler tasks = new TaskScheduler(null); // TODO
+	public TaskScheduler tasks = new TaskScheduler(this);
 
 	static enum Weather {
 		CLEAR, STORM, THUNDER
@@ -158,12 +161,10 @@ public class SATools extends JavaPlugin {
 							if (JOptionPane
 									.showConfirmDialog(
 											null,
-											"There is a new update! Would you like to stop the server to download?",
+											"There is a new update! Would you like to download?",
 											"Update Available!",
 											JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
-								getServer().dispatchCommand(
-										new ConsoleCommandSender(getServer()),
-										"stop");
+								download();
 							} else {
 								log.warning("You are running an older version of SATools to prevent errors you may want to update your plugin.");
 							}
@@ -182,6 +183,44 @@ public class SATools extends JavaPlugin {
 			log.severe("Could no connect");
 		}
 
+	}
+
+	private void download() {
+		OutputStream out = null;
+		URLConnection uc = null;
+		InputStream in = null;
+		try {
+			URL url = new URL(
+					"https://github.com/downloads/OneThatWalks/SATools/SATools.jar");
+			out = new BufferedOutputStream(new FileOutputStream("plugins"
+					+ File.separator + "SATools.jar"));
+			uc = url.openConnection();
+			in = uc.getInputStream();
+			byte[] buffer = new byte[1024];
+			int numRead;
+			long numWritten = 0;
+			while ((numRead = in.read(buffer)) != -1) {
+				out.write(buffer, 0, numRead);
+				numWritten += numRead;
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		if (out != null && in != null) {
+			try {
+				out.close();
+				in.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+		if (JOptionPane.showConfirmDialog(null,
+				"Update downloaded, would you like to restart?",
+				"Update Finished", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
+			// TODO Restart Code Here
+		} else {
+			log.warning("You are running an older version of SATools!");
+		}
 	}
 
 	/**

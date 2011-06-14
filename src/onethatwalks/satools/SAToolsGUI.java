@@ -144,7 +144,7 @@ public class SAToolsGUI extends JFrame {
 	private JPanel jPanel_SCHEDULE_TASKS_INFO = null;
 	private JSeparator jSeparator_SCHEDULE_TASKS = null;
 	private JSeparator jSeparator_MAIN_SCHEDULE_MODIFY = null;
-	private JButton jButton_SCHEDULE_TASKS_ADD = null;
+	private JToggleButton jButton_SCHEDULE_TASKS_ADD = null;
 	private JButton jButton_SCHEDULE_TASKS_REMOVE = null;
 	private JButton jButton_SCHEDULE_TASKS_MODIFY = null;
 	private JLabel jLabel_SCHEDULE_TASKS_MODIFY_NAME = null;
@@ -158,12 +158,14 @@ public class SAToolsGUI extends JFrame {
 	private JTextPane jTextPane_SCHEDULE_TASKS_MODIFY_PREVIEW = null;
 	private JLabel jLabel_SCHEDULE_TASKS_PREVIEW = null;
 	private DefaultComboBoxModel defaultComboBoxModel_SCHEDULE_TASKS_MODIFY_TODO_DATA = null; // @jve:decl-index=0:visual-constraint="749,437"
-	private String[] actions = { "announcement", "send message", "command",
-			"time set", "weather set", "mob spawn", "object spawn",
-			"give player", "player health", "custom macro" };
+	private String[] actions = { "serverSay", "playerSay", "setTime",
+			"setWeather", "spawnMob", "spawnObject", "givePlayer",
+			"playerHealth" };
 	private DefaultComboBoxModel defaultComboBoxModel_SCHEDULE_TASKS_MODIFY_WHEN_DATA = null; // @jve:decl-index=0:visual-constraint="754,352"
 	private String[] times = { "midnight", "morning", "noon", "dusk" };
 	private JButton jButton_SCHEDULE_TASKS_MODIFY_SAVE = null;
+	private JButton jButton_MAIN_RESTART = null;
+	public static DefaultListModel defaultListModel_SCHEDULE_TASKS = null;
 
 	/**
 	 * This is the default constructor
@@ -216,13 +218,25 @@ public class SAToolsGUI extends JFrame {
 		try {
 			this.setSize(600, 800);
 			this.setContentPane(getJContentPane());
-			this.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+			this.setDefaultCloseOperation(close());
 			this.setIconImage(Toolkit.getDefaultToolkit().getImage(
 					getClass().getResource("/resources/icon.png")));
 			this.setLocationRelativeTo(this.getOwner());
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+	}
+
+	/**
+	 * Closing operation for SATools
+	 * 
+	 * @return Closing Operation DISPOSE_ON_CLOSE
+	 */
+	private int close() {
+		if (plugin.getServer().dispatchCommand(
+				new ConsoleCommandSender(plugin.getServer()), "stop"))
+			;
+		return JFrame.DISPOSE_ON_CLOSE;
 	}
 
 	/**
@@ -277,6 +291,8 @@ public class SAToolsGUI extends JFrame {
 				new ConsoleCommandSender(plugin.getServer()),
 				"time set " + time)) {
 			SATools.log.info("Time set to " + time);
+		} else {
+			SATools.log.warning("Failed to set time");
 		}
 	}
 
@@ -330,6 +346,7 @@ public class SAToolsGUI extends JFrame {
 			jPanel_MAIN.add(getJPanel_MAIN_CONSOLE(), null); // Generated
 			jPanel_MAIN.add(getJPanel_MAIN_WEATHER(), null);
 			jPanel_MAIN.add(getJPanel_MAIN_SPAWN(), null);
+			jPanel_MAIN.add(getJButton_MAIN_RESTART(), null); // Generated
 		}
 		return jPanel_MAIN;
 	}
@@ -442,22 +459,22 @@ public class SAToolsGUI extends JFrame {
 		if (jPanel_MAIN_SPAWN == null) {
 			jLabel_MAIN_SPAWN_WARNING = new JLabel();
 			jLabel_MAIN_SPAWN_WARNING
-					.setBounds(new Rectangle(10, 225, 529, 16)); // Generated
+					.setBounds(new Rectangle(10, 180, 529, 16)); // Generated
 			jLabel_MAIN_SPAWN_WARNING
 					.setText("In orrder to use a custom location please enter the location in x,y,z format with no spaces"); // Generated
 			jLabel_MAIN_SPAWN_WHERE_OBJECT = new JLabel();
-			jLabel_MAIN_SPAWN_WHERE_OBJECT.setBounds(new Rectangle(255, 135,
+			jLabel_MAIN_SPAWN_WHERE_OBJECT.setBounds(new Rectangle(255, 110,
 					11, 20)); // Generated
 			jLabel_MAIN_SPAWN_WHERE_OBJECT.setText("to"); // Generated
 			jLabel_MAIN_SPAWN_OBJECT = new JLabel("Spawn:");
-			jLabel_MAIN_SPAWN_OBJECT.setBounds(new Rectangle(10, 135, 75, 20)); // Generated
+			jLabel_MAIN_SPAWN_OBJECT.setBounds(new Rectangle(10, 110, 75, 20)); // Generated
 			jLabel_MAIN_SPAWN_OBJECT.setText("Spawn:"); // Generated
 			jLabel_MAIN_SPAWN_WHERE = new JLabel();
 			jLabel_MAIN_SPAWN_WHERE.setBounds(new Rectangle(255, 30, 20, 20)); // Generated
 			jLabel_MAIN_SPAWN_WHERE.setText("to"); // Generated
 			jPanel_MAIN_SPAWN = new JPanel();
 			jPanel_MAIN_SPAWN.setLayout(null); // Generated
-			jPanel_MAIN_SPAWN.setBounds(new Rectangle(15, 470, 550, 249)); // Generated
+			jPanel_MAIN_SPAWN.setBounds(new Rectangle(15, 470, 550, 205)); // Generated
 			jPanel_MAIN_SPAWN.setBorder(BorderFactory.createTitledBorder(null,
 					"Spawning", TitledBorder.DEFAULT_JUSTIFICATION,
 					TitledBorder.DEFAULT_POSITION, new Font("Dialog",
@@ -490,7 +507,7 @@ public class SAToolsGUI extends JFrame {
 	private JSeparator getJSeparator_MAIN_SPAWN() {
 		if (jSeparator_MAIN_SPAWN == null) {
 			jSeparator_MAIN_SPAWN = new JSeparator();
-			jSeparator_MAIN_SPAWN.setBounds(new Rectangle(10, 115, 530, 8)); // Generated
+			jSeparator_MAIN_SPAWN.setBounds(new Rectangle(10, 95, 530, 10)); // Generated
 		}
 		return jSeparator_MAIN_SPAWN;
 	}
@@ -519,7 +536,7 @@ public class SAToolsGUI extends JFrame {
 		if (jComboBox_MAIN_SPAWN_OBJECT == null) {
 			jComboBox_MAIN_SPAWN_OBJECT = new JComboBox(
 					getDefaultComboBoxModel_MAIN_SPAWN_OBJECT());
-			jComboBox_MAIN_SPAWN_OBJECT.setBounds(new Rectangle(90, 135, 150,
+			jComboBox_MAIN_SPAWN_OBJECT.setBounds(new Rectangle(90, 110, 150,
 					20)); // Generated
 		}
 		return jComboBox_MAIN_SPAWN_OBJECT;
@@ -547,7 +564,7 @@ public class SAToolsGUI extends JFrame {
 			jComboBox_MAIN_SPAWN_LOCATION_OBJECT = new JComboBox(
 					getDefaultComboBoxModel_MAIN_SPAWN_LOCATION_OBJECT());
 			jComboBox_MAIN_SPAWN_LOCATION_OBJECT.setBounds(new Rectangle(285,
-					135, 255, 20)); // Generated
+					110, 255, 20)); // Generated
 			jComboBox_MAIN_SPAWN_LOCATION_OBJECT.setEditable(true); // Generated
 		}
 		return jComboBox_MAIN_SPAWN_LOCATION_OBJECT;
@@ -562,7 +579,7 @@ public class SAToolsGUI extends JFrame {
 		if (jButton_MAIN_SPAWN_OBJECT == null) {
 			jButton_MAIN_SPAWN_OBJECT = new JButton();
 			jButton_MAIN_SPAWN_OBJECT
-					.setBounds(new Rectangle(10, 165, 530, 30)); // Generated
+					.setBounds(new Rectangle(10, 140, 530, 30)); // Generated
 			jButton_MAIN_SPAWN_OBJECT.setText("Spawn"); // Generated
 			jButton_MAIN_SPAWN_OBJECT
 					.addActionListener(new java.awt.event.ActionListener() {
@@ -1695,7 +1712,7 @@ public class SAToolsGUI extends JFrame {
 			jPanel_SCHEDULE.add(getJPanel_SCHEDULE_TASKS_INFO(), null); // Generated
 			jPanel_SCHEDULE.add(getJSeparator_SCHEDULE_TASKS(), null); // Generated
 			jPanel_SCHEDULE.add(getJSeparator_MAIN_SCHEDULE_MODIFY(), null); // Generated
-			jPanel_SCHEDULE.add(getJButton_SCHEDULE_TASKS_ADD(), null); // Generated
+			jPanel_SCHEDULE.add(getJToggleButton_SCHEDULE_TASKS_ADD(), null); // Generated
 			jPanel_SCHEDULE.add(getJButton_SCHEDULE_TASKS_REMOVE(), null); // Generated
 			jPanel_SCHEDULE.add(getJButton_SCHEDULE_TASKS_MODIFY(), null); // Generated
 			jPanel_SCHEDULE.add(jLabel_SCHEDULE_TASKS_MODIFY_NAME, null); // Generated
@@ -1786,14 +1803,31 @@ public class SAToolsGUI extends JFrame {
 	 * 
 	 * @return javax.swing.JButton
 	 */
-	private JButton getJButton_SCHEDULE_TASKS_ADD() {
+	private JToggleButton getJToggleButton_SCHEDULE_TASKS_ADD() {
 		if (jButton_SCHEDULE_TASKS_ADD == null) {
-			jButton_SCHEDULE_TASKS_ADD = new JButton();
+			jButton_SCHEDULE_TASKS_ADD = new JToggleButton("Add", false);
 			jButton_SCHEDULE_TASKS_ADD
 					.setBounds(new Rectangle(15, 325, 100, 20)); // Generated
-			jButton_SCHEDULE_TASKS_ADD.setText("Add"); // Generated
+			jButton_SCHEDULE_TASKS_ADD
+					.addActionListener(new java.awt.event.ActionListener() {
+						public void actionPerformed(java.awt.event.ActionEvent e) {
+							if (jButton_SCHEDULE_TASKS_ADD.isSelected()) {
+								enableTaskToolkit(true); // New Task
+							} else {
+								enableTaskToolkit(false); // Cancel
+							}
+						}
+					});
 		}
 		return jButton_SCHEDULE_TASKS_ADD;
+	}
+
+	protected void enableTaskToolkit(boolean enabled) {
+		jTextField_SCHEDULE_TASKS_MODIFY_NAME_DATA.setEnabled(enabled);
+		jComboBox_SCHEDULE_TASKS_MODIFY_WHEN_DATA.setEnabled(enabled);
+		jComboBox_SCHEDULE_TASKS_MODIFY_TODO_DATA.setEnabled(enabled);
+		jButton_SCHEDULE_TASKS_MODIFY_ADD.setEnabled(enabled);
+		jButton_SCHEDULE_TASKS_MODIFY_SAVE.setEnabled(enabled);
 	}
 
 	/**
@@ -1807,6 +1841,16 @@ public class SAToolsGUI extends JFrame {
 			jButton_SCHEDULE_TASKS_REMOVE.setBounds(new Rectangle(165, 325,
 					100, 20)); // Generated
 			jButton_SCHEDULE_TASKS_REMOVE.setText("Remove"); // Generated
+			jButton_SCHEDULE_TASKS_REMOVE
+					.addActionListener(new java.awt.event.ActionListener() {
+						public void actionPerformed(java.awt.event.ActionEvent e) {
+							if (jList_SCHEDULE_TASKS.getSelectedIndex() != -1) {
+								plugin.tasks.killTask(plugin.tasks
+										.getTask(jList_SCHEDULE_TASKS
+												.getSelectedValue().toString()));
+							}
+						}
+					});
 		}
 		return jButton_SCHEDULE_TASKS_REMOVE;
 	}
@@ -1836,6 +1880,7 @@ public class SAToolsGUI extends JFrame {
 			jTextField_SCHEDULE_TASKS_MODIFY_NAME_DATA = new JTextField();
 			jTextField_SCHEDULE_TASKS_MODIFY_NAME_DATA.setBounds(new Rectangle(
 					60, 375, 315, 20)); // Generated
+			jTextField_SCHEDULE_TASKS_MODIFY_NAME_DATA.setEnabled(false); // Generated
 		}
 		return jTextField_SCHEDULE_TASKS_MODIFY_NAME_DATA;
 	}
@@ -1851,6 +1896,7 @@ public class SAToolsGUI extends JFrame {
 					getDefaultComboBoxModel_SCHEDULE_TASKS_MODIFY_WHEN_DATA());
 			jComboBox_SCHEDULE_TASKS_MODIFY_WHEN_DATA.setBounds(new Rectangle(
 					60, 405, 315, 20)); // Generated
+			jComboBox_SCHEDULE_TASKS_MODIFY_WHEN_DATA.setEnabled(false); // Generated
 			jComboBox_SCHEDULE_TASKS_MODIFY_WHEN_DATA.setEditable(true); // Generated
 		}
 		return jComboBox_SCHEDULE_TASKS_MODIFY_WHEN_DATA;
@@ -1867,6 +1913,7 @@ public class SAToolsGUI extends JFrame {
 					getDefaultComboBoxModel_SCHEDULE_TASKS_MODIFY_TODO_DATA());
 			jComboBox_SCHEDULE_TASKS_MODIFY_TODO_DATA.setBounds(new Rectangle(
 					60, 435, 315, 20)); // Generated
+			jComboBox_SCHEDULE_TASKS_MODIFY_TODO_DATA.setEnabled(false); // Generated
 		}
 		return jComboBox_SCHEDULE_TASKS_MODIFY_TODO_DATA;
 	}
@@ -1878,7 +1925,8 @@ public class SAToolsGUI extends JFrame {
 	 */
 	private JList getJList_SCHEDULE_TASKS() {
 		if (jList_SCHEDULE_TASKS == null) {
-			jList_SCHEDULE_TASKS = new JList();
+			jList_SCHEDULE_TASKS = new JList(
+					getdefaultListModel_SCHEDULE_TASKS());
 		}
 		return jList_SCHEDULE_TASKS;
 	}
@@ -1893,10 +1941,12 @@ public class SAToolsGUI extends JFrame {
 			jButton_SCHEDULE_TASKS_MODIFY_ADD = new JButton();
 			jButton_SCHEDULE_TASKS_MODIFY_ADD.setBounds(new Rectangle(390, 435,
 					59, 20)); // Generated
+			jButton_SCHEDULE_TASKS_MODIFY_ADD.setEnabled(false); // Generated
 			jButton_SCHEDULE_TASKS_MODIFY_ADD.setText("Add"); // Generated
 			jButton_SCHEDULE_TASKS_MODIFY_ADD
 					.addActionListener(new java.awt.event.ActionListener() {
 						public void actionPerformed(java.awt.event.ActionEvent e) {
+							checkAction() //TODO
 						}
 					});
 		}
@@ -1915,7 +1965,7 @@ public class SAToolsGUI extends JFrame {
 					510, 550, 210)); // Generated
 			jTextPane_SCHEDULE_TASKS_MODIFY_PREVIEW.setFont(new Font(
 					"Lucida Console", Font.PLAIN, 12)); // Generated
-			jTextPane_SCHEDULE_TASKS_MODIFY_PREVIEW.setEditable(false); // Generated
+			jTextPane_SCHEDULE_TASKS_MODIFY_PREVIEW.setEditable(true); // Generated
 			jTextPane_SCHEDULE_TASKS_MODIFY_PREVIEW.setText(""); // Generated
 			jTextPane_SCHEDULE_TASKS_MODIFY_PREVIEW.setForeground(Color.white); // Generated
 			jTextPane_SCHEDULE_TASKS_MODIFY_PREVIEW.setBackground(Color.black); // Generated
@@ -1967,9 +2017,52 @@ public class SAToolsGUI extends JFrame {
 			jButton_SCHEDULE_TASKS_MODIFY_SAVE = new JButton();
 			jButton_SCHEDULE_TASKS_MODIFY_SAVE.setBounds(new Rectangle(465,
 					480, 100, 20)); // Generated
+			jButton_SCHEDULE_TASKS_MODIFY_SAVE.setEnabled(false); // Generated
 			jButton_SCHEDULE_TASKS_MODIFY_SAVE.setText("Save"); // Generated
 		}
 		return jButton_SCHEDULE_TASKS_MODIFY_SAVE;
+	}
+
+	/**
+	 * This method initializes jButton_MAIN_RESTART
+	 * 
+	 * @return javax.swing.JButton
+	 */
+	private JButton getJButton_MAIN_RESTART() {
+		if (jButton_MAIN_RESTART == null) {
+			jButton_MAIN_RESTART = new JButton();
+			jButton_MAIN_RESTART.setBounds(new Rectangle(180, 680, 190, 50)); // Generated
+			jButton_MAIN_RESTART.setText("Restart"); // Generated
+			jButton_MAIN_RESTART
+					.addActionListener(new java.awt.event.ActionListener() {
+						public void actionPerformed(java.awt.event.ActionEvent e) {
+							System.out.println("actionPerformed()"); // TODO
+																		// Auto-generated
+																		// Event
+																		// stub
+																		// actionPerformed()
+						}
+					});
+		}
+		return jButton_MAIN_RESTART;
+	}
+
+	/**
+	 * This method initializes defaultListModel_SCHEDULE_TASKS
+	 * 
+	 * @return javax.swing.DefaultComboBoxModel
+	 */
+	private DefaultListModel getdefaultListModel_SCHEDULE_TASKS() {
+		if (defaultListModel_SCHEDULE_TASKS == null) {
+			defaultListModel_SCHEDULE_TASKS = new DefaultListModel();
+			loadTasks();
+		}
+		return defaultListModel_SCHEDULE_TASKS;
+	}
+
+	private void loadTasks() {
+		// TODO Auto-generated method stub
+
 	}
 
 }

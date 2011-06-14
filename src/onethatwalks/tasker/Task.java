@@ -14,6 +14,7 @@ import onethatwalks.satools.SAToolsGUI;
 import org.bukkit.Location;
 import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.CreatureType;
+import org.bukkit.entity.Player;
 
 public class Task implements Runnable {
 
@@ -127,10 +128,17 @@ public class Task implements Runnable {
 				}
 			} else if (string.startsWith(commands.get(5))) { // spawnObject
 				String[] tokens = string.split(" ");
-				String object = tokens[1];
-				String where = tokens[2];
+				String object = null;
+				String where = null;
+				if (tokens.length == 3) {
+					object = tokens[1];
+					where = tokens[2];
+				} else if (tokens.length == 4) {
+					object = tokens[1] + " " + tokens[2];
+					where = tokens[3];
+				}
 				String[] xyz = where.split(",");
-				if (object != null) {
+				if (object.isEmpty() || object == null) {
 					if (SAToolsGUI.isNumeric(xyz[0])
 							&& SAToolsGUI.isNumeric(xyz[1])
 							&& SAToolsGUI.isNumeric(xyz[2])) {
@@ -138,18 +146,49 @@ public class Task implements Runnable {
 						int y = Integer.parseInt(xyz[1]);
 						int z = Integer.parseInt(xyz[2]);
 						Location loc = new Location(SATools.world, x, y, z);
-						// TODO object regocnition from combo bocx in GUI
+						SATools.spawnObject(loc, object);
 					} else {
 						log.warning("x,y,z invalid, skipping instruction.");
 					}
 				} else {
 					log.warning("Object not found in instruction. Skipping");
 				}
-			} else if (string.startsWith(commands.get(6))) { // givePlayer TODO
-
+			} else if (string.startsWith(commands.get(6))) { // givePlayer
+				String[] tokens = string.split(" ");
+				String player = tokens[1];
+				String count = tokens[2];
+				String item = tokens[3];
+				if (!player.isEmpty()) {
+					if (plugin.getServer().getPlayer(player) != null) {
+						Player p = plugin.getServer().getPlayer(player);
+						plugin.getServer().dispatchCommand(
+								new ConsoleCommandSender(plugin.getServer()),
+								"give " + p.getDisplayName() + " " + item + " "
+										+ count);
+					} else {
+						log.info("Player doesn't exsist or is offline, skipping instruction");
+					}
+				} else {
+					log.warning("There was no player");
+				}
 			} else if (string.startsWith(commands.get(7))) { // playerHealth
-																// TODO
-
+				String[] tokens = string.split(" ");
+				String player = tokens[1];
+				String hearts = tokens[2]; // 0-20
+				if (!player.isEmpty()) {
+					if (plugin.getServer().getPlayer(player) != null) {
+						if (SAToolsGUI.isNumeric(hearts)) {
+							Player p = plugin.getServer().getPlayer(player);
+							p.setHealth(Integer.parseInt(hearts));
+						} else {
+							log.warning("Not a valid health value, skipping instruction");
+						}
+					} else {
+						log.info("Player doesn't exsist or is offline, skipping instruction");
+					}
+				} else {
+					log.warning("There was no player");
+				}
 			} else {
 				throw InvalidInstructionException;
 			}

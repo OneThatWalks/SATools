@@ -1,11 +1,10 @@
 package onethatwalks.tasker;
 
-import java.util.Collection;
 import java.util.LinkedList;
-import java.util.TreeMap;
 import java.util.logging.Logger;
 
 import onethatwalks.satools.SATools;
+import onethatwalks.satools.SAToolsGUI;
 
 /**
  * Scheduling class for SATools - Heavy Credit from the people at Bukkit.
@@ -14,7 +13,6 @@ import onethatwalks.satools.SATools;
  * 
  */
 public class TaskScheduler implements Runnable {
-	private TreeMap<String, Task> tasksQueue = new TreeMap<String, Task>();
 	private LinkedList<Task> tasks = new LinkedList<Task>();
 	private SATools plugin;
 	public static final Logger log = Logger.getLogger("Minecraft");
@@ -29,7 +27,7 @@ public class TaskScheduler implements Runnable {
 
 	protected void addTask(Task task) {
 		t.interrupt();
-		tasksQueue.put(task.name, task);
+		SAToolsGUI.defaultListModel_SCHEDULE_TASKS.addElement(task.name);
 		scheduleTask(task);
 		t.notify();
 	}
@@ -59,6 +57,9 @@ public class TaskScheduler implements Runnable {
 				}
 			}
 			try {
+				if (taskQueue > where) {
+					taskQueue = taskQueue++;
+				}
 				tasks.add(where, task);
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -75,22 +76,26 @@ public class TaskScheduler implements Runnable {
 		}
 	}
 
-	private Task getTask(String name) {
-		if (tasksQueue.containsKey(name)) {
-			return tasksQueue.get(name);
+	public Task getTask(String name) {
+		for (Task t : getTasks()) {
+			if (t.name.equals(name)) {
+				return t;
+			}
 		}
 		return null;
 	}
 
-	public Collection<Task> getTasks() {
-		return tasksQueue.values();
+	public LinkedList<Task> getTasks() {
+		return tasks;
 	}
 
 	public void killTask(Task task) {
+		SAToolsGUI.defaultListModel_SCHEDULE_TASKS.removeElement(task.name);
 		tasks.remove(task.name);
 	}
 
 	public void killAllTasks() {
+		SAToolsGUI.defaultListModel_SCHEDULE_TASKS.removeAllElements();
 		tasks.clear();
 	}
 
