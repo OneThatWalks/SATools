@@ -1946,7 +1946,7 @@ public class SAToolsGUI extends JFrame {
 			jButton_SCHEDULE_TASKS_MODIFY_ADD
 					.addActionListener(new java.awt.event.ActionListener() {
 						public void actionPerformed(java.awt.event.ActionEvent e) {
-							checkAction() //TODO
+							//checkAction(); //TODO
 						}
 					});
 		}
