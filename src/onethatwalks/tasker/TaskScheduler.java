@@ -1,7 +1,16 @@
 package onethatwalks.tasker;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.LinkedList;
 import java.util.logging.Logger;
+
+import org.bukkit.plugin.Plugin;
 
 import onethatwalks.satools.SATools;
 import onethatwalks.satools.SAToolsGUI;
@@ -14,22 +23,64 @@ import onethatwalks.satools.SAToolsGUI;
  */
 public class TaskScheduler implements Runnable {
 	private LinkedList<Task> tasks = new LinkedList<Task>();
-	private SATools plugin;
+	private Plugin plugin;
 	public static final Logger log = Logger.getLogger("Minecraft");
 	Thread t;
 	int taskQueue = 0;
+	String macroFolder;
 
-	public TaskScheduler(SATools instance) {
+	public TaskScheduler(Plugin instance) {
 		plugin = instance;
+		macroFolder = plugin.getDataFolder() + File.separator + "macros"
+				+ File.separator;
 		t = new Thread(this);
 		t.start();
+		init();
 	}
 
-	protected void addTask(Task task) {
-		t.interrupt();
-		SAToolsGUI.defaultListModel_SCHEDULE_TASKS.addElement(task.name);
-		scheduleTask(task);
-		t.notify();
+	private void init() {
+		try {
+			File mf = new File(macroFolder);
+			if (!mf.exists()) {
+				log.info("No macro folder found, making one instead.");
+				mf.mkdir();
+			}
+			if (mf.exists()) {
+				log.info("Macro directory found, loading...");
+				File[] potentialMacros = mf.listFiles();
+				for (File f : potentialMacros) {
+					String file = f.getName().trim();
+					String[] tokens = file.split("\\.");
+					String name = tokens[0].trim();
+					String type = tokens[1].trim();
+					if (!type.equalsIgnoreCase("macro")) {
+						continue;
+					}
+					InputStream is = new FileInputStream(f);
+					BufferedReader br = new BufferedReader(
+							new InputStreamReader(is));
+					String strLine;
+					int lineNumber = 1;
+					long time = -1;
+					// Read File Line By Line
+					while ((strLine = br.readLine()) != null) {
+						if (lineNumber == 1) {
+							String rawTime = strLine.replaceFirst("#", "");
+							time = Long.parseLong(rawTime);
+						}
+						lineNumber++;
+					}
+					is.close();
+					registerTask(name, time, f.getPath());
+				}
+			}
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (NumberFormatException e) {
+			e.printStackTrace();
+		}
 	}
 
 	private void scheduleTask(Task task) {
@@ -70,15 +121,17 @@ public class TaskScheduler implements Runnable {
 	}
 
 	public void registerTask(String name, long time, String file) {
-		if (getTask(name) != null) {
+		if (getTask(name) == null) {
 			Task newTask = new Task(name, time, file, plugin);
-			addTask(newTask);
+			SAToolsGUI.defaultListModel_SCHEDULE_TASKS.addElement(newTask
+					.getName());
+			scheduleTask(newTask);
 		}
 	}
 
 	public Task getTask(String name) {
 		for (Task t : getTasks()) {
-			if (t.name.equals(name)) {
+			if (t.getName().equals(name)) {
 				return t;
 			}
 		}
@@ -90,8 +143,10 @@ public class TaskScheduler implements Runnable {
 	}
 
 	public void killTask(Task task) {
-		SAToolsGUI.defaultListModel_SCHEDULE_TASKS.removeElement(task.name);
-		tasks.remove(task.name);
+		tasks.remove(task.getName());
+		SAToolsGUI.defaultListModel_SCHEDULE_TASKS
+				.removeElement(task.getName());
+		task = null;
 	}
 
 	public void killAllTasks() {
@@ -101,28 +156,33 @@ public class TaskScheduler implements Runnable {
 
 	@Override
 	public void run() {
+		boolean stop = false;
+		long taskTime = -1;
+		long currentTime = -1;
+		Task task = null;
 		while (true) {
-			boolean stop = false;
-			long taskTime = -1;
-			long currentTime = -1;
-			Task first = null;
-			do {
-				synchronized (tasks) {
-					first = null;
-					if (!tasks.isEmpty()) {
-						first = tasks.get(taskQueue);
-						if (first != null) {
-							currentTime = SATools.time;
+			if (!tasks.isEmpty()) {
+				do {
+					synchronized (tasks) {
+						task = null;
+						if (!tasks.isEmpty()) {
+							task = tasks.get(taskQueue);
+							if (task != null) {
+								currentTime = SATools.time;
 
-							taskTime = first.getExecutionTime();
+								taskTime = task.getExecutionTime();
 
-							if (currentTime >= taskTime
-									&& currentTime <= taskTime + 100) {
-								processTask(first);
-								if (taskQueue == tasks.size() - 1) {
-									taskQueue = 0;
+								if (currentTime >= taskTime
+										&& currentTime <= taskTime + 100) {
+									processTask(task);
+									if (taskQueue == tasks.size() - 1) {
+										log.info("end of task queue.");
+										taskQueue = 0;
+									} else {
+										taskQueue++;
+									}
 								} else {
-									taskQueue++;
+									stop = true;
 								}
 							} else {
 								stop = true;
@@ -130,23 +190,26 @@ public class TaskScheduler implements Runnable {
 						} else {
 							stop = true;
 						}
-					} else {
-						stop = true;
 					}
-				}
-			} while (!stop);
+				} while (!stop);
 
-			long sleepTime = 0;
-			if (first == null) {
-				sleepTime = 6000;
-			} else {
-				currentTime = SATools.time;
-				sleepTime = (taskTime - currentTime);
-			}
-			synchronized (tasks) {
-				try {
-					tasks.wait(sleepTime);
-				} catch (InterruptedException ie) {
+				long sleepTime = 0;
+				if (task == null) {
+					sleepTime = 60000;
+				} else {
+					currentTime = SATools.time;
+					sleepTime = (taskTime - currentTime) * 50 + 25;
+				}
+				if (sleepTime <= -1) {
+					sleepTime = 60000;
+				}
+				synchronized (tasks) {
+					try {
+						log.info(task.getName());
+						log.info(Long.toString(sleepTime));
+						tasks.wait(sleepTime);
+					} catch (InterruptedException ie) {
+					}
 				}
 			}
 		}

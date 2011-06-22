@@ -26,6 +26,7 @@ import onethatwalks.satools.listeners.SAToolsEntityListener;
 import onethatwalks.satools.listeners.SAToolsPlayerListener;
 import onethatwalks.tasker.TaskScheduler;
 
+import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.TreeType;
@@ -37,6 +38,7 @@ import org.bukkit.event.Event;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
+import com.tips48.restartNow.*;
 
 /**
  * SATools - Server Admin Tools
@@ -45,6 +47,7 @@ import org.bukkit.plugin.java.JavaPlugin;
  */
 public class SATools extends JavaPlugin {
 	// Localize needed files
+	public RestartNowApi api;
 	private final SAToolsPlayerListener playerListener = new SAToolsPlayerListener(
 			this);
 	private final SAToolsEntityListener entityListener = new SAToolsEntityListener(
@@ -77,7 +80,7 @@ public class SATools extends JavaPlugin {
 	public static World world;
 	public static List<Player> gods = new ArrayList<Player>();
 	static ArrayList<String> godsRemoved = new ArrayList<String>();
-	public TaskScheduler tasks = new TaskScheduler(this);
+	TaskScheduler taskscheduler;
 
 	static enum Weather {
 		CLEAR, STORM, THUNDER
@@ -137,6 +140,7 @@ public class SATools extends JavaPlugin {
 		gui.setTitle(name + " v" + version
 				+ (authors_RAW.isEmpty() ? "" : " - " + authors));
 		gui.setVisible(true);
+		taskscheduler = new TaskScheduler(this);
 	}
 
 	/**
@@ -217,7 +221,9 @@ public class SATools extends JavaPlugin {
 		if (JOptionPane.showConfirmDialog(null,
 				"Update downloaded, would you like to restart?",
 				"Update Finished", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
-			// TODO Restart Code Here
+			api.restartServer("Restarting to update",
+					"WE are restarting the server, come back soon!",
+					ChatColor.LIGHT_PURPLE);
 		} else {
 			log.warning("You are running an older version of SATools!");
 		}
@@ -309,11 +315,14 @@ public class SATools extends JavaPlugin {
 				String strLine;
 				// Read File Line By Line
 				while ((strLine = br.readLine()) != null) {
-					log.info(strLine);
-					if (!gods.contains(getServer().getPlayer(strLine))) {
-						gods.add(getServer().getPlayer(strLine));
-						godsContents.add(strLine);
-						log.info(gods.toString());
+					if (!strLine.isEmpty() && !strLine.equals(null)) {
+						if (getServer().getPlayer(strLine) != null) {
+							if (!gods.contains(getServer().getPlayer(strLine))) {
+								gods.add(getServer().getPlayer(strLine));
+							}
+						} else {
+							godsContents.add(strLine);
+						}
 					}
 				}
 				is.close();

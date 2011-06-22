@@ -195,6 +195,15 @@ public class SAToolsPlayerListener extends PlayerListener {
 							}
 							SAToolsGUI.defaultComboBoxModel_MAIN_SPAWN_LOCATION_OBJECT
 									.removeElement(player);
+							// God handling
+							if (SATools.gods.contains(player)) {
+								SATools.gods.remove(player);
+								if (!SATools.godsContents.contains(player
+										.getDisplayName())) {
+									SATools.godsContents.add(player
+											.getDisplayName());
+								}
+							}
 						}
 					}
 				}, 20);

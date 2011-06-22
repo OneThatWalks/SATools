@@ -1,15 +1,14 @@
 SATools v0
 ==============
-OneThatWalks
-Bukkit server admistration made easy
---------------
+By: OneThatWalks
+"Bukkit server admistration made easy"
+--------------------------------------
+
 This is a pre-release!
-----------------------
 Tested on:
 Windows 7
 
 Made with Java
---------------
 
 Details
 -------
@@ -33,7 +32,8 @@ Version History
 0.1
 - Pre-Release release on Bukkit Forums and GitHub Creation
 
---------------
+Contact
+------------------------------------------------------------------
 If you have to contact me about something not related to and issue
 send me an email at OneThatWalks@live.com
 

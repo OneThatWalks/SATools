@@ -11,19 +11,21 @@ import java.util.logging.Logger;
 import onethatwalks.satools.SATools;
 import onethatwalks.satools.SAToolsGUI;
 
+import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.CreatureType;
 import org.bukkit.entity.Player;
+import org.bukkit.plugin.Plugin;
 
 public class Task implements Runnable {
 
 	private File macro;
 	private long time;
-	String name;
-	private String[] instructions;
+	private String name;
+	private ArrayList<String> instructions;
 	private Exception InvalidInstructionException;
-	private SATools plugin;
+	private Plugin plugin;
 	public static final Logger log = Logger.getLogger("Minecraft");
 	private Exception NullInstructionException;
 	public String[] raw_commands = { "serverSay", "playerSay", "setTime",
@@ -31,14 +33,18 @@ public class Task implements Runnable {
 			"playerHealth" };
 	public ArrayList<String> commands = new ArrayList<String>();
 
-	public Task(String name, long time, String file, SATools instance) {
+	public Task(String name, long time, String file, Plugin p) {
 		this.macro = new File(file);
 		this.time = time;
 		this.name = name;
-		plugin = instance;
+		this.plugin = p;
 		for (String c : raw_commands) {
 			commands.add(c);
 		}
+	}
+
+	public String getName() {
+		return this.name;
 	}
 
 	public long getExecutionTime() {
@@ -52,10 +58,10 @@ public class Task implements Runnable {
 	@Override
 	public void run() {
 		instructions = createLocalizedInstructions(macro);
-		if (instructions != null && instructions.length != 0) {
-			for (int i = 0; i < instructions.length; i++) {
+		if (instructions != null && instructions.size() != 0) {
+			for (int i = 0; i < instructions.size(); i++) {
 				try {
-					doInstruction(instructions[i]);
+					doInstruction(instructions.get(i));
 				} catch (Exception e) {
 					log.severe("Error on line: " + (i + 1) + " of "
 							+ macro.getName());
@@ -75,14 +81,18 @@ public class Task implements Runnable {
 			} else if (string.startsWith(commands.get(0))) { // serverSay
 				String[] tokens = string.split(" ");
 				String message = tokens[1];
-				plugin.getServer().broadcastMessage(message);
+				String color = tokens[2];
+				plugin.getServer().broadcastMessage(
+						ChatColor.valueOf(color) + message);
 			} else if (string.startsWith(commands.get(1))) { // playerSay
 				String[] tokens = string.split(" ");
 				String message = tokens[1];
-				String player = tokens[2];
+				String color = tokens[2];
+				String player = tokens[3];
 				// check if player online
 				if (plugin.getServer().getPlayer(player) != null) {
-					plugin.getServer().getPlayer(player).sendMessage(message);
+					plugin.getServer().getPlayer(player)
+							.sendMessage(ChatColor.valueOf(color) + message);
 				} else {
 					log.warning(player
 							+ " is not online.  Skipping instruction");
@@ -220,15 +230,19 @@ public class Task implements Runnable {
 				new ConsoleCommandSender(plugin.getServer()), string);
 	}
 
-	private String[] createLocalizedInstructions(File file) {
-		String[] result = {};
+	private ArrayList<String> createLocalizedInstructions(File file) {
+		ArrayList<String> result = new ArrayList<String>();
 		try {
 			InputStream is = new FileInputStream(file);
 			BufferedReader br = new BufferedReader(new InputStreamReader(is));
 			String strLine;
 			int line = 1;
 			while ((strLine = br.readLine()) != null) {
-				result[line - 1] = strLine;
+				if (strLine.startsWith("#")) {
+					log.info("Found time");
+					continue;
+				}
+				result.add(strLine);
 				line++;
 			}
 		} catch (Exception e) {
