@@ -11,6 +11,7 @@
 /bin
 /dist
 /manifest.mf
+/macros
 
 # Classes
 *.class
