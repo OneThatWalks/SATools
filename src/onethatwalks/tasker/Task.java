@@ -10,6 +10,7 @@ import java.util.logging.Logger;
 
 import onethatwalks.satools.SATools;
 import onethatwalks.satools.SAToolsGUI;
+import onethatwalks.util.NumberHandler;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -32,6 +33,7 @@ public class Task implements Runnable {
 			"setWeather", "spawnMob", "spawnObject", "givePlayer",
 			"playerHealth" };
 	public ArrayList<String> commands = new ArrayList<String>();
+	NumberHandler numbers = new NumberHandler();
 
 	public Task(String name, long time, String file, Plugin p) {
 		this.macro = new File(file);
@@ -41,6 +43,10 @@ public class Task implements Runnable {
 		for (String c : raw_commands) {
 			commands.add(c);
 		}
+	}
+
+	public File getFile() {
+		return this.macro;
 	}
 
 	public String getName() {
@@ -122,9 +128,8 @@ public class Task implements Runnable {
 				String[] xyz = where.split(",");
 				CreatureType creature = getCreature(creatureText);
 				if (creature != null) {
-					if (SAToolsGUI.isNumeric(xyz[0])
-							&& SAToolsGUI.isNumeric(xyz[1])
-							&& SAToolsGUI.isNumeric(xyz[2])) {
+					if (numbers.isNumeric(xyz[0]) && numbers.isNumeric(xyz[1])
+							&& numbers.isNumeric(xyz[2])) {
 						int x = Integer.parseInt(xyz[0]);
 						int y = Integer.parseInt(xyz[1]);
 						int z = Integer.parseInt(xyz[2]);
@@ -149,9 +154,8 @@ public class Task implements Runnable {
 				}
 				String[] xyz = where.split(",");
 				if (object.isEmpty() || object == null) {
-					if (SAToolsGUI.isNumeric(xyz[0])
-							&& SAToolsGUI.isNumeric(xyz[1])
-							&& SAToolsGUI.isNumeric(xyz[2])) {
+					if (numbers.isNumeric(xyz[0]) && numbers.isNumeric(xyz[1])
+							&& numbers.isNumeric(xyz[2])) {
 						int x = Integer.parseInt(xyz[0]);
 						int y = Integer.parseInt(xyz[1]);
 						int z = Integer.parseInt(xyz[2]);
@@ -171,10 +175,12 @@ public class Task implements Runnable {
 				if (!player.isEmpty()) {
 					if (plugin.getServer().getPlayer(player) != null) {
 						Player p = plugin.getServer().getPlayer(player);
-						plugin.getServer().dispatchCommand(
-								new ConsoleCommandSender(plugin.getServer()),
-								"give " + p.getDisplayName() + " " + item + " "
-										+ count);
+						if (numbers.isNumeric(count) && numbers.isNumeric(item)) {
+							SAToolsGUI.doGiveItem(p, Integer.parseInt(item),
+									Integer.parseInt(count));
+						} else {
+							log.severe("Error giving an item");
+						}
 					} else {
 						log.info("Player doesn't exsist or is offline, skipping instruction");
 					}
@@ -187,7 +193,7 @@ public class Task implements Runnable {
 				String hearts = tokens[2]; // 0-20
 				if (!player.isEmpty()) {
 					if (plugin.getServer().getPlayer(player) != null) {
-						if (SAToolsGUI.isNumeric(hearts)) {
+						if (numbers.isNumeric(hearts)) {
 							Player p = plugin.getServer().getPlayer(player);
 							p.setHealth(Integer.parseInt(hearts));
 						} else {

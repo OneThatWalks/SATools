@@ -27,7 +27,7 @@ public class TaskScheduler implements Runnable {
 	public static final Logger log = Logger.getLogger("Minecraft");
 	Thread t;
 	int taskQueue = 0;
-	String macroFolder;
+	public String macroFolder;
 
 	public TaskScheduler(Plugin instance) {
 		plugin = instance;
@@ -44,8 +44,7 @@ public class TaskScheduler implements Runnable {
 			if (!mf.exists()) {
 				log.info("No macro folder found, making one instead.");
 				mf.mkdir();
-			}
-			if (mf.exists()) {
+			} else {
 				log.info("Macro directory found, loading...");
 				File[] potentialMacros = mf.listFiles();
 				for (File f : potentialMacros) {
@@ -146,6 +145,7 @@ public class TaskScheduler implements Runnable {
 		tasks.remove(task.getName());
 		SAToolsGUI.defaultListModel_SCHEDULE_TASKS
 				.removeElement(task.getName());
+		task.getFile().delete();
 		task = null;
 	}
 

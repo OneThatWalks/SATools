@@ -25,6 +25,7 @@ import onethatwalks.satools.listeners.SAToolsBlockListener;
 import onethatwalks.satools.listeners.SAToolsEntityListener;
 import onethatwalks.satools.listeners.SAToolsPlayerListener;
 import onethatwalks.tasker.TaskScheduler;
+import onethatwalks.util.NumberHandler;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -64,9 +65,10 @@ public class SATools extends JavaPlugin {
 	public static ArrayList<String> authors_RAW;
 	public static String authors = "";
 	// Init other classes and their attributes
-	SAToolsGUI gui = new SAToolsGUI(this);
+	public SAToolsGUI gui = new SAToolsGUI(this);
 	TimeWatch tw = new TimeWatch();
 	GarbageCollection gc = new GarbageCollection();
+	NumberHandler numbers = new NumberHandler();
 	private boolean twAlive = true;
 	private boolean gcAlive = true;
 	static boolean runGC = false;
@@ -159,7 +161,7 @@ public class SATools extends JavaPlugin {
 				if (strLine.contains("version: ")) {
 					String[] tokens = strLine.split(" ");
 					String version = tokens[1];
-					if (isDouble(version) && isDouble(pdfFile.getVersion())) {
+					if (numbers.isDouble(version) && numbers.isDouble(pdfFile.getVersion())) {
 						if (Double.parseDouble(version) > Double
 								.parseDouble(pdfFile.getVersion())) {
 							if (JOptionPane
@@ -227,22 +229,6 @@ public class SATools extends JavaPlugin {
 		} else {
 			log.warning("You are running an older version of SATools!");
 		}
-	}
-
-	/**
-	 * Checks for a double in the text
-	 * 
-	 * @param text
-	 *            String to check
-	 * @return true is the text contains a double, otherwise false
-	 */
-	public boolean isDouble(String text) {
-		try {
-			Double.parseDouble(text);
-		} catch (NumberFormatException e) {
-			return false;
-		}
-		return true;
 	}
 
 	/**
@@ -399,30 +385,6 @@ public class SATools extends JavaPlugin {
 					log.info("Tree created successfully");
 				} else {
 					log.severe("Failed to create tree");
-				}
-			} else if (object.trim().equalsIgnoreCase("boat")) {
-				if (world.spawnBoat(location) != null) {
-					log.info("Boat created successfully");
-				} else {
-					log.severe("Failed to create boat");
-				}
-			} else if (object.trim().equalsIgnoreCase("minecart")) {
-				if (world.spawnMinecart(location) != null) {
-					log.info("Minecart created successfully");
-				} else {
-					log.severe("Failed to create boat");
-				}
-			} else if (object.trim().equalsIgnoreCase("powered minecart")) {
-				if (world.spawnPoweredMinecart(location) != null) {
-					log.info("Powered minecart created successfully");
-				} else {
-					log.severe("Failed to create powered minecart");
-				}
-			} else if (object.trim().equalsIgnoreCase("storage minecart")) {
-				if (world.spawnStorageMinecart(location) != null) {
-					log.info("Storage minecart created successfully");
-				} else {
-					log.severe("Failed to create storage minecart");
 				}
 			} else if (object.trim().equalsIgnoreCase("lightning")) {
 				if (world.strikeLightning(location) != null) {

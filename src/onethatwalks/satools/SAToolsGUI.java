@@ -10,8 +10,12 @@ import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.logging.Logger;
@@ -33,9 +37,11 @@ import javax.swing.JTextField;
 import javax.swing.JTextPane;
 import javax.swing.JToggleButton;
 import javax.swing.ListModel;
+import javax.swing.SwingConstants;
 import javax.swing.border.TitledBorder;
 
 import onethatwalks.satools.SATools.Weather;
+import onethatwalks.util.NumberHandler;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -52,7 +58,7 @@ public class SAToolsGUI extends JFrame {
 
 	// Variables
 	private static final long serialVersionUID = 1L;
-	public static final Logger log = Logger.getLogger("Minecraft");
+	public static final Logger log = Logger.getLogger("Minecraft"); // @jve:decl-index=0:
 	private JPanel jContentPane = null;
 	private JTabbedPane jTabbedPane = null;
 	private JPanel jPanel_MAIN = null;
@@ -87,9 +93,9 @@ public class SAToolsGUI extends JFrame {
 	private JButton jButton_PLAYERS_MODIFY_GIVE_64 = null;
 	private JButton jButton_PLAYERS_MODIFY_GIVE_1 = null;
 	private JTextField jTextField_PLAYERS_MODIFY_GIVE_INT = null;
-	HashMap<String, Integer> items = new HashMap<String, Integer>(); // @jve:decl-index=0:
+	static HashMap<String, Integer> items = new HashMap<String, Integer>(); // @jve:decl-index=0:
 	private DefaultComboBoxModel DefaultComboBoxModel_PLAYERS_MODIFY_GIVE = new DefaultComboBoxModel(); // @jve:decl-index=0:visual-constraint="280,837"
-	private int selected_id = 0;
+	private static int selected_id = 0;
 	private JPanel jPanel_MAIN_TIME = null;
 	private JPanel jPanel_MAIN_CONSOLE = null;
 	private JLabel jLabel_MAIN_CONSOLE_SAY = null;
@@ -141,8 +147,7 @@ public class SAToolsGUI extends JFrame {
 	public static DefaultComboBoxModel defaultComboBoxModel_MAIN_SPAWN_LOCATION_OBJECT = null;
 	private JButton jButton_MAIN_SPAWN_OBJECT = null;
 	private JLabel jLabel_MAIN_SPAWN_WARNING = null;
-	private String[] objects = { "Tree", "Boat", "Minecart",
-			"Powered minecart", "Stoarage minecart", "Lightning", "Light post" };
+	private String[] objects = { "Tree", "Lightning", "Light post" };
 	private JPanel jPanel_SCHEDULE = null;
 	private JScrollPane jScrollPane_SCHEDULE_TASKS = null;
 	private JLabel jLabel_SCHEDULE_TASKS = null;
@@ -180,6 +185,13 @@ public class SAToolsGUI extends JFrame {
 	private DefaultComboBoxModel defaultComboBoxModel_CHAT_COLORS = null; // @jve:decl-index=0:visual-constraint="868,219"
 	private ArrayList<String> colors = new ArrayList<String>(); // @jve:decl-index=0:
 	private JLabel jLabel_SCHEDULE_TASKS_TIME_SET = null;
+	NumberHandler numbers = new NumberHandler(); // @jve:decl-index=0:
+	private JPanel jPanel_MAP = null;
+	private JPanel jPanel_GREIF = null;
+	private JLabel jLabel_MAP_COMINGSOON = null;
+	private JLabel jLabel_GREIF_COMINGSOON = null;
+	GUIManager gm = new GUIManager();
+	boolean gmAlive = false;
 
 	public enum TaskActions {
 		serverSay, playerSay, setTime, setWeather, spawnMob, spawnObject, givePlayer, playerHealth
@@ -196,6 +208,10 @@ public class SAToolsGUI extends JFrame {
 		if (!tt.isAlive()) {
 			tt.start();
 			ttAlive = true;
+		}
+		if (!gm.isAlive()) {
+			gm.start();
+			gmAlive = true;
 		}
 	}
 
@@ -259,22 +275,6 @@ public class SAToolsGUI extends JFrame {
 		if (plugin.getServer().dispatchCommand(
 				new ConsoleCommandSender(plugin.getServer()), "stop"))
 			;
-	}
-
-	/**
-	 * Checks for a number in a string
-	 * 
-	 * @param text
-	 *            The text to check for numbers
-	 * @return whether the text is a number
-	 */
-	public static boolean isNumeric(String text) {
-		try {
-			Integer.parseInt(text);
-		} catch (NumberFormatException nfe) {
-			return false;
-		}
-		return true;
 	}
 
 	/**
@@ -344,12 +344,15 @@ public class SAToolsGUI extends JFrame {
 			jTabbedPane = new JTabbedPane();
 			jTabbedPane.setBounds(new Rectangle(0, 0, 584, 762)); // Generated
 			jTabbedPane.setEnabled(true); // Generated
+			jTabbedPane.setName(""); // Generated
 			jTabbedPane.addTab("Server Main", null, getJPanel_MAIN(),
 					"Main Server Options"); // Generated
 			jTabbedPane.addTab("Players", null, getJPanel_PLAYERS(),
 					"Players and Player Options"); // Generated
 			jTabbedPane.addTab("Schedule Tasks", null, getJPanel_SCHEDULE(),
 					"Schedule tasks here!"); // Generated
+			jTabbedPane.addTab("Map", null, getJPanel_MAP(), null); // Generated
+			jTabbedPane.addTab("Anti-Greif", null, getJPanel_GREIF(), null); // Generated
 		}
 		return jTabbedPane;
 	}
@@ -633,9 +636,9 @@ public class SAToolsGUI extends JFrame {
 											.getSelectedItem().toString();
 									if (text.trim().contains(",")) {
 										String[] token = text.split(",");
-										if (isNumeric(token[0])
-												&& isNumeric(token[1])
-												&& isNumeric(token[2])) {
+										if (numbers.isNumeric(token[0])
+												&& numbers.isNumeric(token[1])
+												&& numbers.isNumeric(token[2])) {
 											int x = Integer.parseInt(token[0]
 													.trim());
 											int y = Integer.parseInt(token[1]
@@ -911,8 +914,9 @@ public class SAToolsGUI extends JFrame {
 							if (e.getKeyCode() == (KeyEvent.VK_ENTER)) {
 								if (!jTextField_PLAYERS_MODIFY_HEALTH_INT
 										.getText().isEmpty()
-										&& isNumeric(jTextField_PLAYERS_MODIFY_HEALTH_INT
-												.getText())) {
+										&& numbers
+												.isNumeric(jTextField_PLAYERS_MODIFY_HEALTH_INT
+														.getText())) {
 									player.setHealth(Integer
 											.parseInt(jTextField_PLAYERS_MODIFY_HEALTH_INT
 													.getText()));
@@ -1039,7 +1043,7 @@ public class SAToolsGUI extends JFrame {
 					.addActionListener(new java.awt.event.ActionListener() {
 						public void actionPerformed(java.awt.event.ActionEvent e) {
 							try {
-								if (doGiveItem(selected_id, 64))
+								if (doGiveItem(player, selected_id, 64))
 									;
 							} catch (Exception e1) {
 								e1.printStackTrace();
@@ -1065,7 +1069,7 @@ public class SAToolsGUI extends JFrame {
 					.addActionListener(new java.awt.event.ActionListener() {
 						public void actionPerformed(java.awt.event.ActionEvent e) {
 							try {
-								if (doGiveItem(selected_id, 1))
+								if (doGiveItem(player, selected_id, 1))
 									;
 							} catch (Exception e1) {
 								e1.printStackTrace();
@@ -1076,49 +1080,55 @@ public class SAToolsGUI extends JFrame {
 		return jButton_PLAYERS_MODIFY_GIVE_1;
 	}
 
-	private boolean doGiveItem(int itemID, int amount) {
-		if (itemID != -1) {
-			if (amount > 0) {
-				short damage = 0;
-				if (itemID == items.get("Wool")) {
-					String[] colorValues = { "White", "Orange", "Magenta",
-							"Light Blue", "Yellow", "Light Green", "Pink",
-							"Gray", "Light Gray", "Cyan", "Purple", "Blue",
-							"Brown", "Dark Green", "Red", "Black" };
-					HashMap<Integer, String> woolColors = new HashMap<Integer, String>();
-					for (int i = 0; i < colorValues.length; i++) {
-						woolColors.put(i, colorValues[i]);
-					}
-					String input = (String) JOptionPane.showInputDialog(null,
-							"What color?", "Wool Color Selection",
-							JOptionPane.INFORMATION_MESSAGE, null, woolColors
-									.values().toArray(), woolColors.get(0));
-					for (int o : woolColors.keySet()) {
-						if (woolColors.get(o).equals(input)) {
-							damage = (short) o;
-							break;
+	public static boolean doGiveItem(Player p, int itemID, int amount) {
+		if (p != null) {
+			if (itemID != -1) {
+				if (amount > 0) {
+					short damage = 0;
+					if (itemID == items.get("Wool")) {
+						String[] colorValues = { "White", "Orange", "Magenta",
+								"Light Blue", "Yellow", "Light Green", "Pink",
+								"Gray", "Light Gray", "Cyan", "Purple", "Blue",
+								"Brown", "Dark Green", "Red", "Black" };
+						HashMap<Integer, String> woolColors = new HashMap<Integer, String>();
+						for (int i = 0; i < colorValues.length; i++) {
+							woolColors.put(i, colorValues[i]);
 						}
-						if (o == colorValues.length - 1) {
-							log.severe("Cannot get integer");
-							return false;
+						String input = (String) JOptionPane.showInputDialog(
+								null, "What color?", "Wool Color Selection",
+								JOptionPane.INFORMATION_MESSAGE, null,
+								woolColors.values().toArray(),
+								woolColors.get(0));
+						for (int o : woolColors.keySet()) {
+							if (woolColors.get(o).equals(input)) {
+								damage = (short) o;
+								break;
+							}
+							if (o == colorValues.length - 1) {
+								log.severe("Cannot get integer");
+								return false;
+							}
 						}
 					}
-				}
-				org.bukkit.inventory.ItemStack is = new org.bukkit.inventory.ItemStack(
-						selected_id, amount, damage);
-				player.getInventory().addItem(is);
-				{ // The heart of this method
-					if (player.getInventory().contains(is)) {
-						return true;
+					org.bukkit.inventory.ItemStack is = new org.bukkit.inventory.ItemStack(
+							selected_id, amount, damage);
+					p.getInventory().addItem(is);
+					{ // The heart of this method
+						if (player.getInventory().contains(is)) {
+							return true;
+						}
+						return false;
 					}
+				} else {
+					log.severe("doGiveItem(): no amount or negative count");
 					return false;
 				}
 			} else {
-				log.severe("doGiveItem(): no amount or negative count");
+				log.severe("doGiveItem(): no item or invalid type");
 				return false;
 			}
 		} else {
-			log.severe("doGiveItem(): no item or invalid type");
+			log.severe("doGiveItem(): no player or invalid player");
 			return false;
 		}
 	}
@@ -1140,9 +1150,11 @@ public class SAToolsGUI extends JFrame {
 								if (e.getKeyCode() == (KeyEvent.VK_ENTER)) {
 									if (!jTextField_PLAYERS_MODIFY_GIVE_INT
 											.getText().isEmpty()
-											|| !isNumeric(jTextField_PLAYERS_MODIFY_GIVE_INT
-													.getText())) {
+											|| !numbers
+													.isNumeric(jTextField_PLAYERS_MODIFY_GIVE_INT
+															.getText())) {
 										if (doGiveItem(
+												player,
 												selected_id,
 												Integer.parseInt(jTextField_PLAYERS_MODIFY_GIVE_INT
 														.getText())))
@@ -1618,9 +1630,9 @@ public class SAToolsGUI extends JFrame {
 											.getSelectedItem().toString();
 									if (text.trim().contains(",")) {
 										String[] token = text.split(",");
-										if (isNumeric(token[0])
-												&& isNumeric(token[1])
-												&& isNumeric(token[2])) {
+										if (numbers.isNumeric(token[0])
+												&& numbers.isNumeric(token[1])
+												&& numbers.isNumeric(token[2])) {
 											int x = Integer.parseInt(token[0]
 													.trim());
 											int y = Integer.parseInt(token[1]
@@ -1683,6 +1695,23 @@ public class SAToolsGUI extends JFrame {
 				}
 			} catch (Exception e) {
 				// Sleep Interrupted
+			}
+		}
+	}
+
+	public class GUIManager extends Thread {
+		public void run() {
+			while (true) {
+				if (jList_SCHEDULE_TASKS.getSelectedValue() != null) {
+					jLabel_SCHEDULE_TASKS_INFO_NAME_DATA
+							.setText(plugin.taskscheduler.getTask(
+									jList_SCHEDULE_TASKS.getSelectedValue()
+											.toString()).getName());
+					jLabel_SCHEDULE_TASKS_INFO_WHEN_DATA.setText(String
+							.valueOf(plugin.taskscheduler.getTask(
+									jList_SCHEDULE_TASKS.getSelectedValue()
+											.toString()).getExecutionTime()));
+				}
 			}
 		}
 	}
@@ -1966,6 +1995,14 @@ public class SAToolsGUI extends JFrame {
 			jButton_SCHEDULE_TASKS_MODIFY.setBounds(new Rectangle(380, 325,
 					115, 20)); // Generated
 			jButton_SCHEDULE_TASKS_MODIFY.setText("Modify Task"); // Generated
+			jButton_SCHEDULE_TASKS_MODIFY
+					.addActionListener(new java.awt.event.ActionListener() {
+						public void actionPerformed(java.awt.event.ActionEvent e) {
+							// TODO jFrame with text area to modify the whole
+							// thing
+							System.out.println("ActionPerformed()");
+						}
+					});
 		}
 		return jButton_SCHEDULE_TASKS_MODIFY;
 	}
@@ -2054,35 +2091,45 @@ public class SAToolsGUI extends JFrame {
 							} else {
 								log.warning("Problem adding instruction");
 							}
-							checkAction(action);
+							if (checkAction(action))
+								;
 						}
 					});
 		}
 		return jButton_SCHEDULE_TASKS_MODIFY_ADD;
 	}
 
-	protected void checkAction(String action) {
+	protected boolean checkAction(String action) {
 		if (action != null) {
 			if (action.equals(actions[0])) { // serverSay
 				doAction(TaskActions.serverSay);
+				return true;
 			} else if (action.equals(actions[1])) { // playerSay
 				doAction(TaskActions.playerSay);
+				return true;
 			} else if (action.equals(actions[2])) { // setTime
 				doAction(TaskActions.setTime);
+				return true;
 			} else if (action.equals(actions[3])) { // setWeather
 				doAction(TaskActions.setWeather);
+				return true;
 			} else if (action.equals(actions[4])) { // spawnMob
 				doAction(TaskActions.spawnMob);
+				return true;
 			} else if (action.equals(actions[5])) { // spawnObject
 				doAction(TaskActions.spawnObject);
+				return true;
 			} else if (action.equals(actions[6])) { // givePlayer
 				doAction(TaskActions.givePlayer);
+				return true;
 			} else if (action.equals(actions[7])) { // playerHealth
 				doAction(TaskActions.playerHealth);
+				return true;
 			}
-
+			return false;
 		} else {
 			log.warning("Problem adding instruction");
+			return false;
 		}
 	}
 
@@ -2090,44 +2137,141 @@ public class SAToolsGUI extends JFrame {
 	 * private String[] actions = { "serverSay", "playerSay", "setTime",
 	 * "setWeather", "spawnMob", "spawnObject", "givePlayer", "playerHealth" };
 	 */
-	private void doAction(TaskActions action) {
-		switch (action) {
-		default:
-			log.warning("Error adding instruction.");
-			break;
-		case serverSay:
-			String op = JOptionPane.showInputDialog("What do you want to say?")
-					.toString();
-			if (!op.isEmpty()) {
-				String input = (String) JOptionPane.showInputDialog(null,
-						"Please select a color", "Color Options",
-						JOptionPane.INFORMATION_MESSAGE, null,
-						colors.toArray(), "WHITE");
-				String text = "serverSay " + op + " " + input;
-				String nl = System.getProperty("line.separator");
-				jTextPane_SCHEDULE_TASKS_MODIFY_PREVIEW
-						.setText(jTextPane_SCHEDULE_TASKS_MODIFY_PREVIEW
-								.getText() + nl + text);
-			} else {
-				log.warning("Invalid input. Try again!");
-				doAction(TaskActions.serverSay);
+	private boolean doAction(TaskActions action) {
+		if (action != null) {
+			switch (action) {
+			default:
+				log.warning("Error adding instruction.");
+				return false;
+			case serverSay:
+				String ss = JOptionPane.showInputDialog(
+						"What do you want to say?").toString();
+				if (!ss.isEmpty()) {
+					String input = (String) JOptionPane.showInputDialog(null,
+							"Please select a color", "Color Options",
+							JOptionPane.INFORMATION_MESSAGE, null,
+							colors.toArray(), "WHITE");
+					String text = "serverSay " + ss + " " + input;
+					String nl = System.getProperty("line.separator");
+					jTextPane_SCHEDULE_TASKS_MODIFY_PREVIEW
+							.setText(jTextPane_SCHEDULE_TASKS_MODIFY_PREVIEW
+									.getText() + nl + text);
+				} else {
+					log.warning("Invalid input. Try again!");
+					doAction(TaskActions.serverSay);
+				}
+				return true;
+			case playerSay:
+				String ps = JOptionPane.showInputDialog(
+						"What do you want to say?").toString();
+				if (!ps.isEmpty()) {
+					String input = (String) JOptionPane.showInputDialog(null,
+							"Please select a color", "Color Options",
+							JOptionPane.INFORMATION_MESSAGE, null,
+							colors.toArray(), "WHITE");
+					String text = "playerSay " + ps + " " + input;
+					String nl = System.getProperty("line.separator");
+					jTextPane_SCHEDULE_TASKS_MODIFY_PREVIEW
+							.setText(jTextPane_SCHEDULE_TASKS_MODIFY_PREVIEW
+									.getText() + nl + text);
+				} else {
+					log.warning("Invalid input. Try again!");
+					doAction(TaskActions.serverSay);
+				}
+				return true;
+			case setTime:
+				String st = JOptionPane
+						.showInputDialog(
+								"Enter a time.\n  (Where 0 - Morning and 12000 is dusk)")
+						.toString();
+				if (!st.isEmpty()) {
+					String text = "setTime " + st;
+					String nl = System.getProperty("line.separator");
+					jTextPane_SCHEDULE_TASKS_MODIFY_PREVIEW
+							.setText(jTextPane_SCHEDULE_TASKS_MODIFY_PREVIEW
+									.getText() + nl + text);
+				} else {
+					log.warning("Invalid input. Try again!");
+					doAction(TaskActions.serverSay);
+				}
+				return true;
+			case setWeather:
+				String[] weatherTypes = { "clear", "storm", "thunder" };
+				String sw = (String) JOptionPane.showInputDialog(null,
+						"Please select the weather", "Weather",
+						JOptionPane.INFORMATION_MESSAGE, null, weatherTypes,
+						"clear");
+				if (!sw.isEmpty()) {
+					String text = "setWeather " + sw;
+					String nl = System.getProperty("line.separator");
+					jTextPane_SCHEDULE_TASKS_MODIFY_PREVIEW
+							.setText(jTextPane_SCHEDULE_TASKS_MODIFY_PREVIEW
+									.getText() + nl + text);
+				} else {
+					log.warning("Invalid input. Try again!");
+					doAction(TaskActions.serverSay);
+				}
+				return true;
+			case spawnMob:
+				String[] creatureTypes = {};
+				for (int i = 0; i < defaultComboBoxModel_MAIN_SPAWN.getSize(); i++) {
+					creatureTypes[i] = (String) defaultComboBoxModel_MAIN_SPAWN
+							.getElementAt(i);
+				}
+				String sm = (String) JOptionPane.showInputDialog(null,
+						"Please select a mob to spawn", "Mob Spawn Dialog",
+						JOptionPane.INFORMATION_MESSAGE, null, creatureTypes,
+						"creeper");
+				if (!sm.isEmpty()) {
+					String input = (String) JOptionPane
+							.showInputDialog(
+									null,
+									"Please input a location\n Use the x,y,z format with no spaces",
+									"Location", JOptionPane.INFORMATION_MESSAGE);
+					String text = "spawnMob " + sm + " " + input;
+					String nl = System.getProperty("line.separator");
+					jTextPane_SCHEDULE_TASKS_MODIFY_PREVIEW
+							.setText(jTextPane_SCHEDULE_TASKS_MODIFY_PREVIEW
+									.getText() + nl + text);
+				} else {
+					log.warning("Invalid input. Try again!");
+					doAction(TaskActions.serverSay);
+				}
+				return true;
+			case spawnObject:
+				String[] objectTypes = {};
+				for (int i = 0; i < defaultComboBoxModel_MAIN_SPAWN_OBJECT
+						.getSize(); i++) {
+					objectTypes[i] = (String) defaultComboBoxModel_MAIN_SPAWN_OBJECT
+							.getElementAt(i);
+				}
+				String so = (String) JOptionPane.showInputDialog(null,
+						"Please select an object", "Object Spawn Dialog",
+						JOptionPane.INFORMATION_MESSAGE, null, objectTypes,
+						"tree");
+				if (!so.isEmpty()) {
+					String input = (String) JOptionPane
+							.showInputDialog(
+									null,
+									"Please input a location\n Use the x,y,z format with no spaces",
+									"Location", JOptionPane.INFORMATION_MESSAGE);
+					String text = "spawnObject " + so + " " + input;
+					String nl = System.getProperty("line.separator");
+					jTextPane_SCHEDULE_TASKS_MODIFY_PREVIEW
+							.setText(jTextPane_SCHEDULE_TASKS_MODIFY_PREVIEW
+									.getText() + nl + text);
+				} else {
+					log.warning("Invalid input. Try again!");
+					doAction(TaskActions.serverSay);
+				}
+				return true;
+			case givePlayer:
+				return true;
+			case playerHealth:
+				return true;
 			}
-			break;
-		case playerSay:
-			break;
-		case setTime:
-			break;
-		case setWeather:
-			break;
-		case spawnMob:
-			break;
-		case spawnObject:
-			break;
-		case givePlayer:
-			break;
-		case playerHealth:
-			break;
 		}
+		return false;
 	}
 
 	/**
@@ -2196,8 +2340,86 @@ public class SAToolsGUI extends JFrame {
 					480, 100, 20)); // Generated
 			jButton_SCHEDULE_TASKS_MODIFY_SAVE.setEnabled(false); // Generated
 			jButton_SCHEDULE_TASKS_MODIFY_SAVE.setText("Save"); // Generated
+			jButton_SCHEDULE_TASKS_MODIFY_SAVE
+					.addActionListener(new java.awt.event.ActionListener() {
+						public void actionPerformed(java.awt.event.ActionEvent e) {
+							saveMacro();
+						}
+					});
 		}
 		return jButton_SCHEDULE_TASKS_MODIFY_SAVE;
+	}
+
+	private void saveMacro() {
+		File mf = new File(plugin.taskscheduler.macroFolder);
+		if (!mf.exists()) {
+			log.info("No macro folder found, making one instead.");
+			mf.mkdir();
+		} else {
+			log.info("Found dir saving macro");
+		}
+		File m = new File(plugin.taskscheduler.macroFolder
+				+ jTextField_SCHEDULE_TASKS_MODIFY_NAME_DATA.getText().trim());
+		if (m.exists()) {
+			if (JOptionPane.showConfirmDialog(null,
+					"File found\n Do you wish to overwrite?", "Alert",
+					JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
+				try {
+					FileWriter fw = new FileWriter(m);
+					PrintWriter pw = new PrintWriter(fw);
+					pw.println("#" + getMacroTime());
+					String[] previewText = jTextPane_SCHEDULE_TASKS_MODIFY_PREVIEW
+							.getText().split("\n");
+					for (String text : previewText) {
+						if (!text.isEmpty()) {
+							pw.println(text);
+						}
+					}
+					fw.close();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			} else {
+				log.warning("Could not save macro. Save aborted");
+			}
+		} else {
+			try {
+				m.createNewFile();
+				FileWriter fw = new FileWriter(m);
+				PrintWriter pw = new PrintWriter(fw);
+				pw.println("#" + getMacroTime());
+				String[] previewText = jTextPane_SCHEDULE_TASKS_MODIFY_PREVIEW
+						.getText().split("\n");
+				for (String text : previewText) {
+					if (!text.isEmpty()) {
+						pw.println(text);
+					}
+				}
+				fw.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+	}
+
+	private String getMacroTime() {
+		String selection = jComboBox_SCHEDULE_TASKS_MODIFY_WHEN_DATA
+				.getSelectedItem().toString();
+		if (numbers.isNumeric(selection)) {
+			return selection;
+		} else {
+			if (selection.equalsIgnoreCase("midnight")) {
+				return "18000";
+			} else if (selection.equalsIgnoreCase("morning")) {
+				return "0";
+			} else if (selection.equalsIgnoreCase("noon")) {
+				return "6000";
+			} else if (selection.equalsIgnoreCase("dusk")) {
+				return "12000";
+			} else {
+				return null;
+			}
+		}
 	}
 
 	/**
@@ -2288,9 +2510,48 @@ public class SAToolsGUI extends JFrame {
 			defaultComboBoxModel_CHAT_COLORS = new DefaultComboBoxModel();
 			for (ChatColor c : ChatColor.values()) {
 				defaultComboBoxModel_CHAT_COLORS.addElement(c.name());
-
 			}
 		}
 		return defaultComboBoxModel_CHAT_COLORS;
+	}
+
+	/**
+	 * This method initializes jPanel_MAP
+	 * 
+	 * @return javax.swing.JPanel
+	 */
+	private JPanel getJPanel_MAP() {
+		if (jPanel_MAP == null) {
+			jLabel_MAP_COMINGSOON = new JLabel();
+			jLabel_MAP_COMINGSOON.setBounds(new Rectangle(4, 4, 569, 177)); // Generated
+			jLabel_MAP_COMINGSOON.setFont(new Font("Dialog", Font.BOLD, 48)); // Generated
+			jLabel_MAP_COMINGSOON.setHorizontalAlignment(SwingConstants.CENTER); // Generated
+			jLabel_MAP_COMINGSOON.setText("Comming Soon!!!"); // Generated
+			jPanel_MAP = new JPanel();
+			jPanel_MAP.setLayout(null); // Generated
+			jPanel_MAP.add(jLabel_MAP_COMINGSOON, null); // Generated
+
+		}
+		return jPanel_MAP;
+	}
+
+	/**
+	 * This method initializes jPanel_GREIF
+	 * 
+	 * @return javax.swing.JPanel
+	 */
+	private JPanel getJPanel_GREIF() {
+		if (jPanel_GREIF == null) {
+			jLabel_GREIF_COMINGSOON = new JLabel();
+			jLabel_GREIF_COMINGSOON.setBounds(new Rectangle(5, 5, 566, 192)); // Generated
+			jLabel_GREIF_COMINGSOON
+					.setHorizontalAlignment(SwingConstants.CENTER); // Generated
+			jLabel_GREIF_COMINGSOON.setText("Comming Soon!!!"); // Generated
+			jLabel_GREIF_COMINGSOON.setFont(new Font("Dialog", Font.BOLD, 48)); // Generated
+			jPanel_GREIF = new JPanel();
+			jPanel_GREIF.setLayout(null); // Generated
+			jPanel_GREIF.add(jLabel_GREIF_COMINGSOON, null); // Generated
+		}
+		return jPanel_GREIF;
 	}
 }
