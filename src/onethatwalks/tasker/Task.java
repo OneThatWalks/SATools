@@ -121,6 +121,8 @@ public class Task implements Runnable {
 				} else if (arg.equalsIgnoreCase("thunder")) {
 					SAToolsGUI.jButton_MAIN_WEATHER_THUNDER.doClick();
 				}
+                                  else {
+                                       log.warning("Your instruction did not have a valid weather setting.")      
 			} else if (string.startsWith(commands.get(4))) {
 				String[] tokens = string.split(" ");
 				String creatureText = tokens[1];
