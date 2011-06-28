@@ -120,10 +120,10 @@ public class Task implements Runnable {
 					SAToolsGUI.jButton_MAIN_WEATHER_STORM.doClick();
 				} else if (arg.equalsIgnoreCase("thunder")) {
 					SAToolsGUI.jButton_MAIN_WEATHER_THUNDER.doClick();
+				} else {
+					log.warning("Your instruction did not have a valid weather setting.");
 				}
-                                  else {
-                                       log.warning("Your instruction did not have a valid weather setting.")      
-			} else if (string.startsWith(commands.get(4))) {
+			} else if (string.startsWith(commands.get(4))) { // spawnMob
 				String[] tokens = string.split(" ");
 				String creatureText = tokens[1];
 				String where = tokens[2];

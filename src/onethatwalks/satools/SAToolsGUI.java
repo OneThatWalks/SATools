@@ -1080,31 +1080,140 @@ public class SAToolsGUI extends JFrame {
 		return jButton_PLAYERS_MODIFY_GIVE_1;
 	}
 
+	/**
+	 * My method to give a player a specified item
+	 * 
+	 * @param p
+	 *            Player to give item to
+	 * @param itemID
+	 *            The item ID TODO make method interchangable between ID and
+	 *            name
+	 * @param amount
+	 *            Amount to give
+	 * @return true if item given, otherwise false.
+	 */
 	public static boolean doGiveItem(Player p, int itemID, int amount) {
 		if (p != null) {
 			if (itemID != -1) {
 				if (amount > 0) {
 					short damage = 0;
-					if (itemID == items.get("Wool")) {
-						String[] colorValues = { "White", "Orange", "Magenta",
+					if (itemID == items.get("Wool")) { // Wool damage for
+														// differnt colors
+						String[] values = { "White", "Orange", "Magenta",
 								"Light Blue", "Yellow", "Light Green", "Pink",
 								"Gray", "Light Gray", "Cyan", "Purple", "Blue",
 								"Brown", "Dark Green", "Red", "Black" };
-						HashMap<Integer, String> woolColors = new HashMap<Integer, String>();
-						for (int i = 0; i < colorValues.length; i++) {
-							woolColors.put(i, colorValues[i]);
+						HashMap<Integer, String> map = new HashMap<Integer, String>();
+						for (int i = 0; i < values.length; i++) {
+							map.put(i, values[i]);
 						}
 						String input = (String) JOptionPane.showInputDialog(
 								null, "What color?", "Wool Color Selection",
-								JOptionPane.INFORMATION_MESSAGE, null,
-								woolColors.values().toArray(),
-								woolColors.get(0));
-						for (int o : woolColors.keySet()) {
-							if (woolColors.get(o).equals(input)) {
+								JOptionPane.INFORMATION_MESSAGE, null, map
+										.values().toArray(), map.get(0));
+						for (int o : map.keySet()) {
+							if (map.get(o).equals(input)) {
 								damage = (short) o;
 								break;
 							}
-							if (o == colorValues.length - 1) {
+							if (o == values.length - 1) {
+								log.severe("Cannot get integer");
+								return false;
+							}
+						}
+					} else if (itemID == items.get("Log")) { // Wood damage for
+																// different
+																// types
+						String[] values = { "Oak/Regular", "Spruce/Pine",
+								"Birch" };
+						HashMap<Integer, String> map = new HashMap<Integer, String>();
+						for (int i = 0; i < values.length; i++) {
+							map.put(i, values[i]);
+						}
+						String input = (String) JOptionPane.showInputDialog(
+								null, "What type?", "Wood Type Selection",
+								JOptionPane.INFORMATION_MESSAGE, null, map
+										.values().toArray(), map.get(0));
+						for (int o : map.keySet()) {
+							if (map.get(o).equals(input)) {
+								damage = (short) o;
+								break;
+							}
+							if (o == values.length - 1) {
+								log.severe("Cannot get integer");
+								return false;
+							}
+						}
+					} else if (itemID == items.get("StoneSlab")) { // Slabs
+																	// material
+						String[] values = { "Stone", "Sandstone", "Wooden",
+								"Cobblestone" };
+						HashMap<Integer, String> map = new HashMap<Integer, String>();
+						for (int i = 0; i < values.length; i++) {
+							map.put(i, values[i]);
+						}
+						String input = (String) JOptionPane.showInputDialog(
+								null, "What materal slab do you want?",
+								"Slab Selection",
+								JOptionPane.INFORMATION_MESSAGE, null, map
+										.values().toArray(), map.get(0));
+						for (int o : map.keySet()) {
+							if (map.get(o).equals(input)) {
+								damage = (short) o;
+								break;
+							}
+							if (o == values.length - 1) {
+								log.severe("Cannot get integer");
+								return false;
+							}
+						}
+					} else if (itemID == items.get("InkSack")) { // Different
+																	// types of
+																	// dye's
+						String[] values = { "Ink Sack", "Rose Red",
+								"Cactus Green", "Cocoa Beans", "Lapis Lazuli",
+								"Purple Dye", "Cyan Dye", "Light Gray Dye",
+								"Gray Dye", "Pink Dye", "Lime Dye",
+								"Dandelion Yellow", "Light Blue Dye",
+								"Magenta", "Orange Dye", "Bone Meal" };
+						HashMap<Integer, String> map = new HashMap<Integer, String>();
+						for (int i = 0; i < values.length; i++) {
+							map.put(i, values[i]);
+						}
+						String input = (String) JOptionPane.showInputDialog(
+								null, "What color dye do you want?",
+								"Dye Color Selection",
+								JOptionPane.INFORMATION_MESSAGE, null, map
+										.values().toArray(), map.get(0));
+						for (int o : map.keySet()) {
+							if (map.get(o).equals(input)) {
+								damage = (short) o;
+								break;
+							}
+							if (o == values.length - 1) {
+								log.severe("Cannot get integer");
+								return false;
+							}
+						}
+					} else if (itemID == items.get("Sapling")) { // Different
+																	// sapplings
+						String[] values = { "Oak/Regular", "Spruce/Pine",
+								"Birch" };
+						HashMap<Integer, String> map = new HashMap<Integer, String>();
+						for (int i = 0; i < values.length; i++) {
+							map.put(i, values[i]);
+						}
+						String input = (String) JOptionPane.showInputDialog(
+								null, "What type of sapling do you want?",
+								"Sapling Selelction",
+								JOptionPane.INFORMATION_MESSAGE, null, map
+										.values().toArray(), map.get(0));
+						for (int o : map.keySet()) {
+							if (map.get(o).equals(input)) {
+								damage = (short) o;
+								break;
+							}
+							if (o == values.length - 1) {
 								log.severe("Cannot get integer");
 								return false;
 							}
@@ -1998,8 +2107,8 @@ public class SAToolsGUI extends JFrame {
 			jButton_SCHEDULE_TASKS_MODIFY
 					.addActionListener(new java.awt.event.ActionListener() {
 						public void actionPerformed(java.awt.event.ActionEvent e) {
-							// TODO jFrame with text area to modify the whole
-							// thing
+							jTextPane_SCHEDULE_TASKS_MODIFY_PREVIEW
+									.setEditable(true);
 							System.out.println("ActionPerformed()");
 						}
 					});
@@ -2176,7 +2285,7 @@ public class SAToolsGUI extends JFrame {
 									.getText() + nl + text);
 				} else {
 					log.warning("Invalid input. Try again!");
-					doAction(TaskActions.serverSay);
+					doAction(TaskActions.playerSay);
 				}
 				return true;
 			case setTime:
@@ -2192,7 +2301,7 @@ public class SAToolsGUI extends JFrame {
 									.getText() + nl + text);
 				} else {
 					log.warning("Invalid input. Try again!");
-					doAction(TaskActions.serverSay);
+					doAction(TaskActions.setTime);
 				}
 				return true;
 			case setWeather:
@@ -2209,7 +2318,7 @@ public class SAToolsGUI extends JFrame {
 									.getText() + nl + text);
 				} else {
 					log.warning("Invalid input. Try again!");
-					doAction(TaskActions.serverSay);
+					doAction(TaskActions.setWeather);
 				}
 				return true;
 			case spawnMob:
@@ -2235,7 +2344,7 @@ public class SAToolsGUI extends JFrame {
 									.getText() + nl + text);
 				} else {
 					log.warning("Invalid input. Try again!");
-					doAction(TaskActions.serverSay);
+					doAction(TaskActions.spawnMob);
 				}
 				return true;
 			case spawnObject:
@@ -2262,12 +2371,88 @@ public class SAToolsGUI extends JFrame {
 									.getText() + nl + text);
 				} else {
 					log.warning("Invalid input. Try again!");
-					doAction(TaskActions.serverSay);
+					doAction(TaskActions.spawnObject);
 				}
 				return true;
 			case givePlayer:
+				String[] itemSlection = {};
+				for (int i = 0; i < DefaultComboBoxModel_PLAYERS_MODIFY_GIVE
+						.getSize(); i++) {
+					itemSlection[i] = (String) DefaultComboBoxModel_PLAYERS_MODIFY_GIVE
+							.getElementAt(i);
+				}
+				String gp = (String) JOptionPane.showInputDialog(null,
+						"Please select an item", "Item Selection",
+						JOptionPane.INFORMATION_MESSAGE, null, itemSlection,
+						"Stone");
+				if (!gp.isEmpty()) {
+					String[] numbes_0_64 = {};
+					for (int i = 0; i < 63; i++) {
+						numbes_0_64[i] = Integer.toString(i + 1);
+					}
+					String count = (String) JOptionPane.showInputDialog(null,
+							"Please select an item", "Item Selection",
+							JOptionPane.INFORMATION_MESSAGE, null, numbes_0_64,
+							"1");
+					if (!count.isEmpty()) {
+						String[] plyrs = {};
+						for (int i = 0; i < plugin.getServer()
+								.getOnlinePlayers().length; i++) {
+							plyrs[i] = plugin.getServer().getOnlinePlayers()[i]
+									.getDisplayName();
+						}
+						String input = (String) JOptionPane
+								.showInputDialog(null,
+										"Please select a player to give",
+										"Player",
+										JOptionPane.INFORMATION_MESSAGE, null,
+										plyrs, plugin.getServer()
+												.getOnlinePlayers()[0]
+												.getDisplayName());
+						int item = items.get(gp);
+						String text = "givePlayer " + input + " " + count + " "
+								+ item;
+						String nl = System.getProperty("line.separator");
+						jTextPane_SCHEDULE_TASKS_MODIFY_PREVIEW
+								.setText(jTextPane_SCHEDULE_TASKS_MODIFY_PREVIEW
+										.getText() + nl + text);
+					} else {
+						log.warning("Invalid input. Try again!");
+						doAction(TaskActions.givePlayer);
+					}
+				} else {
+					log.warning("Invalid input. Try again!");
+					doAction(TaskActions.givePlayer);
+				}
 				return true;
 			case playerHealth:
+				String[] plyrs = {};
+				for (int i = 0; i < plugin.getServer().getOnlinePlayers().length; i++) {
+					plyrs[i] = plugin.getServer().getOnlinePlayers()[i]
+							.getDisplayName();
+				}
+				String input = (String) JOptionPane.showInputDialog(null,
+						"Please select a player to give", "Player",
+						JOptionPane.INFORMATION_MESSAGE, null, plyrs, plugin
+								.getServer().getOnlinePlayers()[0]
+								.getDisplayName());
+				if (!input.isEmpty()) {
+					String ph = JOptionPane.showInputDialog(
+							"Enter the amount of hearts to set").toString();
+					if (!ph.isEmpty()) {
+						String text = "playerHealth " + input + " " + ph;
+						String nl = System.getProperty("line.separator");
+						jTextPane_SCHEDULE_TASKS_MODIFY_PREVIEW
+								.setText(jTextPane_SCHEDULE_TASKS_MODIFY_PREVIEW
+										.getText() + nl + text);
+					} else {
+						log.warning("Invalid input. Try again!");
+						doAction(TaskActions.playerHealth);
+					}
+				} else {
+					log.warning("Invalid input. Try again!");
+					doAction(TaskActions.playerHealth);
+				}
 				return true;
 			}
 		}
@@ -2286,7 +2471,7 @@ public class SAToolsGUI extends JFrame {
 					510, 550, 210)); // Generated
 			jTextPane_SCHEDULE_TASKS_MODIFY_PREVIEW.setFont(new Font(
 					"Lucida Console", Font.PLAIN, 12)); // Generated
-			jTextPane_SCHEDULE_TASKS_MODIFY_PREVIEW.setEditable(true); // Generated
+			jTextPane_SCHEDULE_TASKS_MODIFY_PREVIEW.setEditable(false); // Generated
 			jTextPane_SCHEDULE_TASKS_MODIFY_PREVIEW.setText(""); // Generated
 			jTextPane_SCHEDULE_TASKS_MODIFY_PREVIEW.setForeground(Color.white); // Generated
 			jTextPane_SCHEDULE_TASKS_MODIFY_PREVIEW.setBackground(Color.black); // Generated
@@ -2344,6 +2529,8 @@ public class SAToolsGUI extends JFrame {
 					.addActionListener(new java.awt.event.ActionListener() {
 						public void actionPerformed(java.awt.event.ActionEvent e) {
 							saveMacro();
+							jTextPane_SCHEDULE_TASKS_MODIFY_PREVIEW
+									.setEditable(false);
 						}
 					});
 		}
