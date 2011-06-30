@@ -3,28 +3,26 @@ package onethatwalks.satools;
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
-import java.io.PrintWriter;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Logger;
 
 import javax.swing.JOptionPane;
 
-import onethatwalks.satools.listeners.SAToolsBlockListener;
 import onethatwalks.satools.listeners.SAToolsEntityListener;
 import onethatwalks.satools.listeners.SAToolsPlayerListener;
 import onethatwalks.tasker.TaskScheduler;
+import onethatwalks.threads.ThreadHandler;
 import onethatwalks.util.NumberHandler;
 
 import org.bukkit.ChatColor;
@@ -33,13 +31,15 @@ import org.bukkit.Material;
 import org.bukkit.TreeType;
 import org.bukkit.World;
 import org.bukkit.block.Block;
+import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.CreatureType;
-import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
-import com.tips48.restartNow.*;
+import org.bukkit.util.config.Configuration;
+
+import com.tips48.restartNow.RestartNowApi;
 
 /**
  * SATools - Server Admin Tools
@@ -47,59 +47,71 @@ import com.tips48.restartNow.*;
  * @author OneThatWalks
  */
 public class SATools extends JavaPlugin {
-	// Localize needed files
-	public RestartNowApi api;
+	// Listeners
 	private final SAToolsPlayerListener playerListener = new SAToolsPlayerListener(
 			this);
 	private final SAToolsEntityListener entityListener = new SAToolsEntityListener(
 			this);
-	@SuppressWarnings("unused")
-	private final SAToolsBlockListener blockListener = new SAToolsBlockListener(
-			this);
+	// END
+	// Plugin Description
 	private PluginDescriptionFile pdfFile;
+	// END
 	// Grab the logger
 	public static final Logger log = Logger.getLogger("Minecraft");
+	// END
+	// RestartNow - tips48; initialization
+	public RestartNowApi restartNow;
+	// END
+	// Thread Handler
+	public ThreadHandler threadHandler = new ThreadHandler(this);
+	// END
+	// Task Handler
+	public static TaskScheduler taskScheduler;
+	// END
 	// Init plugin info holders
 	public static double version;
 	public static String name;
 	public static ArrayList<String> authors_RAW;
 	public static String authors = "";
-	// Init other classes and their attributes
+	// END
+	// Init GUI
 	public SAToolsGUI gui = new SAToolsGUI(this);
-	TimeWatch tw = new TimeWatch();
-	GarbageCollection gc = new GarbageCollection();
+	// END
+	// Config
+	Configuration config;
+	// END
+	// Number Handler
 	NumberHandler numbers = new NumberHandler();
-	private boolean twAlive = true;
-	private boolean gcAlive = true;
-	static boolean runGC = false;
-	public static long time;
+	// END
 	// Update feature data
-	private String dataFile = null;
 	URL pluginInfo;
-	// Save data
-	public static ArrayList<String> godsContents = new ArrayList<String>();
+	// END
 	// Actual plugin variables
 	public static World world;
-	public static List<Player> gods = new ArrayList<Player>();
-	static ArrayList<String> godsRemoved = new ArrayList<String>();
-	TaskScheduler taskscheduler;
+	public static List<String> gods = new ArrayList<String>();
+	public static long time;
 
 	static enum Weather {
 		CLEAR, STORM, THUNDER
 	}
 
+	private static final Map<String, Object> CONFIG_DEFAULTS = new HashMap<String, Object>();
+	static {
+		CONFIG_DEFAULTS.put("Gods", null);
+	}
+
+	// END
+
 	public void onDisable() {
 		// Save data
 		save();
+		// end GUI
+		gui.dispose();
+		gui = null;
+		// End those pesky threads
+		threadHandler.destroyAllThreads();
 		// Thank the user
 		System.out.println("SATools Disabled, Thanks for using SATools!");
-		// End those pesky threads
-		SAToolsGUI.piAlive = false;
-		SAToolsGUI.pi.interrupt();
-		twAlive = false;
-		tw.interrupt();
-		gcAlive = false;
-		gc.interrupt();
 	}
 
 	public void onEnable() {
@@ -110,7 +122,6 @@ public class SATools extends JavaPlugin {
 			getDataFolder().mkdirs();
 			log.info("Directory created");
 		}
-		dataFile = getDataFolder().getPath() + File.separator + "SATools.gods";
 		// Check for updates
 		checkUpdate();
 		load();
@@ -127,9 +138,7 @@ public class SATools extends JavaPlugin {
 		System.out.println(pdfFile.getName() + " version "
 				+ pdfFile.getVersion() + " is enabled!");
 		// Start Threads
-		gc.start();
-		runGC = true;
-		tw.start();
+		threadHandler.startAllThreads();
 		// plugin info setting
 		version = Double.parseDouble(pdfFile.getVersion());
 		name = pdfFile.getName();
@@ -142,7 +151,13 @@ public class SATools extends JavaPlugin {
 		gui.setTitle(name + " v" + version
 				+ (authors_RAW.isEmpty() ? "" : " - " + authors));
 		gui.setVisible(true);
-		taskscheduler = new TaskScheduler(this);
+		taskScheduler = new TaskScheduler(this);
+		if (getServer().getPluginManager().isPluginEnabled("RestartNow")) {
+			restartNow = (RestartNowApi) getServer().getPluginManager()
+					.getPlugin("RestartNow");
+		} else {
+			log.warning("RestartNow is not found, or disabled.");
+		}
 	}
 
 	/**
@@ -161,7 +176,8 @@ public class SATools extends JavaPlugin {
 				if (strLine.contains("version: ")) {
 					String[] tokens = strLine.split(" ");
 					String version = tokens[1];
-					if (numbers.isDouble(version) && numbers.isDouble(pdfFile.getVersion())) {
+					if (numbers.isDouble(version)
+							&& numbers.isDouble(pdfFile.getVersion())) {
 						if (Double.parseDouble(version) > Double
 								.parseDouble(pdfFile.getVersion())) {
 							if (JOptionPane
@@ -223,9 +239,16 @@ public class SATools extends JavaPlugin {
 		if (JOptionPane.showConfirmDialog(null,
 				"Update downloaded, would you like to restart?",
 				"Update Finished", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
-			api.restartServer("Restarting to update",
-					"WE are restarting the server, come back soon!",
-					ChatColor.LIGHT_PURPLE);
+			if (restartNow != null) {
+				restartNow.restartServer("Restarting to update",
+						"WE are restarting the server, come back soon!",
+						ChatColor.LIGHT_PURPLE, null);
+			} else {
+				log.warning("SATools: You do not have RestartNow, so we cannot restart for you.  Stopping instead...");
+				if (getServer().dispatchCommand(
+						new ConsoleCommandSender(getServer()), "stop"))
+					;
+			}
 		} else {
 			log.warning("You are running an older version of SATools!");
 		}
@@ -235,91 +258,31 @@ public class SATools extends JavaPlugin {
 	 * Saves the current data [Currently only saves gods]
 	 */
 	private void save() {
-		try {
-			log.info("Saving SATools data");
-			if (!getDataFolder().exists()) {
-				getDataFolder().mkdirs();
-				log.info("Directory created");
-			}
-			if (!new File(dataFile).exists()) {
-				new File(dataFile).createNewFile();
-				log.info("Created SATools.gods file");
-			} else {
-				log.info("File found, checking database");
-				InputStream is = new FileInputStream(dataFile);
-				BufferedReader br = new BufferedReader(
-						new InputStreamReader(is));
-				String strLine;
-				// Read File Line By Line
-				while ((strLine = br.readLine()) != null) {
-					if (!gods.contains(getServer().getPlayer(strLine))
-							&& !godsRemoved.contains(getServer().getPlayer(
-									strLine))) {
-						if (godsContents.contains(strLine)) {
-							log.info("Adding: " + strLine);
-						} else {
-							log.warning("Will not save god: " + strLine);
-						}
-					}
-				}
-				is.close();
-			}
-			log.info("Saving gods");
-			FileWriter fw = new FileWriter(dataFile);
-			PrintWriter pw = new PrintWriter(fw);
-			for (int i = 0; i < gods.size(); i++) {
-				if (godsContents.contains(gods.get(i).getDisplayName())) {
-					godsContents.remove(gods.get(i).getDisplayName());
-				}
-				if (gods.get(i) != null) {
-					log.info("Saving: " + gods.get(i).getDisplayName());
-					pw.println(gods.get(i).getDisplayName());
-				}
-			}
-			for (int i = 0; i < godsContents.size(); i++) {
-				log.info("Saving: " + godsContents.get(i));
-				pw.println(godsContents.get(i));
-			}
-			fw.close();
-			log.info("Gods saved");
-		} catch (Exception e) {// Catch exception if any
-			e.printStackTrace();
-			log.severe("But soft, what codeth in yonder program breaks");
-		}
+		File configFile = new File(this.getDataFolder(), "config.yml");
+		config = new Configuration(configFile);
+		log.info("Saving...");
+		config.setHeader(name + " V" + version + " by: " + authors);
+		config.setProperty("Gods", gods);
+		config.save();
 	}
 
 	/**
 	 * Loads the data
 	 */
 	private void load() {
-		try {
-			if (new File(dataFile).exists()) {
-				log.info("Loading gods");
-				InputStream is = new FileInputStream(dataFile);
-				BufferedReader br = new BufferedReader(
-						new InputStreamReader(is));
-				String strLine;
-				// Read File Line By Line
-				while ((strLine = br.readLine()) != null) {
-					if (!strLine.isEmpty() && !strLine.equals(null)) {
-						if (getServer().getPlayer(strLine) != null) {
-							if (!gods.contains(getServer().getPlayer(strLine))) {
-								gods.add(getServer().getPlayer(strLine));
-							}
-						} else {
-							godsContents.add(strLine);
-						}
-					}
-				}
-				is.close();
-				log.info("Gods loaded");
-			} else {
-				log.info("No gods were loaded, reason file not found.");
+		File configFile = new File(this.getDataFolder(), "config.yml");
+		config = new Configuration(configFile);
+		config.load();
+		if (configFile.exists()) {
+			log.info("Loading gods...");
+			gods = config.getStringList("Gods", null);
+		} else {
+			try {
+				configFile.createNewFile();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 			}
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
 		}
 	}
 
@@ -442,46 +405,6 @@ public class SATools extends JavaPlugin {
 	 */
 	private static int random(int Min, int Max) {
 		return Min + (int) (Math.random() * ((Max - Min) + 1));
-	}
-
-	class TimeWatch extends Thread {
-		public void run() {
-			try {
-				while (twAlive) {
-					time = world.getTime();
-					if (time >= 12000 && time <= 12100) {
-						runGC = true;
-						Thread.sleep(3000);
-					}
-					if (time >= 0 && time <= 100) {
-						runGC = true;
-						Thread.sleep(3000);
-					}
-					Thread.sleep(2500);
-				}
-			} catch (InterruptedException e) {
-				// Sleep Interrupted
-			}
-		}
-	}
-
-	class GarbageCollection extends Thread {
-		public void run() {
-			try {
-				while (gcAlive) {
-					if (runGC) {
-						Runtime r = Runtime.getRuntime();
-						log.info("Running Garbage Collection please wait...");
-						r.gc();
-						runGC = false;
-						log.info("Garbage Collection is complete.");
-					}
-					Thread.sleep(1000);
-				}
-			} catch (InterruptedException e) {
-				// Sleep Interrupted
-			}
-		}
 	}
 
 }

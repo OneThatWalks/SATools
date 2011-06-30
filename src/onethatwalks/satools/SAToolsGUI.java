@@ -41,6 +41,7 @@ import javax.swing.SwingConstants;
 import javax.swing.border.TitledBorder;
 
 import onethatwalks.satools.SATools.Weather;
+import onethatwalks.threads.ThreadHandler;
 import onethatwalks.util.NumberHandler;
 
 import org.bukkit.ChatColor;
@@ -85,9 +86,7 @@ public class SAToolsGUI extends JFrame {
 	public static JLabel jLabel_PLAYERS_PLAYER_SLEEP_DATA = null;
 	private JLabel jLabel_PLAYERS_PLAYER_SNEAK = null;
 	public static JLabel jLabel_PLAYERS_PLAYER_SNEAK_DATA = null;
-	public static Player player = null;
-	static boolean piAlive = false;
-	public static PlayerInfo pi = new PlayerInfo(); // @jve:decl-index=0:
+	public static Player player = null; // @jve:decl-index=0:
 	private JLabel jLabel_PLAYERS_MODIFY_GIVE = null;
 	private JComboBox jComboBox_PLAYERS_MODIFY_GIVE = null;
 	private JButton jButton_PLAYERS_MODIFY_GIVE_64 = null;
@@ -110,9 +109,7 @@ public class SAToolsGUI extends JFrame {
 	private JTextField jTextField_MAIN_CONSOLE_COMMAND = null;
 	private JButton jButton_MAIN_CONSOLE_COMMAND = null;
 	private JLabel jLabel_MAIN_TIME = null;
-	private JLabel jLabel_MAIN_TIME_DATA = null;
-	private boolean ttAlive = true;
-	TimeTrack tt = new TimeTrack(); // @jve:decl-index=1:
+	public static JLabel jLabel_MAIN_TIME_DATA = null; // @jve:decl-index=1:
 	private JLabel jLabel_MAIN_TIME_SET = null;
 	private JButton jButton_MAIN_TIME_SET_MIDNIGHT = null;
 	private JButton jButton_MAIN_TIME_SET_MORNING = null;
@@ -124,7 +121,7 @@ public class SAToolsGUI extends JFrame {
 	public static JButton jButton_MAIN_WEATHER_CLEAR = null;
 	public static JButton jButton_MAIN_WEATHER_STORM = null;
 	public static JButton jButton_MAIN_WEATHER_THUNDER = null;
-	private JLabel jLabel_MAIN_WEATHER_DATA = null;
+	public static JLabel jLabel_MAIN_WEATHER_DATA = null;
 	private JLabel jLabel_PLAYERS_MODIFY_HEALTH = null;
 	private JButton jButton_PLAYERS_MODIFY_HEALTH_FULL = null;
 	private JButton jButton_PLAYERS_MODIFY_HEALTH_KILL = null;
@@ -163,7 +160,7 @@ public class SAToolsGUI extends JFrame {
 	private JComboBox jComboBox_SCHEDULE_TASKS_MODIFY_WHEN_DATA = null;
 	private JLabel jLabel_SCHEDULE_TASKS_MODIFY_TODO = null;
 	private JComboBox jComboBox_SCHEDULE_TASKS_MODIFY_TODO_DATA = null;
-	private JList jList_SCHEDULE_TASKS = null;
+	public static JList jList_SCHEDULE_TASKS = null;
 	private JButton jButton_SCHEDULE_TASKS_MODIFY_ADD = null;
 	private JTextPane jTextPane_SCHEDULE_TASKS_MODIFY_PREVIEW = null;
 	private JLabel jLabel_SCHEDULE_TASKS_PREVIEW = null;
@@ -177,9 +174,9 @@ public class SAToolsGUI extends JFrame {
 	private JButton jButton_MAIN_RESTART = null;
 	public static DefaultListModel defaultListModel_SCHEDULE_TASKS = null;
 	private JLabel jLabel_SCHEDULE_TASKS_INFO_NAME = null;
-	private JLabel jLabel_SCHEDULE_TASKS_INFO_NAME_DATA = null;
+	public static JLabel jLabel_SCHEDULE_TASKS_INFO_NAME_DATA = null;
 	private JLabel jLabel_SCHEDULE_TASKS_INFO_WHEN = null;
-	private JLabel jLabel_SCHEDULE_TASKS_INFO_WHEN_DATA = null;
+	public static JLabel jLabel_SCHEDULE_TASKS_INFO_WHEN_DATA = null;
 	private JComboBox jComboBox_MAIN_CONSOLE_SAY_COLOR = null;
 	private JComboBox jComboBox_MAIN_CONSOLE_MESSAGE_COLOR = null;
 	private DefaultComboBoxModel defaultComboBoxModel_CHAT_COLORS = null; // @jve:decl-index=0:visual-constraint="868,219"
@@ -189,9 +186,9 @@ public class SAToolsGUI extends JFrame {
 	private JPanel jPanel_MAP = null;
 	private JPanel jPanel_GREIF = null;
 	private JLabel jLabel_MAP_COMINGSOON = null;
-	private JLabel jLabel_GREIF_COMINGSOON = null;
-	GUIManager gm = new GUIManager();
-	boolean gmAlive = false;
+	private JLabel jLabel_GREIF_COMINGSOON = null; // @jve:decl-index=0:
+	public static JButton jButton_MAIN_GC = null;
+	private JLabel jLabel_PLAYERS_MODIFY_GIVE_HOWMANY = null;
 
 	public enum TaskActions {
 		serverSay, playerSay, setTime, setWeather, spawnMob, spawnObject, givePlayer, playerHealth
@@ -205,14 +202,6 @@ public class SAToolsGUI extends JFrame {
 		plugin = instance;
 		grabItems();
 		initialize();
-		if (!tt.isAlive()) {
-			tt.start();
-			ttAlive = true;
-		}
-		if (!gm.isAlive()) {
-			gm.start();
-			gmAlive = true;
-		}
 	}
 
 	/**
@@ -282,7 +271,7 @@ public class SAToolsGUI extends JFrame {
 	 * 
 	 * @return the current world weather conditions
 	 */
-	public String checkConditions() {
+	public static String checkConditions() {
 		try {
 			if (SATools.world != null) {
 				if (SATools.world.hasStorm()) {
@@ -372,6 +361,7 @@ public class SAToolsGUI extends JFrame {
 			jPanel_MAIN.add(getJPanel_MAIN_WEATHER(), null);
 			jPanel_MAIN.add(getJPanel_MAIN_SPAWN(), null);
 			jPanel_MAIN.add(getJButton_MAIN_RESTART(), null); // Generated
+			jPanel_MAIN.add(getJButton_MAIN_GC(), null); // Generated
 		}
 		return jPanel_MAIN;
 	}
@@ -490,7 +480,7 @@ public class SAToolsGUI extends JFrame {
 			jLabel_MAIN_SPAWN_WARNING
 					.setBounds(new Rectangle(10, 180, 529, 16)); // Generated
 			jLabel_MAIN_SPAWN_WARNING
-					.setText("In orrder to use a custom location please enter the location in x,y,z format with no spaces"); // Generated
+					.setText("In order to use a custom location please enter the location in x,y,z format with no spaces"); // Generated
 			jLabel_MAIN_SPAWN_WHERE_OBJECT = new JLabel();
 			jLabel_MAIN_SPAWN_WHERE_OBJECT.setBounds(new Rectangle(255, 110,
 					11, 20)); // Generated
@@ -693,7 +683,7 @@ public class SAToolsGUI extends JFrame {
 			jLabel_PLAYERS_PLAYER_SNEAK = new JLabel();
 			jLabel_PLAYERS_PLAYER_SNEAK
 					.setBounds(new Rectangle(10, 195, 95, 20)); // Generated
-			jLabel_PLAYERS_PLAYER_SNEAK.setText("Sleeping: "); // Generated
+			jLabel_PLAYERS_PLAYER_SNEAK.setText("Sneaking: "); // Generated
 			jLabel_PLAYERS_PLAYER_SLEEP_DATA = new JLabel();
 			jLabel_PLAYERS_PLAYER_SLEEP_DATA.setBounds(new Rectangle(110, 170,
 					140, 20)); // Generated
@@ -784,19 +774,25 @@ public class SAToolsGUI extends JFrame {
 	 */
 	private JPanel getJPanel_PLAYERS_MODIFY() {
 		if (jPanel_PLAYERS_MODIFY == null) {
+			jLabel_PLAYERS_MODIFY_GIVE_HOWMANY = new JLabel();
+			jLabel_PLAYERS_MODIFY_GIVE_HOWMANY.setBounds(new Rectangle(250, 45,
+					285, 20)); // Generated
+			jLabel_PLAYERS_MODIFY_GIVE_HOWMANY
+					.setText("How much? (enter an integer for custom amount)."); // Generated
 			jLabel_PLAYERS_MODIFY_GIVE = new JLabel();
-			jLabel_PLAYERS_MODIFY_GIVE.setBounds(new Rectangle(15, 45, 40, 20)); // Generated
-			jLabel_PLAYERS_MODIFY_GIVE.setText("Give: "); // Generated
+			jLabel_PLAYERS_MODIFY_GIVE
+					.setBounds(new Rectangle(15, 45, 210, 20)); // Generated
+			jLabel_PLAYERS_MODIFY_GIVE.setText("Give what?"); // Generated
 			jLabel_PLAYERS_MODIFY_HEALTH = new JLabel();
+			jLabel_PLAYERS_MODIFY_HEALTH.setBounds(new Rectangle(15, 105, 520,
+					20));
 			jLabel_PLAYERS_MODIFY_HEALTH
-					.setBounds(new Rectangle(15, 75, 85, 20));
-			jLabel_PLAYERS_MODIFY_HEALTH.setText("Set Health: ");
+					.setText("Set player health to... ( Enter custom amount and press enter).  (Press enter for that too ^) ");
 			jPanel_PLAYERS_MODIFY = new JPanel();
 			jPanel_PLAYERS_MODIFY.setLayout(null); // Generated
 			jPanel_PLAYERS_MODIFY.setBounds(new Rectangle(15, 255, 545, 470)); // Generated
 			jPanel_PLAYERS_MODIFY.setBorder(BorderFactory.createTitledBorder(
-					null, "Admin Controlls",
-					TitledBorder.DEFAULT_JUSTIFICATION,
+					null, "Admin Controls", TitledBorder.DEFAULT_JUSTIFICATION,
 					TitledBorder.DEFAULT_POSITION, new Font("Dialog",
 							Font.BOLD, 12), new Color(51, 51, 51))); // Generated
 			jPanel_PLAYERS_MODIFY.setVisible(false); // Generated
@@ -816,6 +812,7 @@ public class SAToolsGUI extends JFrame {
 					getJToggleButton_PLAYERS_MODIFY_HEALTH_JESUS(), null);
 			jPanel_PLAYERS_MODIFY.add(
 					getJTextField_PLAYERS_MODIFY_HEALTH_INT(), null);
+			jPanel_PLAYERS_MODIFY.add(jLabel_PLAYERS_MODIFY_GIVE_HOWMANY, null); // Generated
 		}
 		return jPanel_PLAYERS_MODIFY;
 	}
@@ -857,7 +854,8 @@ public class SAToolsGUI extends JFrame {
 											jList_PLAYERS_PLAYERS
 													.getSelectedValue()
 													.toString());
-									if (SATools.gods.contains(player)) {
+									if (SATools.gods.contains(player
+											.getDisplayName())) {
 										jToggleButton_PLAYERS_MODIFY_HEALTH_JESUS
 												.setSelected(true);
 									} else {
@@ -869,10 +867,6 @@ public class SAToolsGUI extends JFrame {
 									}
 									if (!jPanel_PLAYERS_MODIFY.isVisible()) {
 										jPanel_PLAYERS_MODIFY.setVisible(true);
-									}
-									if (!pi.isAlive()) {
-										pi.start();
-										piAlive = true;
 									}
 								} else {
 									if (jPanel_PLAYERS_PLAYER.isVisible()) {
@@ -906,8 +900,8 @@ public class SAToolsGUI extends JFrame {
 	private JTextField getJTextField_PLAYERS_MODIFY_HEALTH_INT() {
 		if (jTextField_PLAYERS_MODIFY_HEALTH_INT == null) {
 			jTextField_PLAYERS_MODIFY_HEALTH_INT = new JTextField();
-			jTextField_PLAYERS_MODIFY_HEALTH_INT.setBounds(new Rectangle(410,
-					75, 50, 20));
+			jTextField_PLAYERS_MODIFY_HEALTH_INT.setBounds(new Rectangle(420,
+					135, 115, 20));
 			jTextField_PLAYERS_MODIFY_HEALTH_INT
 					.addKeyListener(new java.awt.event.KeyAdapter() {
 						public void keyPressed(java.awt.event.KeyEvent e) {
@@ -935,7 +929,7 @@ public class SAToolsGUI extends JFrame {
 			jToggleButton_PLAYERS_MODIFY_HEALTH_JESUS = new JToggleButton(
 					"Jesus", false);
 			jToggleButton_PLAYERS_MODIFY_HEALTH_JESUS.setBounds(new Rectangle(
-					320, 75, 80, 20));
+					285, 135, 120, 20));
 			jToggleButton_PLAYERS_MODIFY_HEALTH_JESUS
 					.addActionListener(new java.awt.event.ActionListener() {
 						public void actionPerformed(java.awt.event.ActionEvent e) {
@@ -943,7 +937,7 @@ public class SAToolsGUI extends JFrame {
 									.isSelected()) {
 								player.setHealth(20);
 								if (!SATools.gods.contains(player)) {
-									SATools.gods.add(player);
+									SATools.gods.add(player.getDisplayName());
 									plugin.getServer().broadcastMessage(
 											ChatColor.GOLD
 													+ player.getDisplayName()
@@ -952,8 +946,6 @@ public class SAToolsGUI extends JFrame {
 							} else {
 								if (SATools.gods.contains(player)) {
 									SATools.gods.remove(player);
-									SATools.godsRemoved.remove(player
-											.getDisplayName());
 									plugin.getServer()
 											.broadcastMessage(
 													ChatColor.DARK_RED
@@ -971,8 +963,8 @@ public class SAToolsGUI extends JFrame {
 	private JButton getJButton_PLAYERS_MODIFY_HEALTH_KILL() {
 		if (jButton_PLAYERS_MODIFY_HEALTH_KILL == null) {
 			jButton_PLAYERS_MODIFY_HEALTH_KILL = new JButton("Kill");
-			jButton_PLAYERS_MODIFY_HEALTH_KILL.setBounds(new Rectangle(240, 75,
-					70, 20));
+			jButton_PLAYERS_MODIFY_HEALTH_KILL.setBounds(new Rectangle(150,
+					135, 120, 20));
 			jButton_PLAYERS_MODIFY_HEALTH_KILL
 					.addActionListener(new java.awt.event.ActionListener() {
 						public void actionPerformed(ActionEvent e) {
@@ -986,7 +978,7 @@ public class SAToolsGUI extends JFrame {
 	private JButton getJButton_PLAYERS_MODIFY_HEALTH_FULL() {
 		if (jButton_PLAYERS_MODIFY_HEALTH_FULL == null) {
 			jButton_PLAYERS_MODIFY_HEALTH_FULL = new JButton("Full Health");
-			jButton_PLAYERS_MODIFY_HEALTH_FULL.setBounds(new Rectangle(110, 75,
+			jButton_PLAYERS_MODIFY_HEALTH_FULL.setBounds(new Rectangle(15, 135,
 					120, 20));
 			jButton_PLAYERS_MODIFY_HEALTH_FULL
 					.addActionListener(new ActionListener() {
@@ -1007,7 +999,7 @@ public class SAToolsGUI extends JFrame {
 		if (jComboBox_PLAYERS_MODIFY_GIVE == null) {
 			jComboBox_PLAYERS_MODIFY_GIVE = new JComboBox(
 					DefaultComboBoxModel_PLAYERS_MODIFY_GIVE);
-			jComboBox_PLAYERS_MODIFY_GIVE.setBounds(new Rectangle(60, 45, 200,
+			jComboBox_PLAYERS_MODIFY_GIVE.setBounds(new Rectangle(15, 75, 210,
 					20)); // Generated
 			jComboBox_PLAYERS_MODIFY_GIVE
 					.addItemListener(new java.awt.event.ItemListener() {
@@ -1036,7 +1028,7 @@ public class SAToolsGUI extends JFrame {
 	private JButton getJButton_PLAYERS_MODIFY_GIVE_64() {
 		if (jButton_PLAYERS_MODIFY_GIVE_64 == null) {
 			jButton_PLAYERS_MODIFY_GIVE_64 = new JButton();
-			jButton_PLAYERS_MODIFY_GIVE_64.setBounds(new Rectangle(275, 45, 60,
+			jButton_PLAYERS_MODIFY_GIVE_64.setBounds(new Rectangle(250, 75, 60,
 					20)); // Generated
 			jButton_PLAYERS_MODIFY_GIVE_64.setText("64"); // Generated
 			jButton_PLAYERS_MODIFY_GIVE_64
@@ -1062,7 +1054,7 @@ public class SAToolsGUI extends JFrame {
 	private JButton getJButton_PLAYERS_MODIFY_GIVE_1() {
 		if (jButton_PLAYERS_MODIFY_GIVE_1 == null) {
 			jButton_PLAYERS_MODIFY_GIVE_1 = new JButton();
-			jButton_PLAYERS_MODIFY_GIVE_1.setBounds(new Rectangle(350, 45, 60,
+			jButton_PLAYERS_MODIFY_GIVE_1.setBounds(new Rectangle(325, 75, 60,
 					20)); // Generated
 			jButton_PLAYERS_MODIFY_GIVE_1.setText("1"); // Generated
 			jButton_PLAYERS_MODIFY_GIVE_1
@@ -1250,8 +1242,8 @@ public class SAToolsGUI extends JFrame {
 	private JTextField getJTextField_PLAYERS_MODIFY_GIVE_INT() {
 		if (jTextField_PLAYERS_MODIFY_GIVE_INT == null) {
 			jTextField_PLAYERS_MODIFY_GIVE_INT = new JTextField();
-			jTextField_PLAYERS_MODIFY_GIVE_INT.setBounds(new Rectangle(425, 45,
-					105, 20)); // Generated
+			jTextField_PLAYERS_MODIFY_GIVE_INT.setBounds(new Rectangle(400, 75,
+					135, 20)); // Generated
 			jTextField_PLAYERS_MODIFY_GIVE_INT
 					.addKeyListener(new java.awt.event.KeyAdapter() {
 						public void keyPressed(java.awt.event.KeyEvent e) {
@@ -1792,98 +1784,6 @@ public class SAToolsGUI extends JFrame {
 		return jComboBox_MAIN_SPAWN;
 	}
 
-	// Threads and other classes
-
-	public class TimeTrack extends Thread {
-		public void run() {
-			try {
-				while (ttAlive) {
-					jLabel_MAIN_TIME_DATA.setText(Long.toString(SATools.time));
-					jLabel_MAIN_WEATHER_DATA.setText(checkConditions());
-					Thread.sleep(1000);
-				}
-			} catch (Exception e) {
-				// Sleep Interrupted
-			}
-		}
-	}
-
-	public class GUIManager extends Thread {
-		public void run() {
-			while (true) {
-				if (jList_SCHEDULE_TASKS.getSelectedValue() != null) {
-					jLabel_SCHEDULE_TASKS_INFO_NAME_DATA
-							.setText(plugin.taskscheduler.getTask(
-									jList_SCHEDULE_TASKS.getSelectedValue()
-											.toString()).getName());
-					jLabel_SCHEDULE_TASKS_INFO_WHEN_DATA.setText(String
-							.valueOf(plugin.taskscheduler.getTask(
-									jList_SCHEDULE_TASKS.getSelectedValue()
-											.toString()).getExecutionTime()));
-				}
-			}
-		}
-	}
-
-	public static class PlayerInfo extends Thread {
-
-		public void run() {
-			try {
-				while (piAlive) {
-					if (player != null) { // If player is selected from list
-						Location player_loc = player.getLocation();
-						{ // Location
-							jLabel_PLAYERS_PLAYER_LOCATION_DATA.setText("( "
-									+ player_loc.getBlockX() + ", "
-									+ player_loc.getBlockY() + ", "
-									+ player_loc.getBlockZ() + ")");
-						}
-						{ // Entity ID
-							jLabel_PLAYERS_PLAYER_ENTITYID_DATA.setText(Integer
-									.toString(player.getEntityId()));
-						}
-						{ // Health
-							jLabel_PLAYERS_PLAYER_HEALTH_DATA.setText(Integer
-									.toString(player.getHealth()));
-						}
-						{ // Current Item
-							jLabel_PLAYERS_PLAYER_ITEM_DATA.setText(player
-									.getItemInHand().toString());
-						}
-						{ // Dead?
-							jLabel_PLAYERS_PLAYER_DEAD_DATA.setText(Boolean
-									.toString(player.isDead()));
-							while (plugin.getServer()
-									.getPlayer(player.getDisplayName())
-									.isDead()) {
-								Thread.sleep(1000);
-							}
-							player = plugin.getServer().getPlayer(
-									player.getDisplayName());
-						}
-						{ // isOP ?
-							jLabel_PLAYERS_PLAYER_OP_DATA.setText(Boolean
-									.toString(player.isOp()));
-						}
-						{ // Sleep
-							jLabel_PLAYERS_PLAYER_SLEEP_DATA.setText(Boolean
-									.toString(player.isSleeping()));
-						}
-						{ // Sneak
-							jLabel_PLAYERS_PLAYER_SNEAK_DATA.setText(Boolean
-									.toString(player.isSneaking()));
-						}
-					}
-					Thread.sleep(1000);
-				}
-
-			} catch (Exception e) {
-				// Sleep interrupted
-			}
-		}
-
-	}
-
 	/**
 	 * This method initializes jPanel_SCHEDULE
 	 * 
@@ -2081,8 +1981,8 @@ public class SAToolsGUI extends JFrame {
 					.addActionListener(new java.awt.event.ActionListener() {
 						public void actionPerformed(java.awt.event.ActionEvent e) {
 							if (jList_SCHEDULE_TASKS.getSelectedIndex() != -1) {
-								plugin.taskscheduler
-										.killTask(plugin.taskscheduler
+								SATools.taskScheduler
+										.killTask(SATools.taskScheduler
 												.getTask(jList_SCHEDULE_TASKS
 														.getSelectedValue()
 														.toString()));
@@ -2538,14 +2438,14 @@ public class SAToolsGUI extends JFrame {
 	}
 
 	private void saveMacro() {
-		File mf = new File(plugin.taskscheduler.macroFolder);
+		File mf = new File(SATools.taskScheduler.macroFolder);
 		if (!mf.exists()) {
 			log.info("No macro folder found, making one instead.");
 			mf.mkdir();
 		} else {
 			log.info("Found dir saving macro");
 		}
-		File m = new File(plugin.taskscheduler.macroFolder
+		File m = new File(SATools.taskScheduler.macroFolder
 				+ jTextField_SCHEDULE_TASKS_MODIFY_NAME_DATA.getText().trim());
 		if (m.exists()) {
 			if (JOptionPane.showConfirmDialog(null,
@@ -2623,14 +2523,19 @@ public class SAToolsGUI extends JFrame {
 					.addActionListener(new java.awt.event.ActionListener() {
 						public void actionPerformed(java.awt.event.ActionEvent e) {
 							if (plugin != null) {
-								if (plugin.api != null) {
-									plugin.api
+								if (plugin.restartNow != null) {
+									plugin.restartNow
 											.restartServer(
 													"Restarting server...",
 													"We are restarting, be back in a few...",
-													ChatColor.LIGHT_PURPLE);
+													ChatColor.LIGHT_PURPLE,
+													null);
 								} else {
-									log.info("SAToolsGUI API is null");
+									log.warning("SATools: You do not have RestartNow, so we cannot restart for you.  Stopping instead...");
+									if (plugin.getServer().dispatchCommand(
+											new ConsoleCommandSender(plugin
+													.getServer()), "stop"))
+										;
 								}
 							} else {
 								log.info("Plugin null in SAToolsGUI");
@@ -2740,5 +2645,25 @@ public class SAToolsGUI extends JFrame {
 			jPanel_GREIF.add(jLabel_GREIF_COMINGSOON, null); // Generated
 		}
 		return jPanel_GREIF;
+	}
+
+	/**
+	 * This method initializes jButton_MAIN_GC
+	 * 
+	 * @return javax.swing.JButton
+	 */
+	private JButton getJButton_MAIN_GC() {
+		if (jButton_MAIN_GC == null) {
+			jButton_MAIN_GC = new JButton();
+			jButton_MAIN_GC.setBounds(new Rectangle(426, 705, 149, 25)); // Generated
+			jButton_MAIN_GC.setText("Free JVM Memory"); // Generated
+			jButton_MAIN_GC
+					.addActionListener(new java.awt.event.ActionListener() {
+						public void actionPerformed(java.awt.event.ActionEvent e) {
+							ThreadHandler.runGC();
+						}
+					});
+		}
+		return jButton_MAIN_GC;
 	}
 }

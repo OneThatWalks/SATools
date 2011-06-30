@@ -28,11 +28,7 @@ public class SAToolsPlayerListener extends PlayerListener {
 					public void run() {
 						player = event.getPlayer(); // register player that
 													// joined
-						if (SATools.godsContents.contains(player
-								.getDisplayName())) {
-							SATools.gods.add(player);
-						}
-						if (SATools.gods.contains(player)) {
+						if (SATools.gods.contains(player.getDisplayName())) {
 							plugin.getServer().broadcastMessage(
 									ChatColor.GOLD + player.getDisplayName()
 											+ " is a god");
@@ -195,15 +191,6 @@ public class SAToolsPlayerListener extends PlayerListener {
 							}
 							SAToolsGUI.defaultComboBoxModel_MAIN_SPAWN_LOCATION_OBJECT
 									.removeElement(player);
-							// God handling
-							if (SATools.gods.contains(player)) {
-								SATools.gods.remove(player);
-								if (!SATools.godsContents.contains(player
-										.getDisplayName())) {
-									SATools.godsContents.add(player
-											.getDisplayName());
-								}
-							}
 						}
 					}
 				}, 20);
