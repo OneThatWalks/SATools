@@ -21,19 +21,20 @@ import org.bukkit.plugin.Plugin;
 
 public class Task implements Runnable {
 
-	private File macro;
-	private long time;
-	private String name;
+	public static final Logger log = Logger.getLogger("Minecraft");
+	public ArrayList<String> commands = new ArrayList<String>();
 	private ArrayList<String> instructions;
 	private Exception InvalidInstructionException;
-	private Plugin plugin;
-	public static final Logger log = Logger.getLogger("Minecraft");
+	private File macro;
+	private String name;
 	private Exception NullInstructionException;
+	NumberHandler numbers = new NumberHandler();
+	private Plugin plugin;
 	public String[] raw_commands = { "serverSay", "playerSay", "setTime",
 			"setWeather", "spawnMob", "spawnObject", "givePlayer",
 			"playerHealth" };
-	public ArrayList<String> commands = new ArrayList<String>();
-	NumberHandler numbers = new NumberHandler();
+
+	private long time;
 
 	public Task(String name, long time, String file, Plugin p) {
 		this.macro = new File(file);
@@ -45,36 +46,32 @@ public class Task implements Runnable {
 		}
 	}
 
-	public File getFile() {
-		return this.macro;
+	private void doCommand(String string) {
+		plugin.getServer().dispatchCommand(
+				new ConsoleCommandSender(plugin.getServer()), string);
 	}
 
-	public String getName() {
-		return this.name;
-	}
-
-	public long getExecutionTime() {
-		return time;
-	}
-
-	public Task getTask() {
-		return this;
-	}
-
-	@Override
-	public void run() {
-		instructions = createLocalizedInstructions(macro);
-		if (instructions != null && instructions.size() != 0) {
-			for (int i = 0; i < instructions.size(); i++) {
-				try {
-					doInstruction(instructions.get(i));
-				} catch (Exception e) {
-					log.severe("Error on line: " + (i + 1) + " of "
-							+ macro.getName());
-					e.printStackTrace();
+	public static ArrayList<String> createLocalizedInstructions(File file) {
+		ArrayList<String> result = new ArrayList<String>();
+		try {
+			InputStream is = new FileInputStream(file);
+			BufferedReader br = new BufferedReader(new InputStreamReader(is));
+			String strLine;
+			int line = 1;
+			while ((strLine = br.readLine()) != null) {
+				if (strLine.startsWith("#")) {
+					log.info("SATools." + file.getName().split("\\.")[0] + ": "
+							+ "Found time");
+					continue;
 				}
+				result.add(strLine);
+				line++;
 			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			return null;
 		}
+		return result;
 	}
 
 	private void doInstruction(String string) throws Exception { // TODO add
@@ -100,7 +97,7 @@ public class Task implements Runnable {
 					plugin.getServer().getPlayer(player)
 							.sendMessage(ChatColor.valueOf(color) + message);
 				} else {
-					log.warning(player
+					log.warning("SATools." + getName() + ": " + player
 							+ " is not online.  Skipping instruction");
 				}
 			} else if (string.startsWith(commands.get(2))) { // setTime
@@ -109,7 +106,8 @@ public class Task implements Runnable {
 				if (isLong(arg)) {
 					SATools.world.setTime(Long.parseLong(arg));
 				} else {
-					log.warning("Your instruction was not a valid time.");
+					log.warning("SATools." + getName() + ": "
+							+ "Your instruction was not a valid time.");
 				}
 			} else if (string.startsWith(commands.get(3))) { // setWeather
 				String[] tokens = string.split(" ");
@@ -121,7 +119,10 @@ public class Task implements Runnable {
 				} else if (arg.equalsIgnoreCase("thunder")) {
 					SAToolsGUI.jButton_MAIN_WEATHER_THUNDER.doClick();
 				} else {
-					log.warning("Your instruction did not have a valid weather setting.");
+					log.warning("SATools."
+							+ getName()
+							+ ": "
+							+ "Your instruction did not have a valid weather setting.");
 				}
 			} else if (string.startsWith(commands.get(4))) { // spawnMob
 				String[] tokens = string.split(" ");
@@ -138,10 +139,12 @@ public class Task implements Runnable {
 						Location loc = new Location(SATools.world, x, y, z);
 						SATools.world.spawnCreature(loc, creature);
 					} else {
-						log.warning("x,y,z invalid, skipping instruction.");
+						log.warning("SATools." + getName() + ": "
+								+ "x,y,z invalid, skipping instruction.");
 					}
 				} else {
-					log.warning("Creature not found in instruction. Skipping");
+					log.warning("SATools." + getName() + ": "
+							+ "Creature not found in instruction. Skipping");
 				}
 			} else if (string.startsWith(commands.get(5))) { // spawnObject
 				String[] tokens = string.split(" ");
@@ -164,10 +167,12 @@ public class Task implements Runnable {
 						Location loc = new Location(SATools.world, x, y, z);
 						SATools.spawnObject(loc, object);
 					} else {
-						log.warning("x,y,z invalid, skipping instruction.");
+						log.warning("SATools." + getName() + ": "
+								+ "x,y,z invalid, skipping instruction.");
 					}
 				} else {
-					log.warning("Object not found in instruction. Skipping");
+					log.warning("SATools." + getName() + ": "
+							+ "Object not found in instruction. Skipping");
 				}
 			} else if (string.startsWith(commands.get(6))) { // givePlayer
 				String[] tokens = string.split(" ");
@@ -178,16 +183,21 @@ public class Task implements Runnable {
 					if (plugin.getServer().getPlayer(player) != null) {
 						Player p = plugin.getServer().getPlayer(player);
 						if (numbers.isNumeric(count) && numbers.isNumeric(item)) {
-							SAToolsGUI.doGiveItem(p, Integer.parseInt(item),
+							SAToolsGUI.doGiveItem(p, item,
 									Integer.parseInt(count));
 						} else {
-							log.severe("Error giving an item");
+							log.severe("SATools." + getName() + ": "
+									+ "Error giving an item");
 						}
 					} else {
-						log.info("Player doesn't exsist or is offline, skipping instruction");
+						log.info("SATools."
+								+ getName()
+								+ ": "
+								+ "Player doesn't exsist or is offline, skipping instruction");
 					}
 				} else {
-					log.warning("There was no player");
+					log.warning("SATools." + getName() + ": "
+							+ "There was no player");
 				}
 			} else if (string.startsWith(commands.get(7))) { // playerHealth
 				String[] tokens = string.split(" ");
@@ -199,13 +209,20 @@ public class Task implements Runnable {
 							Player p = plugin.getServer().getPlayer(player);
 							p.setHealth(Integer.parseInt(hearts));
 						} else {
-							log.warning("Not a valid health value, skipping instruction");
+							log.warning("SATools."
+									+ getName()
+									+ ": "
+									+ "Not a valid health value, skipping instruction");
 						}
 					} else {
-						log.info("Player doesn't exsist or is offline, skipping instruction");
+						log.info("SATools."
+								+ getName()
+								+ ": "
+								+ "Player doesn't exsist or is offline, skipping instruction");
 					}
 				} else {
-					log.warning("There was no player");
+					log.warning("SATools." + getName() + ": "
+							+ "There was no player");
 				}
 			} else {
 				throw InvalidInstructionException;
@@ -224,6 +241,22 @@ public class Task implements Runnable {
 		return null;
 	}
 
+	public long getExecutionTime() {
+		return time;
+	}
+
+	public File getFile() {
+		return this.macro;
+	}
+
+	public String getName() {
+		return this.name;
+	}
+
+	public Task getTask() {
+		return this;
+	}
+
 	private boolean isLong(String arg) {
 		try {
 			Long.parseLong(arg);
@@ -233,30 +266,20 @@ public class Task implements Runnable {
 		return true;
 	}
 
-	private void doCommand(String string) {
-		plugin.getServer().dispatchCommand(
-				new ConsoleCommandSender(plugin.getServer()), string);
-	}
-
-	private ArrayList<String> createLocalizedInstructions(File file) {
-		ArrayList<String> result = new ArrayList<String>();
-		try {
-			InputStream is = new FileInputStream(file);
-			BufferedReader br = new BufferedReader(new InputStreamReader(is));
-			String strLine;
-			int line = 1;
-			while ((strLine = br.readLine()) != null) {
-				if (strLine.startsWith("#")) {
-					log.info("Found time");
-					continue;
+	@Override
+	public void run() {
+		instructions = createLocalizedInstructions(macro);
+		if (instructions != null && instructions.size() != 0) {
+			for (int i = 0; i < instructions.size(); i++) {
+				try {
+					doInstruction(instructions.get(i));
+				} catch (Exception e) {
+					log.severe("SATools." + getName() + ": "
+							+ "Error on line: " + (i + 1) + " of "
+							+ macro.getName());
+					e.printStackTrace();
 				}
-				result.add(strLine);
-				line++;
 			}
-		} catch (Exception e) {
-			e.printStackTrace();
-			return null;
 		}
-		return result;
 	}
 }

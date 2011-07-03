@@ -8,6 +8,7 @@ import onethatwalks.satools.SAToolsGUI;
 public class TimeTracker extends Thread {
 	public static final Logger log = Logger.getLogger("Minecraft");
 
+	@Override
 	public void run() {
 		while (true) {
 			SATools.time = SATools.world.getTime();

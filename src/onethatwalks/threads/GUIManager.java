@@ -16,6 +16,7 @@ public class GUIManager extends Thread {
 		plugin = instance;
 	}
 
+	@Override
 	public void run() {
 		while (true) {
 			// Player Info
@@ -46,21 +47,18 @@ public class GUIManager extends Thread {
 				{ // Dead?
 					SAToolsGUI.jLabel_PLAYERS_PLAYER_DEAD_DATA.setText(Boolean
 							.toString(SAToolsGUI.player.isDead()));
-					while (plugin.getServer()
-							.getPlayer(SAToolsGUI.player.getDisplayName())
-							.isDead()) {
-						try {
-							Thread.sleep(1000);
-						} catch (Exception e) {
-							e.printStackTrace();
-						}
-					}
-
 					try {
-						SAToolsGUI.player = plugin.getServer().getPlayer(
-								SAToolsGUI.player.getDisplayName());
+						while (plugin.getServer()
+								.getPlayer(SAToolsGUI.player.getDisplayName())
+								.isDead()) {
+							try {
+								Thread.sleep(1000);
+							} catch (Exception e) {
+								e.printStackTrace();
+							}
+						}
 					} catch (Exception e) {
-						// Unstable part happens just once
+						// Nothing Happens
 					}
 				}
 				{ // isOP ?
@@ -89,6 +87,11 @@ public class GUIManager extends Thread {
 								SAToolsGUI.jList_SCHEDULE_TASKS
 										.getSelectedValue().toString())
 								.getExecutionTime()));
+			} else {
+				SAToolsGUI.jLabel_SCHEDULE_TASKS_INFO_NAME_DATA
+						.setText("NO TASK");
+				SAToolsGUI.jLabel_SCHEDULE_TASKS_INFO_WHEN_DATA
+						.setText("NO TASK");
 			}
 			// END
 			try {

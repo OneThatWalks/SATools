@@ -15,16 +15,18 @@ import org.bukkit.event.player.PlayerQuitEvent;
  * @author OneThatWalks
  */
 public class SAToolsPlayerListener extends PlayerListener {
-	private final SATools plugin;
 	public static Player player;
+	private final SATools plugin;
 
 	public SAToolsPlayerListener(SATools instance) {
 		plugin = instance;
 	}
 
+	@Override
 	public void onPlayerJoin(final PlayerJoinEvent event) {
 		plugin.getServer().getScheduler()
 				.scheduleAsyncDelayedTask(plugin, new Runnable() {
+					@Override
 					public void run() {
 						player = event.getPlayer(); // register player that
 													// joined
@@ -59,7 +61,6 @@ public class SAToolsPlayerListener extends PlayerListener {
 						}
 						{ // Run GUI Options
 							// List Add
-							SATools.log.info(player + " should be in the list");
 							SAToolsGUI.DefaultListModel_PLAYERS_PLAYERS
 									.addElement(player.getDisplayName());
 							if (SAToolsGUI.DefaultListModel_PLAYERS_PLAYERS
@@ -102,9 +103,11 @@ public class SAToolsPlayerListener extends PlayerListener {
 				}, 20);
 	}
 
+	@Override
 	public void onPlayerQuit(final PlayerQuitEvent event) {
 		plugin.getServer().getScheduler()
 				.scheduleAsyncDelayedTask(plugin, new Runnable() {
+					@Override
 					public void run() {
 						player = event.getPlayer(); // register player to quit
 						String otherGuy = null;
@@ -112,8 +115,6 @@ public class SAToolsPlayerListener extends PlayerListener {
 						SAToolsGUI.player = null;
 						{ // GUI Options removal
 							// Player List
-							SATools.log.info(player
-									+ " should be removed from the list");
 							if (SAToolsGUI.DefaultListModel_PLAYERS_PLAYERS
 									.size() == 0) {
 								SAToolsGUI.player = null;

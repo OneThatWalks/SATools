@@ -20,6 +20,7 @@ public class SAToolsEntityListener extends EntityListener {
 		plugin = instance;
 	}
 
+	@Override
 	public void onEntityDamage(EntityDamageEvent ede) {
 		Entity entity = ede.getEntity();
 		if (entity instanceof Player) {

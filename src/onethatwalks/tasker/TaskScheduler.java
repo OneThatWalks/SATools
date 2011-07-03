@@ -10,10 +10,10 @@ import java.io.InputStreamReader;
 import java.util.LinkedList;
 import java.util.logging.Logger;
 
-import org.bukkit.plugin.Plugin;
-
 import onethatwalks.satools.SATools;
 import onethatwalks.satools.SAToolsGUI;
+
+import org.bukkit.plugin.Plugin;
 
 /**
  * Scheduling class for SATools - Heavy Credit from the people at Bukkit.
@@ -22,23 +22,42 @@ import onethatwalks.satools.SAToolsGUI;
  * 
  */
 public class TaskScheduler implements Runnable {
-	private LinkedList<Task> tasks = new LinkedList<Task>();
-	private Plugin plugin;
 	public static final Logger log = Logger.getLogger("Minecraft");
+	public String macroFolder;
+	private Plugin plugin;
 	Thread t;
 	int taskQueue = 0;
-	public String macroFolder;
+	private LinkedList<Task> tasks = new LinkedList<Task>();
 
 	public TaskScheduler(Plugin instance) {
 		plugin = instance;
 		macroFolder = plugin.getDataFolder() + File.separator + "macros"
 				+ File.separator;
-		t = new Thread(this);
-		t.start();
 		init();
 	}
 
-	private void init() {
+	public Task getTask(String name) {
+		for (Task t : getTasks()) {
+			if (t.getName().equals(name)) {
+				return t;
+			}
+		}
+		return null;
+	}
+
+	public LinkedList<Task> getTasks() {
+		return tasks;
+	}
+
+	public void init() {
+		t = new Thread(this);
+		if (t != null) {
+			t = null;
+			t = new Thread(this);
+		}
+		taskQueue = 0;
+		tasks.clear();
+		SAToolsGUI.defaultListModel_SCHEDULE_TASKS.removeAllElements();
 		try {
 			File mf = new File(macroFolder);
 			if (!mf.exists()) {
@@ -64,8 +83,7 @@ public class TaskScheduler implements Runnable {
 					// Read File Line By Line
 					while ((strLine = br.readLine()) != null) {
 						if (lineNumber == 1) {
-							String rawTime = strLine.replaceFirst("#", "");
-							time = Long.parseLong(rawTime);
+							time = Long.parseLong(strLine.substring(1));
 						}
 						lineNumber++;
 					}
@@ -79,6 +97,110 @@ public class TaskScheduler implements Runnable {
 			e.printStackTrace();
 		} catch (NumberFormatException e) {
 			e.printStackTrace();
+		}
+		t.start();
+	}
+
+	public void killAllTasks() {
+		SAToolsGUI.defaultListModel_SCHEDULE_TASKS.removeAllElements();
+		for (Task t : tasks) {
+			t.getFile().delete();
+			t = null;
+		}
+		tasks.clear();
+	}
+
+	public void killTask(Task task) {
+		tasks.remove(task.getName());
+		SAToolsGUI.defaultListModel_SCHEDULE_TASKS
+				.removeElement(task.getName());
+		task.getFile().delete();
+		task = null;
+	}
+
+	private void processTask(Task task) {
+		task.run();
+	}
+
+	public void registerTask(String name, long time, String file) {
+		if (getTask(name) == null) {
+			Task newTask = new Task(name, time, file, plugin);
+			SAToolsGUI.defaultListModel_SCHEDULE_TASKS.addElement(newTask
+					.getName());
+			scheduleTask(newTask);
+		}
+	}
+
+	@Override
+	public void run() {
+		boolean stop = false;
+		long taskTime = -1;
+		long currentTime = -1;
+		Task task = null;
+		while (true) {
+			if (!tasks.isEmpty()) {
+				do {
+					synchronized (tasks) {
+						task = null;
+						if (!tasks.isEmpty()) {
+							task = tasks.get(taskQueue);
+							if (task != null) {
+								currentTime = SATools.time;
+
+								taskTime = task.getExecutionTime();
+
+								if (currentTime >= taskTime
+										&& currentTime <= taskTime + 100) {
+									processTask(task);
+									if (taskQueue == tasks.size() - 1) {
+										log.info("end of task queue.");
+										taskQueue = 0;
+									} else {
+										taskQueue++;
+									}
+								} else {
+									if (currentTime > taskTime + 100) {
+										if (taskQueue == tasks.size() - 1) {
+											log.info("end of task queue.");
+											taskQueue = 0;
+											stop = true;
+											task = tasks.get(taskQueue);
+											taskTime = task.getExecutionTime();
+										} else {
+											taskQueue++;
+										}
+									} else {
+										stop = true;
+									}
+								}
+							} else {
+								stop = true;
+							}
+						} else {
+							stop = true;
+						}
+					}
+				} while (!stop);
+
+				long sleepTime = 0;
+				if (task == null) {
+					sleepTime = 60000;
+				} else {
+					currentTime = SATools.time;
+					sleepTime = (taskTime - currentTime) * 50 + 25;
+				}
+				if (sleepTime <= -1) {
+					sleepTime = (24000 + (taskTime - currentTime)) * 50 + 25;
+				}
+				synchronized (tasks) {
+					try {
+						log.info(task.getName());
+						log.info(Long.toString(sleepTime));
+						tasks.wait(sleepTime);
+					} catch (InterruptedException ie) {
+					}
+				}
+			}
 		}
 	}
 
@@ -117,105 +239,5 @@ public class TaskScheduler implements Runnable {
 		} else {
 			tasks.add(task);
 		}
-	}
-
-	public void registerTask(String name, long time, String file) {
-		if (getTask(name) == null) {
-			Task newTask = new Task(name, time, file, plugin);
-			SAToolsGUI.defaultListModel_SCHEDULE_TASKS.addElement(newTask
-					.getName());
-			scheduleTask(newTask);
-		}
-	}
-
-	public Task getTask(String name) {
-		for (Task t : getTasks()) {
-			if (t.getName().equals(name)) {
-				return t;
-			}
-		}
-		return null;
-	}
-
-	public LinkedList<Task> getTasks() {
-		return tasks;
-	}
-
-	public void killTask(Task task) {
-		tasks.remove(task.getName());
-		SAToolsGUI.defaultListModel_SCHEDULE_TASKS
-				.removeElement(task.getName());
-		task.getFile().delete();
-		task = null;
-	}
-
-	public void killAllTasks() {
-		SAToolsGUI.defaultListModel_SCHEDULE_TASKS.removeAllElements();
-		tasks.clear();
-	}
-
-	@Override
-	public void run() {
-		boolean stop = false;
-		long taskTime = -1;
-		long currentTime = -1;
-		Task task = null;
-		while (true) {
-			if (!tasks.isEmpty()) {
-				do {
-					synchronized (tasks) {
-						task = null;
-						if (!tasks.isEmpty()) {
-							task = tasks.get(taskQueue);
-							if (task != null) {
-								currentTime = SATools.time;
-
-								taskTime = task.getExecutionTime();
-
-								if (currentTime >= taskTime
-										&& currentTime <= taskTime + 100) {
-									processTask(task);
-									if (taskQueue == tasks.size() - 1) {
-										log.info("end of task queue.");
-										taskQueue = 0;
-									} else {
-										taskQueue++;
-									}
-								} else {
-									stop = true;
-								}
-							} else {
-								stop = true;
-							}
-						} else {
-							stop = true;
-						}
-					}
-				} while (!stop);
-
-				long sleepTime = 0;
-				if (task == null) {
-					sleepTime = 60000;
-				} else {
-					currentTime = SATools.time;
-					sleepTime = (taskTime - currentTime) * 50 + 25;
-				}
-				if (sleepTime <= -1) {
-					sleepTime = 60000;
-				}
-				synchronized (tasks) {
-					try {
-						log.info(task.getName());
-						log.info(Long.toString(sleepTime));
-						tasks.wait(sleepTime);
-					} catch (InterruptedException ie) {
-					}
-				}
-			}
-		}
-	}
-
-	private void processTask(Task task) {
-		task.run();
 	}
 }

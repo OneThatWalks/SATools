@@ -8,6 +8,7 @@ class GarbageCollection extends Thread {
 	public static final Logger log = Logger.getLogger("Minecraft");
 	boolean runGC = true;
 
+	@Override
 	public void run() {
 		while (true) {
 			if (runGC) {
