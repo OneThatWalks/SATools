@@ -13,19 +13,13 @@ import org.bukkit.event.entity.EntityListener;
  * @author OneThatWalks
  */
 public class SAToolsEntityListener extends EntityListener {
-	@SuppressWarnings("unused")
-	private final SATools plugin;
-
-	public SAToolsEntityListener(SATools instance) {
-		plugin = instance;
-	}
 
 	@Override
 	public void onEntityDamage(EntityDamageEvent ede) {
 		Entity entity = ede.getEntity();
 		if (entity instanceof Player) {
 			Player player = (Player) entity;
-			if (SATools.gods.contains(player)) {
+			if (SATools.gods.contains(player.getDisplayName())) {
 				ede.setCancelled(true);
 			}
 		}

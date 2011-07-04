@@ -66,8 +66,7 @@ public class SATools extends JavaPlugin {
 	// Actual plugin variables
 	public static World world;
 	private boolean checkUpdate;
-	private final SAToolsEntityListener entityListener = new SAToolsEntityListener(
-			this);
+	private final SAToolsEntityListener entityListener = new SAToolsEntityListener();
 	// END
 	// Init GUI
 	public SAToolsGUI gui = new SAToolsGUI(this);
@@ -411,7 +410,7 @@ public class SATools extends JavaPlugin {
 	 * 
 	 * Sets the weather for the current world
 	 * 
-	 *            Weather to set to
+	 * Weather to set to
 	 */
 	public void setWeather(Weather type) {
 		if (type.equals(Weather.CLEAR)) {
