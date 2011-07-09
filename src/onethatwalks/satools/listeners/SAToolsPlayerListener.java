@@ -35,30 +35,22 @@ public class SAToolsPlayerListener extends PlayerListener {
 									ChatColor.GOLD + player.getDisplayName()
 											+ " is a god");
 						}
-						{ // Welcome Message info
-							Player[] op = plugin.getServer().getOnlinePlayers();
-							String opString = "";
-							for (int i = 0; i < op.length; i++) {
-								Player playerRaw = op[i];
-								String playerLoc = "x="
-										+ playerRaw.getLocation().getBlockX()
-										+ ", y="
-										+ playerRaw.getLocation().getBlockY()
-										+ ", z="
-										+ playerRaw.getLocation().getBlockZ();
-								String playerString = playerRaw
-										.getDisplayName()
-										+ " at ("
-										+ playerLoc
-										+ "), ";
-								opString = opString + playerString;
-							}
-							player.sendMessage("Welcome to "
-									+ plugin.getServer().getServerName() + ", "
-									+ player.getDisplayName()
-									+ ", Have Fun and Play Nice!");
-							player.sendMessage("Connected users: " + opString);
-						}
+						/*
+						 * WELCOME MESSAGE INFO { Player[] op =
+						 * plugin.getServer().getOnlinePlayers(); String
+						 * opString = ""; for (int i = 0; i < op.length; i++) {
+						 * Player playerRaw = op[i]; String playerLoc = "x=" +
+						 * playerRaw.getLocation().getBlockX() + ", y=" +
+						 * playerRaw.getLocation().getBlockY() + ", z=" +
+						 * playerRaw.getLocation().getBlockZ(); String
+						 * playerString = playerRaw .getDisplayName() + " at ("
+						 * + playerLoc + "), "; opString = opString +
+						 * playerString; } player.sendMessage("Welcome to " +
+						 * plugin.getServer().getServerName() + ", " +
+						 * player.getDisplayName() +
+						 * ", Have Fun and Play Nice!");
+						 * player.sendMessage("Connected users: " + opString); }
+						 */
 						{ // Run GUI Options
 							// List Add
 							SAToolsGUI.DefaultListModel_PLAYERS_PLAYERS
