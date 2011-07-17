@@ -41,9 +41,9 @@ import javax.swing.ListModel;
 import javax.swing.SwingConstants;
 import javax.swing.border.TitledBorder;
 
-import onethatwalks.satools.SATools.Weather;
 import onethatwalks.threads.ThreadHandler;
 import onethatwalks.util.ConfigurationEditor;
+import onethatwalks.util.MethodHandler;
 import onethatwalks.util.NumberHandler;
 import onethatwalks.util.TaskModifier;
 
@@ -70,7 +70,7 @@ public class SAToolsGUI extends JFrame {
 	public static DefaultComboBoxModel defaultComboBoxModel_MAIN_SPAWN_LOCATION_OBJECT = null;
 	public static DefaultListModel DefaultListModel_PLAYERS_PLAYERS = null; // @jve:decl-index=1:visual-constraint="280,1000"
 	public static DefaultListModel defaultListModel_SCHEDULE_TASKS = null;
-	static HashMap<String, Material> items = new HashMap<String, Material>(); // @jve:decl-index=0:
+	public static HashMap<String, Material> items = new HashMap<String, Material>(); // @jve:decl-index=0:
 	public static JButton jButton_MAIN_GC = null;
 	public static JButton jButton_MAIN_WEATHER_CLEAR = null;
 	public static JButton jButton_MAIN_WEATHER_STORM = null;
@@ -200,200 +200,15 @@ public class SAToolsGUI extends JFrame {
 	private JTextPane jTextPane_SCHEDULE_TASKS_MODIFY_PREVIEW = null;
 
 	NumberHandler numbers = new NumberHandler(); // @jve:decl-index=0:
+	MethodHandler methods = SATools.methods; // @jve:decl-index=0:
 
 	private String[] objects = { "Tree", "Lightning", "Light post" };
 
 	private String[] times = { "midnight", "morning", "noon", "dusk" };
 	// Variables
 	private static final long serialVersionUID = 1L;
-
-	/**
-	 * Checks the worlds weather conditions
-	 * 
-	 * @return the current world weather conditions
-	 */
-	public static String checkConditions() {
-		try {
-			if (SATools.world != null) {
-				if (SATools.world.hasStorm()) {
-					if (SATools.world.isThundering()) {
-						return "Thunder";
-					}
-					return "Storm";
-				} else {
-					return "Clear";
-				}
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return "Cannot Compute";
-	}
-
-	/**
-	 * My method to give a player a specified item
-	 * 
-	 * @param p
-	 *            Player to give item to
-	 * @param item
-	 *            The item name
-	 * @param amount
-	 *            Amount to give
-	 * @return true if item given, otherwise false.
-	 */
-	public static boolean doGiveItem(Player p, String item, int amount) {
-		if (p != null) {
-			if (item != null) {
-				if (amount > 0) {
-					short damage = 0;
-					if (items.get(item) == Material.WOOL) { // Wool
-															// damage
-															// for
-						// differnt colors
-						String[] values = { "White", "Orange", "Magenta",
-								"Light Blue", "Yellow", "Light Green", "Pink",
-								"Gray", "Light Gray", "Cyan", "Purple", "Blue",
-								"Brown", "Dark Green", "Red", "Black" };
-						HashMap<Integer, String> map = new HashMap<Integer, String>();
-						for (int i = 0; i < values.length; i++) {
-							map.put(i, values[i]);
-						}
-						String input = (String) JOptionPane.showInputDialog(
-								null, "What color?", "Wool Color Selection",
-								JOptionPane.INFORMATION_MESSAGE, null, map
-										.values().toArray(), map.get(0));
-						for (int o : map.keySet()) {
-							if (map.get(o).equals(input)) {
-								damage = (short) o;
-								break;
-							}
-							if (o == values.length - 1) {
-								log.severe("SATools.SAToolsGUI: Cannot get integer");
-								return false;
-							}
-						}
-					} else if (items.get(item) == Material.LOG) { // Wood
-																	// damage
-																	// for
-						// different
-						// types
-						String[] values = { "Oak/Regular", "Spruce/Pine",
-								"Birch" };
-						HashMap<Integer, String> map = new HashMap<Integer, String>();
-						for (int i = 0; i < values.length; i++) {
-							map.put(i, values[i]);
-						}
-						String input = (String) JOptionPane.showInputDialog(
-								null, "What type?", "Wood Type Selection",
-								JOptionPane.INFORMATION_MESSAGE, null, map
-										.values().toArray(), map.get(0));
-						for (int o : map.keySet()) {
-							if (map.get(o).equals(input)) {
-								damage = (short) o;
-								break;
-							}
-							if (o == values.length - 1) {
-								log.severe("SATools.SAToolsGUI: Cannot get integer");
-								return false;
-							}
-						}
-					} else if (items.get(item) == Material.STEP) { // Slabs
-						// material
-						String[] values = { "Stone", "Sandstone", "Wooden",
-								"Cobblestone" };
-						HashMap<Integer, String> map = new HashMap<Integer, String>();
-						for (int i = 0; i < values.length; i++) {
-							map.put(i, values[i]);
-						}
-						String input = (String) JOptionPane.showInputDialog(
-								null, "What materal slab do you want?",
-								"Slab Selection",
-								JOptionPane.INFORMATION_MESSAGE, null, map
-										.values().toArray(), map.get(0));
-						for (int o : map.keySet()) {
-							if (map.get(o).equals(input)) {
-								damage = (short) o;
-								break;
-							}
-							if (o == values.length - 1) {
-								log.severe("SATools.SAToolsGUI: Cannot get integer");
-								return false;
-							}
-						}
-					} else if (items.get(item) == Material.INK_SACK) { // Different
-						// types of
-						// dye's
-						String[] values = { "Ink Sack", "Rose Red",
-								"Cactus Green", "Cocoa Beans", "Lapis Lazuli",
-								"Purple Dye", "Cyan Dye", "Light Gray Dye",
-								"Gray Dye", "Pink Dye", "Lime Dye",
-								"Dandelion Yellow", "Light Blue Dye",
-								"Magenta", "Orange Dye", "Bone Meal" };
-						HashMap<Integer, String> map = new HashMap<Integer, String>();
-						for (int i = 0; i < values.length; i++) {
-							map.put(i, values[i]);
-						}
-						String input = (String) JOptionPane.showInputDialog(
-								null, "What color dye do you want?",
-								"Dye Color Selection",
-								JOptionPane.INFORMATION_MESSAGE, null, map
-										.values().toArray(), map.get(0));
-						for (int o : map.keySet()) {
-							if (map.get(o).equals(input)) {
-								damage = (short) o;
-								break;
-							}
-							if (o == values.length - 1) {
-								log.severe("SATools.SAToolsGUI: Cannot get integer");
-								return false;
-							}
-						}
-					} else if (items.get(item) == Material.SAPLING) { // Different
-						// sapplings
-						String[] values = { "Oak/Regular", "Spruce/Pine",
-								"Birch" };
-						HashMap<Integer, String> map = new HashMap<Integer, String>();
-						for (int i = 0; i < values.length; i++) {
-							map.put(i, values[i]);
-						}
-						String input = (String) JOptionPane.showInputDialog(
-								null, "What type of sapling do you want?",
-								"Sapling Selelction",
-								JOptionPane.INFORMATION_MESSAGE, null, map
-										.values().toArray(), map.get(0));
-						for (int o : map.keySet()) {
-							if (map.get(o).equals(input)) {
-								damage = (short) o;
-								break;
-							}
-							if (o == values.length - 1) {
-								log.severe("SATools.SAToolsGUI: Cannot get integer");
-								return false;
-							}
-						}
-					}
-					org.bukkit.inventory.ItemStack is = new org.bukkit.inventory.ItemStack(
-							items.get(item), amount, damage);
-					p.getInventory().addItem(is);
-					{ // The heart of this method
-						if (player.getInventory().contains(is)) {
-							return true;
-						}
-						return false;
-					}
-				} else {
-					log.severe("SATools.SAToolsGUI: doGiveItem(): no amount or negative count");
-					return false;
-				}
-			} else {
-				log.severe("SATools.SAToolsGUI: doGiveItem(): no item or invalid type");
-				return false;
-			}
-		} else {
-			log.severe("SATools.SAToolsGUI: doGiveItem(): no player or invalid player");
-			return false;
-		}
-	}
+	public static JMenu jMenu_WORLDS = null;
+	public static JLabel jLabel_MAIN_WORLD = null;
 
 	/**
 	 * This is the default constructor
@@ -669,9 +484,9 @@ public class SAToolsGUI extends JFrame {
 	 *            The time to set on the server.
 	 */
 	void doTime(int time) {
-		if (plugin.getServer().dispatchCommand(
-				new ConsoleCommandSender(plugin.getServer()),
-				"time set " + time)) {
+		SATools.world.setFullTime(time);
+		if (SATools.world.getFullTime() >= time
+				&& SATools.world.getFullTime() <= time + 100) {
 			log.info("SATools.SAToolsGUI: Time set to " + time);
 		} else {
 			log.warning("SATools.SAToolsGUI: Failed to set time");
@@ -953,7 +768,7 @@ public class SAToolsGUI extends JFrame {
 	private JButton getJButton_MAIN_GC() {
 		if (jButton_MAIN_GC == null) {
 			jButton_MAIN_GC = new JButton();
-			jButton_MAIN_GC.setBounds(new Rectangle(425, 680, 149, 25)); // Generated
+			jButton_MAIN_GC.setBounds(new Rectangle(425, 675, 149, 30)); // Generated
 			jButton_MAIN_GC.setText("Free JVM Memory"); // Generated
 			jButton_MAIN_GC
 					.addActionListener(new java.awt.event.ActionListener() {
@@ -975,7 +790,7 @@ public class SAToolsGUI extends JFrame {
 	private JButton getJButton_MAIN_RESTART() {
 		if (jButton_MAIN_RESTART == null) {
 			jButton_MAIN_RESTART = new JButton();
-			jButton_MAIN_RESTART.setBounds(new Rectangle(180, 674, 190, 30)); // Generated
+			jButton_MAIN_RESTART.setBounds(new Rectangle(290, 675, 130, 30)); // Generated
 			jButton_MAIN_RESTART.setText("Restart Server"); // Generated
 			jButton_MAIN_RESTART
 					.addActionListener(new java.awt.event.ActionListener() {
@@ -1040,7 +855,7 @@ public class SAToolsGUI extends JFrame {
 								log.severe("SATools.SAToolsGUI: Failed to spawn creature");
 							}
 							if (location != null && creature != null)
-								SATools.spawnCreature(location, creature);
+								methods.spawnCreature(location, creature);
 						}
 					});
 		}
@@ -1104,7 +919,7 @@ public class SAToolsGUI extends JFrame {
 								log.severe("SATools.SAToolsGUI: Failed to spawn creature");
 							}
 							if (location != null && object != null)
-								SATools.spawnObject(location, object);
+								methods.spawnObject(location, object);
 						}
 					});
 		}
@@ -1207,7 +1022,7 @@ public class SAToolsGUI extends JFrame {
 			jButton_MAIN_WEATHER_CLEAR
 					.addActionListener(new java.awt.event.ActionListener() {
 						public void actionPerformed(java.awt.event.ActionEvent e) {
-							plugin.setWeather(Weather.CLEAR);
+							methods.setWeather(onethatwalks.util.MethodHandler.Weather.CLEAR);
 						}
 					});
 		}
@@ -1223,7 +1038,7 @@ public class SAToolsGUI extends JFrame {
 			jButton_MAIN_WEATHER_STORM
 					.addActionListener(new java.awt.event.ActionListener() {
 						public void actionPerformed(java.awt.event.ActionEvent e) {
-							plugin.setWeather(Weather.STORM);
+							methods.setWeather(onethatwalks.util.MethodHandler.Weather.STORM);
 						}
 					});
 		}
@@ -1239,7 +1054,7 @@ public class SAToolsGUI extends JFrame {
 			jButton_MAIN_WEATHER_THUNDER
 					.addActionListener(new java.awt.event.ActionListener() {
 						public void actionPerformed(java.awt.event.ActionEvent e) {
-							plugin.setWeather(Weather.THUNDER);
+							methods.setWeather(onethatwalks.util.MethodHandler.Weather.THUNDER);
 						}
 					});
 		}
@@ -1261,7 +1076,7 @@ public class SAToolsGUI extends JFrame {
 					.addActionListener(new java.awt.event.ActionListener() {
 						public void actionPerformed(java.awt.event.ActionEvent e) {
 							try {
-								if (doGiveItem(player,
+								if (methods.doGiveItem(player,
 										jComboBox_PLAYERS_MODIFY_GIVE
 												.getSelectedItem().toString(),
 										1))
@@ -1290,7 +1105,7 @@ public class SAToolsGUI extends JFrame {
 					.addActionListener(new java.awt.event.ActionListener() {
 						public void actionPerformed(java.awt.event.ActionEvent e) {
 							try {
-								if (doGiveItem(player,
+								if (methods.doGiveItem(player,
 										jComboBox_PLAYERS_MODIFY_GIVE
 												.getSelectedItem().toString(),
 										64))
@@ -1720,6 +1535,7 @@ public class SAToolsGUI extends JFrame {
 			jMenu_FILE.setText("File"); // Generated
 			jMenu_FILE.add(getJMenuItem_Configuration()); // Generated
 			jMenu_FILE.add(getJMenuItem_EXIT()); // Generated
+			jMenu_FILE.add(getJMenu_WORLDS()); // Generated
 		}
 		return jMenu_FILE;
 	}
@@ -1823,6 +1639,9 @@ public class SAToolsGUI extends JFrame {
 	 */
 	private JPanel getJPanel_MAIN() {
 		if (jPanel_MAIN == null) {
+			jLabel_MAIN_WORLD = new JLabel();
+			jLabel_MAIN_WORLD.setBounds(new Rectangle(15, 680, 270, 25)); // Generated
+			jLabel_MAIN_WORLD.setText("World: "); // Generated
 			jPanel_MAIN = new JPanel();
 			jPanel_MAIN.setLayout(null); // Generated
 			jPanel_MAIN.add(getJPanel_MAIN_TIME(), null); // Generated
@@ -1831,6 +1650,7 @@ public class SAToolsGUI extends JFrame {
 			jPanel_MAIN.add(getJPanel_MAIN_SPAWN(), null);
 			jPanel_MAIN.add(getJButton_MAIN_RESTART(), null); // Generated
 			jPanel_MAIN.add(getJButton_MAIN_GC(), null); // Generated
+			jPanel_MAIN.add(jLabel_MAIN_WORLD, null); // Generated
 		}
 		return jPanel_MAIN;
 	}
@@ -2507,7 +2327,7 @@ public class SAToolsGUI extends JFrame {
 											|| !numbers
 													.isNumeric(jTextField_PLAYERS_MODIFY_GIVE_INT
 															.getText())) {
-										if (doGiveItem(
+										if (methods.doGiveItem(
 												player,
 												jComboBox_PLAYERS_MODIFY_GIVE
 														.getSelectedItem()
@@ -2822,5 +2642,18 @@ public class SAToolsGUI extends JFrame {
 				e.printStackTrace();
 			}
 		}
+	}
+
+	/**
+	 * This method initializes jMenu_WORLDS
+	 * 
+	 * @return javax.swing.JMenu
+	 */
+	private JMenu getJMenu_WORLDS() {
+		if (jMenu_WORLDS == null) {
+			jMenu_WORLDS = new JMenu();
+			jMenu_WORLDS.setText("Worlds");
+		}
+		return jMenu_WORLDS;
 	}
 }

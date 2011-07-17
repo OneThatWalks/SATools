@@ -4,6 +4,7 @@ import java.util.logging.Logger;
 
 import onethatwalks.satools.SATools;
 import onethatwalks.satools.SAToolsGUI;
+import onethatwalks.util.MethodHandler;
 
 import org.bukkit.Location;
 import org.bukkit.plugin.Plugin;
@@ -11,6 +12,7 @@ import org.bukkit.plugin.Plugin;
 public class GUIManager extends Thread {
 	public static final Logger log = Logger.getLogger("Minecraft");
 	Plugin plugin;
+	MethodHandler methods = SATools.methods;
 
 	public GUIManager(Plugin instance) {
 		plugin = instance;
@@ -94,10 +96,26 @@ public class GUIManager extends Thread {
 						.setText("NO TASK");
 			}
 			// END
+			// Worlds Selection - World info on main screen
+			if (SAToolsGUI.jMenu_WORLDS.getMenuComponentCount() == 0) {
+				for (int i = 0; i < plugin.getServer().getWorlds().size(); i++) {
+					SAToolsGUI.jMenu_WORLDS.add(methods.newMenuItem(plugin
+							.getServer().getWorlds().get(i)));
+					log.info("[DEBUG] SATools.GUIManager: found "
+							+ plugin.getServer().getWorlds().get(i).getName()
+							+ ", size = "
+							+ SAToolsGUI.jMenu_WORLDS.getMenuComponentCount());
+				}
+			}
+			if (!SAToolsGUI.jLabel_MAIN_WORLD.getText().equalsIgnoreCase(
+					"world: " + SATools.world.getName())) {
+				SAToolsGUI.jLabel_MAIN_WORLD.setText("World: "
+						+ SATools.world.getName());
+			}
+			// END
 			try {
 				Thread.sleep(1000);
 			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}

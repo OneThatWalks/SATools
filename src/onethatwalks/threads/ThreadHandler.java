@@ -8,7 +8,7 @@ import org.bukkit.plugin.Plugin;
 public class ThreadHandler extends Thread {
 	static Plugin plugin;
 	public static GarbageCollection garbageCollection = new GarbageCollection();
-	public static GUIManager guiManager = new GUIManager(plugin);
+	public static GUIManager guiManager = null;
 	public static final Logger log = Logger.getLogger("Minecraft");
 	public static TimeTracker timeTracker = new TimeTracker();
 
@@ -20,6 +20,7 @@ public class ThreadHandler extends Thread {
 
 	public ThreadHandler(Plugin instance) {
 		plugin = instance;
+		guiManager = new GUIManager(instance);
 		threadMap.add(garbageCollection);
 		threadMap.add(timeTracker);
 		threadMap.add(guiManager);

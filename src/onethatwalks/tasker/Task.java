@@ -10,6 +10,7 @@ import java.util.logging.Logger;
 
 import onethatwalks.satools.SATools;
 import onethatwalks.satools.SAToolsGUI;
+import onethatwalks.util.MethodHandler;
 import onethatwalks.util.NumberHandler;
 
 import org.bukkit.ChatColor;
@@ -35,6 +36,7 @@ public class Task implements Runnable {
 			"playerHealth" };
 
 	private long time;
+	MethodHandler methods = SATools.methods;
 
 	public Task(String name, long time, String file, Plugin p) {
 		this.macro = new File(file);
@@ -165,7 +167,7 @@ public class Task implements Runnable {
 						int y = Integer.parseInt(xyz[1]);
 						int z = Integer.parseInt(xyz[2]);
 						Location loc = new Location(SATools.world, x, y, z);
-						SATools.spawnObject(loc, object);
+						methods.spawnObject(loc, object);
 					} else {
 						log.warning("SATools." + getName() + ": "
 								+ "x,y,z invalid, skipping instruction.");
@@ -183,8 +185,7 @@ public class Task implements Runnable {
 					if (plugin.getServer().getPlayer(player) != null) {
 						Player p = plugin.getServer().getPlayer(player);
 						if (numbers.isNumeric(count) && numbers.isNumeric(item)) {
-							SAToolsGUI.doGiveItem(p, item,
-									Integer.parseInt(count));
+							methods.doGiveItem(p, item, Integer.parseInt(count));
 						} else {
 							log.severe("SATools." + getName() + ": "
 									+ "Error giving an item");
