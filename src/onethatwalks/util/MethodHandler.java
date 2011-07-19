@@ -3,6 +3,7 @@ package onethatwalks.util;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.HashMap;
+import java.util.List;
 import java.util.logging.Logger;
 
 import javax.swing.JMenuItem;
@@ -364,6 +365,25 @@ public class MethodHandler {
 		} else {
 			log.severe("SATools: Error setting weather!!!");
 		}
+	}
+
+	public List<String> scanArray(List<String> array) {
+		List<String> result = array;
+		for (int i = 0; i < result.size(); i++) {
+			String temp = array.get(i);
+			int matches = 0;
+			for (Object o : array) {
+				if (o.equals(temp)
+						&& result.indexOf(o) != result.lastIndexOf(o)) {
+					matches++;
+					result.set(result.indexOf(o), "Null");
+				}
+			}
+		}
+		while (result.contains("Null")) {
+			result.remove("Null");
+		}
+		return result;
 	}
 
 }

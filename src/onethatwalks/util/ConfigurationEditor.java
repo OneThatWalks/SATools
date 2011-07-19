@@ -14,6 +14,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.WindowConstants;
 
+import onethatwalks.satools.SATools;
 import onethatwalks.satools.SAToolsGUI;
 
 import org.bukkit.util.config.Configuration;
@@ -162,6 +163,7 @@ public class ConfigurationEditor extends JFrame {
 		config.setProperty("Check for updates",
 				jComboBox_CHECK_UPDATE.getSelectedItem());
 		config.save();
+		SATools.configModified = true;
 		this.dispose();
 	}
 

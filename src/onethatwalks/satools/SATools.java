@@ -3,11 +3,15 @@ package onethatwalks.satools;
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.io.PrintWriter;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
@@ -90,6 +94,7 @@ public class SATools extends JavaPlugin {
 	// END
 	// MethodHandler
 	public static MethodHandler methods = new MethodHandler();
+	public static boolean configModified = false;
 
 	/**
 	 * WIP Auto-Update method
@@ -190,6 +195,7 @@ public class SATools extends JavaPlugin {
 		if (configFile.exists()) {
 			log.info("SATools: Loading gods...");
 			gods = config.getStringList("Gods", null);
+			methods.scanArray(gods);
 			checkUpdate = config.getBoolean("Check for updates", true);
 			showUpdateBox = config.getBoolean("Show update check", true);
 		} else {
@@ -264,6 +270,8 @@ public class SATools extends JavaPlugin {
 	 * Saves the current data [Currently only saves gods]
 	 */
 	private void save() {
+		methods.scanArray(gods);
+		removeHeaders();
 		File configFile = new File(this.getDataFolder(), "config.yml");
 		if (configFile.exists()) {
 			config = new Configuration(configFile);
@@ -279,7 +287,44 @@ public class SATools extends JavaPlugin {
 		log.info("SATools: Saving...");
 		config.setHeader(name + " V" + version + " by: " + authors);
 		config.setProperty("Gods", gods);
+		if (!configModified) {
+			config.setProperty("Show update check", false);
+			config.setProperty("Check for updates", true);
+		}
 		config.save();
+	}
+
+	public void removeHeaders() {
+		File configFile = new File(this.getDataFolder(), "config.yml");
+		try {
+			File tempFile = new File(configFile.getAbsolutePath() + ".tmp");
+
+			BufferedReader br = new BufferedReader(new FileReader(configFile));
+			PrintWriter pw = new PrintWriter(new FileWriter(tempFile));
+			String strLine = null;
+			while ((strLine = br.readLine()) != null) {
+				if (!strLine.contains("SATools")) {
+					pw.println(strLine);
+					pw.flush();
+				}
+			}
+			pw.close();
+			br.close();
+
+			// Delete the original file
+			if (!configFile.delete()) {
+				System.out.println("Could not delete file");
+				return;
+			}
+
+			// Rename the new file to the filename the original file had.
+			if (!tempFile.renameTo(configFile))
+				System.out.println("Could not rename file");
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 
 }

@@ -39,6 +39,7 @@ import javax.swing.JTextPane;
 import javax.swing.JToggleButton;
 import javax.swing.ListModel;
 import javax.swing.SwingConstants;
+import javax.swing.UIManager;
 import javax.swing.border.TitledBorder;
 
 import onethatwalks.threads.ThreadHandler;
@@ -1866,7 +1867,7 @@ public class SAToolsGUI extends JFrame {
 					.setText("Set player health to... (Enter custom amount and press enter).   (Press enter for that too ^) ");
 			jPanel_PLAYERS_MODIFY = new JPanel();
 			jPanel_PLAYERS_MODIFY.setLayout(null); // Generated
-			jPanel_PLAYERS_MODIFY.setBounds(new Rectangle(15, 255, 545, 470)); // Generated
+			jPanel_PLAYERS_MODIFY.setBounds(new Rectangle(15, 255, 545, 180)); // Generated
 			jPanel_PLAYERS_MODIFY.setBorder(BorderFactory.createTitledBorder(
 					null, "Admin Controls", TitledBorder.DEFAULT_JUSTIFICATION,
 					TitledBorder.DEFAULT_POSITION, new Font("Dialog",
@@ -2179,7 +2180,7 @@ public class SAToolsGUI extends JFrame {
 	private JTabbedPane getJTabbedPane() {
 		if (jTabbedPane == null) {
 			jTabbedPane = new JTabbedPane();
-			jTabbedPane.setBounds(new Rectangle(0, 5, 584, 757)); // Generated
+			jTabbedPane.setBounds(new Rectangle(0, 0, 595, 750)); // Generated
 			jTabbedPane.setEnabled(true); // Generated
 			jTabbedPane.setName(""); // Generated
 			jTabbedPane.addTab("Server Main", null, getJPanel_MAIN(),
@@ -2424,7 +2425,8 @@ public class SAToolsGUI extends JFrame {
 							if (jToggleButton_PLAYERS_MODIFY_HEALTH_JESUS
 									.isSelected()) {
 								player.setHealth(20);
-								if (!SATools.gods.contains(player)) {
+								if (!SATools.gods.contains(player
+										.getDisplayName())) {
 									SATools.gods.add(player.getDisplayName());
 									plugin.getServer().broadcastMessage(
 											ChatColor.GOLD
@@ -2432,15 +2434,24 @@ public class SAToolsGUI extends JFrame {
 													+ " is now a god");
 								}
 							} else {
-								if (SATools.gods.contains(player)) {
-									SATools.gods.remove(player);
+								if (SATools.gods.contains(player
+										.getDisplayName())) {
+									int howMany = 0;
+									do {
+										SATools.gods.remove(player
+												.getDisplayName());
+										howMany++;
+									} while (SATools.gods.contains(player
+											.getDisplayName()));
 									plugin.getServer()
 											.broadcastMessage(
 													ChatColor.DARK_RED
 															+ player.getDisplayName()
-															+ " has been stripped of his god powers");
+															+ " has been stripped of his god powers."
+															+ "took " + howMany
+															+ " tries");
 								}
-								player.damage(10);
+								player.damage(2);
 							}
 						}
 					});
@@ -2544,8 +2555,21 @@ public class SAToolsGUI extends JFrame {
 	 */
 	private void initialize() {
 		try {
+			getToolkit();
+			Dimension screenRes = Toolkit.getDefaultToolkit().getScreenSize();
+			log.info("You are running SATools with "
+					+ System.getProperty("os.name") + " "
+					+ System.getProperty("os.arch") + " version "
+					+ System.getProperty("os.version"));
+			if (screenRes.height < 1280 || screenRes.width < 768) {
+				// TODO
+			} else {
+
+			}
 			this.setSize(600, 800);
+			this.setResizable(false);
 			this.setJMenuBar(getJJMenuBar_MENU()); // Generated
+			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 			this.setContentPane(getJContentPane());
 			this.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 			this.addWindowListener(new WindowAdapter() {
