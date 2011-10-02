@@ -26,9 +26,6 @@ import javax.swing.border.EtchedBorder;
 
 import onethatwalks.threads.GUIManager;
 
-import org.bukkit.command.ConsoleCommandSender;
-import org.bukkit.plugin.Plugin;
-
 /**
  * This program is a Bukkit Server Wrapper plugin. This plugin will allow the
  * User to administer a Bukkit Server.
@@ -46,7 +43,7 @@ public class SAToolsGUI extends JFrame implements ActionListener, KeyListener {
 	 * Top Variables
 	 */
 	private static final long serialVersionUID = 1L;
-	Plugin p;
+	SATools p;
 	GUIManager manager;
 	/**
 	 * Component Variables
@@ -65,8 +62,8 @@ public class SAToolsGUI extends JFrame implements ActionListener, KeyListener {
 	JButton btnStop = new JButton("Stop");
 	JLabel lblMemory = new JLabel("Memory Usage:");
 	public JProgressBar progressBar_mem;
-	public JTextArea textArea = new JTextArea();
-	public JTextField textField = new JTextField();
+	public JTextArea textArea_console = new JTextArea();
+	public JTextField textField_console = new JTextField();
 	GridBagLayout gbl_panel_CONSOLE = new GridBagLayout();
 	GridBagConstraints gbc_textField = new GridBagConstraints();
 	private final JScrollPane scrollPane = new JScrollPane();
@@ -85,7 +82,7 @@ public class SAToolsGUI extends JFrame implements ActionListener, KeyListener {
 	/**
 	 * Create the frame.
 	 */
-	public SAToolsGUI(Plugin instance) {
+	public SAToolsGUI(SATools instance) {
 		super();
 		p = instance;
 		manager = new GUIManager(p, this);
@@ -94,6 +91,7 @@ public class SAToolsGUI extends JFrame implements ActionListener, KeyListener {
 		setSize(640, 460);
 		setResizable(false);
 		setVisible(true);
+		setLocationRelativeTo(getOwner());
 
 		setJMenuBar(menuBar);
 
@@ -122,8 +120,8 @@ public class SAToolsGUI extends JFrame implements ActionListener, KeyListener {
 
 		contentPane = new JPanel();
 		setContentPane(contentPane);
-		textField.setColumns(10);
-		textField.addKeyListener(this);
+		textField_console.setColumns(10);
+		textField_console.addKeyListener(this);
 		contentPane.setLayout(null);
 		tabbedPane.setBounds(0, 0, 634, 363);
 		contentPane.add(tabbedPane);
@@ -143,15 +141,16 @@ public class SAToolsGUI extends JFrame implements ActionListener, KeyListener {
 		gbc_scrollPane.gridx = 0;
 		gbc_scrollPane.gridy = 0;
 		panel_CONSOLE.add(scrollPane, gbc_scrollPane);
-		scrollPane.setViewportView(textArea);
-		textArea.setBorder(new EtchedBorder(EtchedBorder.LOWERED, null, null));
-		textArea.setEditable(false);
+		scrollPane.setViewportView(textArea_console);
+		textArea_console.setBorder(new EtchedBorder(EtchedBorder.LOWERED, null,
+				null));
+		textArea_console.setEditable(false);
 
 		gbc_textField.insets = new Insets(5, 5, 5, 5);
 		gbc_textField.fill = GridBagConstraints.HORIZONTAL;
 		gbc_textField.gridx = 0;
 		gbc_textField.gridy = 9;
-		panel_CONSOLE.add(textField, gbc_textField);
+		panel_CONSOLE.add(textField_console, gbc_textField);
 
 		tabbedPane.addTab("Server", null, panel_SERVER, null);
 		GridBagLayout gbl_panel_SERVER = new GridBagLayout();
@@ -229,8 +228,14 @@ public class SAToolsGUI extends JFrame implements ActionListener, KeyListener {
 
 	@Override
 	public void keyReleased(KeyEvent e) {
-		// TODO Auto-generated method stub
-
+		if (e.getSource() instanceof JTextField) {
+			if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+				if (e.getSource() == textField_console) {
+					p.sendCommand(textField_console.getText());
+					textField_console.setText("");
+				}
+			}
+		}
 	}
 
 	@Override
@@ -243,8 +248,7 @@ public class SAToolsGUI extends JFrame implements ActionListener, KeyListener {
 	public void actionPerformed(ActionEvent e) {
 		if (e.getSource() instanceof JButton) {
 			if (e.getSource() == btnStop) {
-				p.getServer().dispatchCommand(
-						new ConsoleCommandSender(p.getServer()), "stop");
+				p.sendCommand("stop");
 			}
 		} else if (e.getSource() instanceof JMenuItem) {
 			if (e.getSource() == mnVisitThread) {
@@ -265,27 +269,13 @@ public class SAToolsGUI extends JFrame implements ActionListener, KeyListener {
 								"SATools by OneThatWalks",
 								JOptionPane.INFORMATION_MESSAGE);
 			} else if (e.getSource() == mnExit) {
-				p.getServer().dispatchCommand(
-						new ConsoleCommandSender(p.getServer()), "stop");
+				p.sendCommand("stop");
 			}
 		}
 	}
 
 	@Override
 	public void keyPressed(KeyEvent e) {
-		if (e.getKeyCode() == KeyEvent.VK_ENTER
-				&& e.getSource() instanceof JTextField) {
-			p.getServer().dispatchCommand(
-					new ConsoleCommandSender(p.getServer()),
-					((JTextField) e.getSource()).getText());
-			((JTextField) e.getSource()).setText("");
-			try {
-				Thread.sleep(500);
-			} catch (InterruptedException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			}
-		}
 
 	}
 }

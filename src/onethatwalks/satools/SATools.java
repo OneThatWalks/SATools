@@ -29,6 +29,7 @@ public class SATools extends JavaPlugin {
 	public boolean checkUpdate;
 	public static String threadURL = "http://forums.bukkit.org/threads/admn-satools-v0-34-server-administration-made-easy-1060.20621/";
 	private double confVersion;
+	private ConsoleCommandSender consoleSender;
 
 	@Override
 	public void onDisable() {
@@ -38,7 +39,6 @@ public class SATools extends JavaPlugin {
 	@Override
 	public void onEnable() {
 		pdfFile = getDescription();
-		loadConfig();
 		// Check data folder
 		if (!getDataFolder().exists()) {
 			if (getDataFolder().mkdirs()) {
@@ -47,10 +47,12 @@ public class SATools extends JavaPlugin {
 				log.warning("SATools: Could not create data folder");
 			}
 		}
+		loadConfig();
 		// Create the GUI
 		gui = new SAToolsGUI(this);
 		gui.setTitle(pdfFile.getName() + " " + pdfFile.getVersion());
 		gui.mnCheckForUpdates.setSelected(checkUpdate);
+		consoleSender = new ConsoleCommandSender(getServer());
 	}
 
 	private void loadConfig() {
@@ -162,8 +164,7 @@ public class SATools extends JavaPlugin {
 						+ System.getProperty("line.separator")
 						+ "so you may use the updated version?",
 				"Update Finished", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
-			getServer().dispatchCommand(new ConsoleCommandSender(getServer()),
-					"stop");
+			sendCommand("stop");
 		} else {
 			log.warning("SATools: You are running an older version of SATools!");
 		}
@@ -203,4 +204,12 @@ public class SATools extends JavaPlugin {
 
 	}
 
+	public void sendCommand(String text) {
+		try {
+			getServer().dispatchCommand(consoleSender, text);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+	}
 }

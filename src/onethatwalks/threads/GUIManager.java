@@ -7,24 +7,22 @@ import onethatwalks.satools.SATools;
 import onethatwalks.satools.SAToolsGUI;
 import onethatwalks.util.LogHandler;
 
-import org.bukkit.plugin.Plugin;
-
 public class GUIManager extends Thread {
 	public static final Logger log = SATools.log;
-	Plugin plugin;
 	SAToolsGUI gui;
+	SATools plugin;
 	public boolean stop = false;
 	public Runtime r = Runtime.getRuntime();
 	public Handler handler;
 
-	public GUIManager(Plugin instance, SAToolsGUI instance2) {
-		plugin = instance;
+	public GUIManager(SATools instance, SAToolsGUI instance2) {
 		gui = instance2;
+		plugin = instance;
 	}
 
 	@Override
 	public void run() {
-		handler = new LogHandler(gui.textArea);
+		handler = new LogHandler(gui.textArea_console);
 		log.addHandler(handler);
 		while (!stop) {
 			// Mem usage
