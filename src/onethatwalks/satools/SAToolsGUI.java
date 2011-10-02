@@ -15,6 +15,7 @@ import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 import javax.swing.JScrollPane;
@@ -39,8 +40,7 @@ import org.bukkit.plugin.Plugin;
  * @serial 1L
  * 
  */
-public class SAToolsGUI_final extends JFrame implements ActionListener,
-		KeyListener {
+public class SAToolsGUI extends JFrame implements ActionListener, KeyListener {
 
 	/**
 	 * Top Variables
@@ -85,7 +85,7 @@ public class SAToolsGUI_final extends JFrame implements ActionListener,
 	/**
 	 * Create the frame.
 	 */
-	public SAToolsGUI_final(Plugin instance) {
+	public SAToolsGUI(Plugin instance) {
 		super();
 		p = instance;
 		manager = new GUIManager(p, this);
@@ -153,13 +153,17 @@ public class SAToolsGUI_final extends JFrame implements ActionListener,
 		gbc_textField.gridy = 9;
 		panel_CONSOLE.add(textField, gbc_textField);
 
-		tabbedPane.addTab("New tab", null, panel_SERVER, null);
+		tabbedPane.addTab("Server", null, panel_SERVER, null);
 		GridBagLayout gbl_panel_SERVER = new GridBagLayout();
 		gbl_panel_SERVER.columnWidths = new int[] { 0 };
 		gbl_panel_SERVER.rowHeights = new int[] { 0 };
 		gbl_panel_SERVER.columnWeights = new double[] { Double.MIN_VALUE };
 		gbl_panel_SERVER.rowWeights = new double[] { Double.MIN_VALUE };
 		panel_SERVER.setLayout(gbl_panel_SERVER);
+		panel_SERVER.add(new JLabel("Comming October 4th"),
+				new GridBagConstraints(0, 0, 1, 1, 0, 0,
+						GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+						new Insets(5, 5, 5, 5), 0, 0));
 		panel_FUNCTIONS.setBounds(0, 362, 634, 49);
 
 		panel_FUNCTIONS.setBorder(new EtchedBorder(EtchedBorder.LOWERED, null,
@@ -239,11 +243,30 @@ public class SAToolsGUI_final extends JFrame implements ActionListener,
 	public void actionPerformed(ActionEvent e) {
 		if (e.getSource() instanceof JButton) {
 			if (e.getSource() == btnStop) {
-				p.getServer().shutdown();
+				p.getServer().dispatchCommand(
+						new ConsoleCommandSender(p.getServer()), "stop");
 			}
 		} else if (e.getSource() instanceof JMenuItem) {
 			if (e.getSource() == mnVisitThread) {
-				((SATools_final) p).goToThread();
+				((SATools) p).goToSite(SATools.threadURL);
+			} else if (e.getSource() == mnSubmitFeedback) {
+				((SATools) p)
+						.goToSite("http://dev.bukkit.org/server-mods/satools/create-ticket/");
+			} else if (e.getSource() == mnAbout) {
+				JOptionPane
+						.showMessageDialog(
+								null,
+								"SATools for Bukkit Server Wrapper\n\n"
+										+ "Version: "
+										+ ((SATools) p).pdfFile.getVersion()
+										+ "\n\u00a9"
+										+ "2011 by OneThatWalks. All Rights Reserved."
+										+ "This program is licensed under the GNU General Public License",
+								"SATools by OneThatWalks",
+								JOptionPane.INFORMATION_MESSAGE);
+			} else if (e.getSource() == mnExit) {
+				p.getServer().dispatchCommand(
+						new ConsoleCommandSender(p.getServer()), "stop");
 			}
 		}
 	}

@@ -1,24 +1,34 @@
 package onethatwalks.satools;
 
+import java.io.BufferedOutputStream;
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLConnection;
 import java.util.logging.Logger;
 
 import javax.swing.JOptionPane;
 
+import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.util.config.Configuration;
 
-public class SATools_final extends JavaPlugin {
+public class SATools extends JavaPlugin {
 
 	public static final Logger log = Logger.getLogger("Minecraft");
-	private PluginDescriptionFile pdfFile;
-	private SAToolsGUI_final gui;
+	public PluginDescriptionFile pdfFile;
+	private SAToolsGUI gui;
 	public Configuration config;
 	public boolean checkUpdate;
-	public int betaNum = 0;
-	private String threadURL = "http://forums.bukkit.org/threads/admn-satools-v0-34-server-administration-made-easy-1060.20621/";
+	public static String threadURL = "http://forums.bukkit.org/threads/admn-satools-v0-34-server-administration-made-easy-1060.20621/";
+	private double confVersion;
 
 	@Override
 	public void onDisable() {
@@ -38,9 +48,8 @@ public class SATools_final extends JavaPlugin {
 			}
 		}
 		// Create the GUI
-		gui = new SAToolsGUI_final(this);
-		gui.setTitle(pdfFile.getName() + " " + pdfFile.getVersion() + "Beta "
-				+ betaNum);
+		gui = new SAToolsGUI(this);
+		gui.setTitle(pdfFile.getName() + " " + pdfFile.getVersion());
 		gui.mnCheckForUpdates.setSelected(checkUpdate);
 	}
 
@@ -49,29 +58,30 @@ public class SATools_final extends JavaPlugin {
 		config = new Configuration(configFile);
 		config.load();
 		if (configFile.exists()) {
-			checkUpdate = config.getBoolean("Auto Update", true);
-			if (config.getInt("Beta", -1) < betaNum) {
-				if (JOptionPane
-						.showConfirmDialog(
-								null,
-								"Would you like to go to the thread to see the changes in this release?",
-								"SATools Updated!", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
-					goToThread();
+			checkUpdate = config.getBoolean("AutoUpdate", true);
+			confVersion = config.getDouble("Version",
+					Double.parseDouble(pdfFile.getVersion()));
+			if (updateChecked()) {
+				if (confVersion < Double.parseDouble(pdfFile.getVersion())) {
+					if (JOptionPane
+							.showConfirmDialog(
+									null,
+									"There are new updates added to SATools\nWould you like to view the changelog?",
+									"SATools Updated",
+									JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
+						goToSite(threadURL);
+					}
 				}
-			} else if (config.getInt("Beta", -1) == betaNum) {
-				log.info("SATools is up to date");
-			} else {
-				log.warning("Futuristic SATools in use!!!!");
 			}
 		} else {
 			try {
 				log.severe("SATools: SATools: No configuration, creating one instead");
 				configFile.createNewFile();
 				config = new Configuration(configFile);
-				config.setHeader(pdfFile.getName() + " " + pdfFile.getVersion()
-						+ "Beta " + betaNum);
-				config.setProperty("Auto Update", true);
-				config.setProperty("Beta", betaNum);
+				config.setHeader("#" + pdfFile.getName() + " "
+						+ pdfFile.getVersion());
+				config.setProperty("AutoUpdate", true);
+				config.setProperty("Version", pdfFile.getVersion());
 				if (config.save()) {
 					log.info("Configuration Successfully Saved");
 				}
@@ -81,22 +91,100 @@ public class SATools_final extends JavaPlugin {
 		}
 	}
 
+	private boolean updateChecked() {
+		try {
+			URL pluginInfo = new URL(
+					"https://raw.github.com/OneThatWalks/SATools/master/plugin.yml");
+			BufferedReader in = new BufferedReader(new InputStreamReader(
+					pluginInfo.openStream()));
+			String strLine;
+			while ((strLine = in.readLine()) != null) {
+				if (strLine.contains("version: ")) {
+					String[] tokens = strLine.split(" ");
+					String version = tokens[1];
+					if (Double.parseDouble(version) > Double
+							.parseDouble(pdfFile.getVersion())) {
+						if (JOptionPane
+								.showConfirmDialog(
+										null,
+										"There is an update available!\nWould you like to download this update?",
+										"Update Ready",
+										JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
+							downloadUpdate();
+						} else {
+							System.exit(0);
+						}
+					} else {
+						log.info("Running latest version of SATools. ");
+					}
+				}
+			}
+		} catch (MalformedURLException e) {
+			log.severe("SATools: Malformed URL");
+			return false;
+		} catch (IOException e) {
+			log.severe("SATools: Could no connect");
+			return false;
+		}
+		return true;
+	}
+
+	private void downloadUpdate() {
+		OutputStream out = null;
+		URLConnection uc = null;
+		InputStream in = null;
+		try {
+			URL url = new URL(
+					"https://github.com/downloads/OneThatWalks/SATools/SATools.jar");
+			out = new BufferedOutputStream(new FileOutputStream("plugins"
+					+ File.separator + "SATools.jar"));
+			uc = url.openConnection();
+			in = uc.getInputStream();
+			byte[] buffer = new byte[1024];
+			int numRead;
+			while ((numRead = in.read(buffer, 0, 1024)) >= 0) {
+				out.write(buffer, 0, numRead);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		if (out != null && in != null) {
+			try {
+				out.close();
+				in.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+		if (JOptionPane.showConfirmDialog(
+				null,
+				"Update downloaded, would you like to end the server"
+						+ System.getProperty("line.separator")
+						+ "so you may use the updated version?",
+				"Update Finished", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
+			getServer().dispatchCommand(new ConsoleCommandSender(getServer()),
+					"stop");
+		} else {
+			log.warning("SATools: You are running an older version of SATools!");
+		}
+	}
+
 	private void saveConfig() {
 		File configFile = new File(this.getDataFolder(), "config.yml");
 		config = new Configuration(configFile);
 		config.load();
 		if (configFile.exists()) {
-			config.setProperty("Auto Update", true);
-			config.setProperty("Beta", betaNum);
+			config.setProperty("AutoUpdate", true);
+			config.setProperty("Version", pdfFile.getVersion());
 		} else {
 			try {
 				log.severe("SATools: SATools: No configuration, creating one instead");
 				configFile.createNewFile();
 				config = new Configuration(configFile);
-				config.setHeader(pdfFile.getName() + " " + pdfFile.getVersion()
-						+ "Beta " + betaNum);
-				config.setProperty("Auto Update", true);
-				config.setProperty("Beta", betaNum);
+				config.setHeader("#" + pdfFile.getName() + " "
+						+ pdfFile.getVersion());
+				config.setProperty("AutoUpdate", true);
+				config.setProperty("Version", pdfFile.getVersion());
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
@@ -106,10 +194,9 @@ public class SATools_final extends JavaPlugin {
 		}
 	}
 
-	public void goToThread() {
+	public void goToSite(String location) {
 		try {
-			java.awt.Desktop.getDesktop()
-					.browse(java.net.URI.create(threadURL));
+			java.awt.Desktop.getDesktop().browse(java.net.URI.create(location));
 		} catch (java.io.IOException e) {
 			System.out.println(e.getMessage());
 		}
