@@ -8,7 +8,7 @@ import onethatwalks.satools.SAToolsGUI;
 import onethatwalks.util.LogHandler;
 
 public class GUIManager extends Thread {
-	public static final Logger log = SATools.log;
+	public final Logger log;
 	SAToolsGUI gui;
 	SATools plugin;
 	public boolean stop = false;
@@ -18,6 +18,7 @@ public class GUIManager extends Thread {
 	public GUIManager(SATools instance, SAToolsGUI instance2) {
 		gui = instance2;
 		plugin = instance;
+		log = SATools.log;
 	}
 
 	@Override

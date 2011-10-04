@@ -15,21 +15,19 @@ import java.util.logging.Logger;
 
 import javax.swing.JOptionPane;
 
-import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.util.config.Configuration;
 
 public class SATools extends JavaPlugin {
 
-	public static final Logger log = Logger.getLogger("Minecraft");
+	public final static Logger log = Logger.getLogger("Minecraft");
 	public PluginDescriptionFile pdfFile;
 	private SAToolsGUI gui;
 	public Configuration config;
 	public boolean checkUpdate;
 	public static String threadURL = "http://forums.bukkit.org/threads/admn-satools-v0-34-server-administration-made-easy-1060.20621/";
 	private double confVersion;
-	private ConsoleCommandSender consoleSender;
 
 	@Override
 	public void onDisable() {
@@ -52,7 +50,6 @@ public class SATools extends JavaPlugin {
 		gui = new SAToolsGUI(this);
 		gui.setTitle(pdfFile.getName() + " " + pdfFile.getVersion());
 		gui.mnCheckForUpdates.setSelected(checkUpdate);
-		consoleSender = new ConsoleCommandSender(getServer());
 	}
 
 	private void loadConfig() {
@@ -61,9 +58,10 @@ public class SATools extends JavaPlugin {
 		config.load();
 		if (configFile.exists()) {
 			checkUpdate = config.getBoolean("AutoUpdate", true);
-			confVersion = config.getDouble("Version",
-					Double.parseDouble(pdfFile.getVersion()));
+			confVersion = Double.parseDouble((String) config
+					.getProperty("Version"));
 			if (updateChecked()) {
+				log.info(Double.toString(confVersion));
 				if (confVersion < Double.parseDouble(pdfFile.getVersion())) {
 					if (JOptionPane
 							.showConfirmDialog(
@@ -74,6 +72,8 @@ public class SATools extends JavaPlugin {
 						goToSite(threadURL);
 					}
 				}
+			} else {
+				log.warning("Could not communicate with the update server");
 			}
 		} else {
 			try {
@@ -83,7 +83,8 @@ public class SATools extends JavaPlugin {
 				config.setHeader("#" + pdfFile.getName() + " "
 						+ pdfFile.getVersion());
 				config.setProperty("AutoUpdate", true);
-				config.setProperty("Version", pdfFile.getVersion());
+				config.setProperty("Version",
+						Double.parseDouble(pdfFile.getVersion()));
 				if (config.save()) {
 					log.info("Configuration Successfully Saved");
 				}
@@ -93,7 +94,7 @@ public class SATools extends JavaPlugin {
 		}
 	}
 
-	private boolean updateChecked() {
+	public boolean updateChecked() {
 		try {
 			URL pluginInfo = new URL(
 					"https://raw.github.com/OneThatWalks/SATools/master/plugin.yml");
@@ -114,7 +115,7 @@ public class SATools extends JavaPlugin {
 										JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
 							downloadUpdate();
 						} else {
-							System.exit(0);
+							getServer().shutdown();
 						}
 					} else {
 						log.info("Running latest version of SATools. ");
@@ -164,7 +165,7 @@ public class SATools extends JavaPlugin {
 						+ System.getProperty("line.separator")
 						+ "so you may use the updated version?",
 				"Update Finished", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
-			sendCommand("stop");
+			getServer().shutdown();
 		} else {
 			log.warning("SATools: You are running an older version of SATools!");
 		}
@@ -185,7 +186,8 @@ public class SATools extends JavaPlugin {
 				config.setHeader("#" + pdfFile.getName() + " "
 						+ pdfFile.getVersion());
 				config.setProperty("AutoUpdate", true);
-				config.setProperty("Version", pdfFile.getVersion());
+				config.setProperty("Version",
+						Double.parseDouble(pdfFile.getVersion()));
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
@@ -206,7 +208,7 @@ public class SATools extends JavaPlugin {
 
 	public void sendCommand(String text) {
 		try {
-			getServer().dispatchCommand(consoleSender, text);
+			getServer().dispatchCommand(getServer().getConsoleSender(), text);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
