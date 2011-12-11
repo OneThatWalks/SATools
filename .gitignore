@@ -8,6 +8,7 @@
 
 # Various other potential build files
 /build
+/dependencies
 /bin
 /dist
 /manifest.mf
