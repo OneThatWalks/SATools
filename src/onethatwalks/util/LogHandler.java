@@ -1,3 +1,14 @@
+/*
+ * This file is part of SATools, which is licensed under the GNU GPL.
+ * 
+ * Any use or modification of this file will be in compliance of the
+ * GNU GPL v3 or later version(s). Unauthorized distribution or 
+ * distributed as "pay-ware" will be handled in the fullest extent
+ * of the violators law.
+ * 
+ * If you have questions contact me at
+ * OneThatWalks@live.com.
+ */
 package onethatwalks.util;
 
 import java.util.logging.Formatter;

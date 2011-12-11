@@ -1,3 +1,14 @@
+/*
+ * This file is part of SATools, which is licensed under the GNU GPL.
+ * 
+ * Any use or modification of this file will be in compliance of the
+ * GNU GPL v3 or later version(s). Unauthorized distribution or 
+ * distributed as "pay-ware" will be handled in the fullest extent
+ * of the violators law.
+ * 
+ * If you have questions contact me at
+ * OneThatWalks@live.com.
+ */
 package onethatwalks.threads;
 
 import java.util.logging.Handler;
@@ -29,7 +40,26 @@ public class GUIManager extends Thread {
 			// Mem usage
 			gui.progressBar_mem.setValue((int) ((r.totalMemory() - r
 					.freeMemory()) / 1024));
+			//Server Tab
+			gui.lblTimeData.setText(Long.toString(plugin.world.getTime()));
+			gui.lblWeatherData.setText(getWeather());
+			
+			try {
+				Thread.sleep(500);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
 		}
+	}
+	
+	private String getWeather() {
+		if (plugin.getServer().getWorlds().get(0).hasStorm()) {
+			if (plugin.world.isThundering()) {
+				return "Thunder Storm";
+			}
+			return "Rain/Snow";
+		}
+		return "Clear";
 	}
 
 }

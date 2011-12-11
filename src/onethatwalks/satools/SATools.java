@@ -1,3 +1,14 @@
+/*
+ * This file is part of SATools, which is licensed under the GNU GPL.
+ * 
+ * Any use or modification of this file will be in compliance of the
+ * GNU GPL v3 or later version(s). Unauthorized distribution or 
+ * distributed as "pay-ware" will be handled in the fullest extent
+ * of the violators law.
+ * 
+ * If you have questions contact me at
+ * OneThatWalks@live.com.
+ */
 package onethatwalks.satools;
 
 import java.io.BufferedOutputStream;
@@ -15,10 +26,21 @@ import java.util.logging.Logger;
 
 import javax.swing.JOptionPane;
 
+import org.bukkit.World;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.configuration.file.FileConfiguration;
 
+/**
+ * @author OneThatWalks
+ * 
+ * @date 12/11/11
+ * 
+ * @category Admin Tools
+ * 
+ * @version 1
+ *
+ */
 public class SATools extends JavaPlugin {
 
 	public final static Logger log = Logger.getLogger("Minecraft");
@@ -28,6 +50,7 @@ public class SATools extends JavaPlugin {
 	public boolean checkUpdate;
 	public static String threadURL = "http://forums.bukkit.org/threads/admn-satools-v0-34-server-administration-made-easy-1060.20621/";
 	private double confVersion;
+	public World world;
 
 	@Override
 	public void onDisable() {
@@ -46,6 +69,7 @@ public class SATools extends JavaPlugin {
 			}
 		}
 		loadConfig();
+		world = getServer().getWorlds().get(0);
 		// Create the GUI
 		gui = new SAToolsGUI(this);
 		gui.setTitle(pdfFile.getName() + " " + pdfFile.getVersion());

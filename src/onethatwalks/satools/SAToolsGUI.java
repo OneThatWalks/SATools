@@ -1,3 +1,14 @@
+/*
+ * This file is part of SATools, which is licensed under the GNU GPL.
+ * 
+ * Any use or modification of this file will be in compliance of the
+ * GNU GPL v3 or later version(s). Unauthorized distribution or 
+ * distributed as "pay-ware" will be handled in the fullest extent
+ * of the violators law.
+ * 
+ * If you have questions contact me at
+ * OneThatWalks@live.com.
+ */
 package onethatwalks.satools;
 
 import java.awt.GridBagConstraints;
@@ -32,9 +43,6 @@ import javax.swing.border.EtchedBorder;
 import javax.swing.border.TitledBorder;
 
 import onethatwalks.threads.GUIManager;
-import java.awt.FlowLayout;
-import javax.swing.AbstractAction;
-import javax.swing.Action;
 
 /**
  * This program is a Bukkit Server Wrapper plugin. This plugin will allow the
@@ -83,45 +91,46 @@ public class SAToolsGUI extends JFrame implements ActionListener, KeyListener {
 	private JMenuItem mnExit = new JMenuItem("Exit");
 	GridBagConstraints gbc_scrollPane = new GridBagConstraints();
 	private final JPanel panel_SERVER = new JPanel();
-	private final JPanel panel_Time = new JPanel();
-	private final JPanel panel_Weather = new JPanel();
-	private final JPanel panel_World = new JPanel();
-	private final JPanel panel_Message = new JPanel();
-	JLabel lblPlayer = new JLabel("Player:");
-	JLabel lbl_PLAYER_DATA = new JLabel("NULL");
-	JLabel lblWorld = new JLabel(" World:");
+	public final JPanel panel_Time = new JPanel();
+	public final JPanel panel_Weather = new JPanel();
+	public final JPanel panel_World = new JPanel();
+	public final JPanel panel_Message = new JPanel();
+	public JLabel lblPlayer = new JLabel("Player:");
+	public JLabel lbl_PLAYER_DATA = new JLabel("NULL");
+	public JLabel lblWorld = new JLabel(" World:");
 	public JLabel lbl_WORLD_DATA = new JLabel("NULL");
-	JButton btnStop = new JButton("Stop");
-	JLabel lblMemory = new JLabel("Memory Usage:");
+	public JButton btnStop = new JButton("Stop");
+	public JLabel lblMemory = new JLabel("Memory Usage:");
 	public JProgressBar progressBar_mem;
-	GridBagConstraints gbc_panel_Time = new GridBagConstraints();
-	JLabel lblCurrentTime = new JLabel("Current Time:");
-	JLabel lblTimeData = new JLabel("NULL");
-	JComboBox comboBox_TimeValues = new JComboBox();
-	JButton btnChangeTime = new JButton("Set");
-	JLabel lblTimeChangesAre = new JLabel("Time changes are instant");
-	GridBagConstraints gbc_panel_Weather = new GridBagConstraints();
-	JLabel lblCurrentConditions = new JLabel("Current Conditions:");
-	JLabel lblWeatherData = new JLabel("NULL");
-	JComboBox comboBox_Conditions = new JComboBox();
-	JButton btnChangeConditions = new JButton("Change");
-	JLabel lblWeatherChangesTend = new JLabel(
+	public GridBagConstraints gbc_panel_Time = new GridBagConstraints();
+	public JLabel lblCurrentTime = new JLabel("Current Time:");
+	public JLabel lblTimeData = new JLabel("NULL");
+	public JComboBox<Object> comboBox_TimeValues = new JComboBox<Object>();
+	public JButton btnChangeTime = new JButton("Set");
+	public JLabel lblTimeChangesAre = new JLabel("Time changes are instant");
+	public GridBagConstraints gbc_panel_Weather = new GridBagConstraints();
+	public JLabel lblCurrentConditions = new JLabel("Current Conditions:");
+	public JLabel lblWeatherData = new JLabel("NULL");
+	public JComboBox<Object> comboBox_Conditions = new JComboBox<Object>();
+	public JButton btnChangeConditions = new JButton("Change");
+	public JLabel lblWeatherChangesTend = new JLabel(
 			"Weather changes tend to change slower");
-	GridBagConstraints gbc_panel_World = new GridBagConstraints();
-	JLabel lblSelectSomethingTo = new JLabel("Select something to spawn");
-	JComboBox comboBox_SpawnObject = new JComboBox();
-	JLabel lblWhere = new JLabel("Where?");
-	JComboBox comboBox_SpawnLocation = new JComboBox();
-	JButton btnSpawnObject = new JButton("Spawn");
-	JLabel lblUseTheXyz = new JLabel(
+	public GridBagConstraints gbc_panel_World = new GridBagConstraints();
+	public JLabel lblSelectSomethingTo = new JLabel("Select something to spawn");
+	public JComboBox<Object> comboBox_SpawnObject = new JComboBox<Object>();
+	public JLabel lblWhere = new JLabel("Where?");
+	public JComboBox<Object> comboBox_SpawnLocation = new JComboBox<Object>();
+	public JButton btnSpawnObject = new JButton("Spawn");
+	public JLabel lblUseTheXyz = new JLabel(
 			"Use the x,y,z format with custom locations");
-	GridBagConstraints gbc_panel_Message = new GridBagConstraints();
-	JTextField textField_Message = new JTextField();
-	JComboBox comboBox_Color = new JComboBox();
-	JButton btnSendMessage = new JButton("Send");
-	JComboBox comboBox_Receiver = new JComboBox();
-	JLabel lblTypeAMessage = new JLabel("Message to Receiver");
-	private final JButton btnFreeMem = new JButton("Free");
+	public GridBagConstraints gbc_panel_Message = new GridBagConstraints();
+	public JTextField textField_Message = new JTextField();
+	public JComboBox<Object> comboBox_Color = new JComboBox<Object>();
+	public JButton btnSendMessage = new JButton("Send");
+	public JComboBox<Object> comboBox_Receiver = new JComboBox<Object>();
+	public	JLabel lblTypeAMessage = new JLabel("Message to Receiver");
+	public final JButton btnFreeMem = new JButton("Free");
+	private String[] objects = {"Oak Tree" , "Birch Tree", "Spruce Tree", "Pig", "Cow", "Chicken", "Sheep", "Creeper", "Spider", "Skeleton", "Zombie", "Pigmen", "Blaze", "Slime", "Golem", "Ghast"};
 
 	/**
 	 * Create the frame.
@@ -218,7 +227,7 @@ public class SAToolsGUI extends JFrame implements ActionListener, KeyListener {
 		panel_Time.setBorder(new TitledBorder(null, "Time",
 				TitledBorder.LEADING, TitledBorder.TOP, null, null));
 		panel_Time.setLayout(null);
-		// TODO panel_SERVER.add(panel_Time, gbc_panel_Time);
+		panel_SERVER.add(panel_Time, gbc_panel_Time);
 
 		lblCurrentTime.setHorizontalAlignment(SwingConstants.RIGHT);
 		lblCurrentTime.setBounds(10, 25, 135, 14);
@@ -228,7 +237,7 @@ public class SAToolsGUI extends JFrame implements ActionListener, KeyListener {
 		panel_Time.add(lblTimeData);
 
 		comboBox_TimeValues.setEditable(true);
-		comboBox_TimeValues.setModel(new DefaultComboBoxModel(new String[] {
+		comboBox_TimeValues.setModel(new DefaultComboBoxModel<Object>(new String[] {
 				"Midnight", "Morning", "Afternoon", "Evening" }));
 		comboBox_TimeValues.setBounds(10, 50, 135, 20);
 		panel_Time.add(comboBox_TimeValues);
@@ -248,7 +257,7 @@ public class SAToolsGUI extends JFrame implements ActionListener, KeyListener {
 		panel_Weather.setBorder(new TitledBorder(null, "Weather",
 				TitledBorder.LEADING, TitledBorder.TOP, null, null));
 		panel_Weather.setLayout(null);
-		// TODO panel_SERVER.add(panel_Weather, gbc_panel_Weather);
+		panel_SERVER.add(panel_Weather, gbc_panel_Weather);
 
 		lblCurrentConditions.setHorizontalAlignment(SwingConstants.RIGHT);
 		lblCurrentConditions.setBounds(10, 24, 132, 14);
@@ -257,7 +266,7 @@ public class SAToolsGUI extends JFrame implements ActionListener, KeyListener {
 		lblWeatherData.setBounds(162, 24, 132, 14);
 		panel_Weather.add(lblWeatherData);
 
-		comboBox_Conditions.setModel(new DefaultComboBoxModel(new String[] {
+		comboBox_Conditions.setModel(new DefaultComboBoxModel<Object>(new String[] {
 				"Clear", "Rain/Snow", "Storm" }));
 		comboBox_Conditions.setBounds(10, 50, 132, 20);
 		panel_Weather.add(comboBox_Conditions);
@@ -277,11 +286,12 @@ public class SAToolsGUI extends JFrame implements ActionListener, KeyListener {
 		panel_World.setBorder(new TitledBorder(null, "World",
 				TitledBorder.LEADING, TitledBorder.TOP, null, null));
 		panel_World.setLayout(null);
-		// TODO panel_SERVER.add(panel_World, gbc_panel_World);
+		panel_SERVER.add(panel_World, gbc_panel_World);
 
 		lblSelectSomethingTo.setBounds(10, 25, 284, 14);
 		panel_World.add(lblSelectSomethingTo);
 
+		comboBox_SpawnObject.setModel(new DefaultComboBoxModel<Object>(objects ));
 		comboBox_SpawnObject.setBounds(10, 50, 284, 20);
 		panel_World.add(comboBox_SpawnObject);
 
@@ -307,7 +317,7 @@ public class SAToolsGUI extends JFrame implements ActionListener, KeyListener {
 		panel_Message.setBorder(new TitledBorder(null, "Message",
 				TitledBorder.LEADING, TitledBorder.TOP, null, null));
 		panel_Message.setLayout(null);
-		// TODO panel_SERVER.add(panel_Message, gbc_panel_Message);
+		panel_SERVER.add(panel_Message, gbc_panel_Message);
 
 		textField_Message.setBounds(10, 25, 284, 20);
 		panel_Message.add(textField_Message);
@@ -401,6 +411,8 @@ public class SAToolsGUI extends JFrame implements ActionListener, KeyListener {
 				if (e.getSource() == textField_console) {
 					p.sendCommand(textField_console.getText());
 					textField_console.setText("");
+					textField_console.setFocusable(true);
+					this.requestFocusInWindow();
 				}
 			}
 		}
@@ -408,7 +420,7 @@ public class SAToolsGUI extends JFrame implements ActionListener, KeyListener {
 
 	@Override
 	public void keyTyped(KeyEvent e) {
-		// TODO Auto-generated method stub
+		// Auto-generated method stub
 
 	}
 
@@ -419,6 +431,39 @@ public class SAToolsGUI extends JFrame implements ActionListener, KeyListener {
 				p.getServer().shutdown();
 			} else if (e.getSource() == btnFreeMem) {
 				p.freeMemory();
+			} else if (e.getSource() == btnChangeTime) {
+				String input = comboBox_TimeValues.getSelectedItem().toString();
+				if (input.equalsIgnoreCase("Midnight")) {
+					p.world.setTime(18000);
+				} else if (input.equalsIgnoreCase("Morning")) {
+					p.world.setTime(0);
+				} else if (input.equalsIgnoreCase("Afternoon")) {
+					p.world.setTime(6000);
+				} else if (input.equalsIgnoreCase("Evening")) {
+					p.world.setTime(12000);
+				} else {
+					try {
+						long setTime = Long.parseLong(input);
+						p.world.setTime(setTime);
+					} catch (NumberFormatException nfe) {
+						nfe.printStackTrace();
+					}
+				}
+			} else if (e.getSource() == btnChangeConditions) {
+				String input = comboBox_Conditions.getSelectedItem().toString();
+				if (input.equalsIgnoreCase("Clear")) {
+					p.world.setStorm(false);
+					p.world.setThundering(false);
+				} else if (input.equalsIgnoreCase("Rain/Snow")) {
+					p.world.setStorm(true);
+				} else if (input.equalsIgnoreCase("Storm")) {
+					p.world.setStorm(true);
+					p.world.setThundering(true);
+				}
+			} else if (e.getSource() == btnSpawnObject) {
+				String input = comboBox_SpawnObject.getSelectedItem().toString();
+				String input2 = comboBox_SpawnLocation.getSelectedItem().toString();
+				spawnObject(input, input2);
 			}
 		} else if (e.getSource() instanceof JMenuItem) {
 			if (e.getSource() == mnVisitThread) {
@@ -449,8 +494,29 @@ public class SAToolsGUI extends JFrame implements ActionListener, KeyListener {
 		}
 	}
 
+	public void spawnObject(String what, String where) {
+		switch (what) {
+		case "":
+			
+			break;
+		}
+	}
+
 	@Override
 	public void keyPressed(KeyEvent e) {
 
+	}
+	
+	public void freeMemory() {
+		try {
+			Runtime r =  Runtime.getRuntime();
+			log.info((r.totalMemory() - r
+					.freeMemory())/1024 + " Megabytes");
+			r.gc();
+			log.info((r.totalMemory() - r
+					.freeMemory())/1024 + " Megabytes");
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 }
