@@ -32,6 +32,9 @@ import javax.swing.border.EtchedBorder;
 import javax.swing.border.TitledBorder;
 
 import onethatwalks.threads.GUIManager;
+import java.awt.FlowLayout;
+import javax.swing.AbstractAction;
+import javax.swing.Action;
 
 /**
  * This program is a Bukkit Server Wrapper plugin. This plugin will allow the
@@ -118,14 +121,7 @@ public class SAToolsGUI extends JFrame implements ActionListener, KeyListener {
 	JButton btnSendMessage = new JButton("Send");
 	JComboBox comboBox_Receiver = new JComboBox();
 	JLabel lblTypeAMessage = new JLabel("Message to Receiver");
-	GridBagLayout gbl_panel_FUNCTIONS = new GridBagLayout();
-	GridBagConstraints gbc_lblPlayer = new GridBagConstraints();
-	GridBagConstraints gbc_lbl_PLAYER_DATA = new GridBagConstraints();
-	GridBagConstraints gbc_btnStop = new GridBagConstraints();
-	GridBagConstraints gbc_lblWorld = new GridBagConstraints();
-	GridBagConstraints gbc_lbl_WORLD_DATA = new GridBagConstraints();
-	GridBagConstraints gbc_lblMemory = new GridBagConstraints();
-	GridBagConstraints gbc_progressBar_mem = new GridBagConstraints();
+	private final JButton btnFreeMem = new JButton("Free");
 
 	/**
 	 * Create the frame.
@@ -333,60 +329,67 @@ public class SAToolsGUI extends JFrame implements ActionListener, KeyListener {
 		panel_FUNCTIONS.setBorder(new EtchedBorder(EtchedBorder.LOWERED, null,
 				null));
 		contentPane.add(panel_FUNCTIONS);
-
+		GridBagLayout gbl_panel_FUNCTIONS = new GridBagLayout();
+		gbl_panel_FUNCTIONS.columnWidths = new int[]{35, 146, 41, 75, 75, 146, 55, 0};
+		gbl_panel_FUNCTIONS.rowHeights = new int[]{21, 19, 0};
+		gbl_panel_FUNCTIONS.columnWeights = new double[]{1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, Double.MIN_VALUE};
+		gbl_panel_FUNCTIONS.rowWeights = new double[]{0.0, 0.0, Double.MIN_VALUE};
 		panel_FUNCTIONS.setLayout(gbl_panel_FUNCTIONS);
-
+		GridBagConstraints gbc_lblPlayer = new GridBagConstraints();
 		gbc_lblPlayer.anchor = GridBagConstraints.EAST;
 		gbc_lblPlayer.insets = new Insets(0, 0, 5, 5);
 		gbc_lblPlayer.gridx = 0;
 		gbc_lblPlayer.gridy = 0;
-
-		gbc_lbl_PLAYER_DATA.anchor = GridBagConstraints.WEST;
-		gbc_lbl_PLAYER_DATA.gridwidth = 7;
+		panel_FUNCTIONS.add(lblPlayer, gbc_lblPlayer);
+		GridBagConstraints gbc_lbl_PLAYER_DATA = new GridBagConstraints();
+		gbc_lbl_PLAYER_DATA.fill = GridBagConstraints.HORIZONTAL;
 		gbc_lbl_PLAYER_DATA.insets = new Insets(0, 0, 5, 5);
 		gbc_lbl_PLAYER_DATA.gridx = 1;
 		gbc_lbl_PLAYER_DATA.gridy = 0;
-
-		gbc_btnStop.gridheight = 2;
-		gbc_btnStop.gridwidth = 4;
+		panel_FUNCTIONS.add(lbl_PLAYER_DATA, gbc_lbl_PLAYER_DATA);
+		GridBagConstraints gbc_btnStop = new GridBagConstraints();
 		gbc_btnStop.fill = GridBagConstraints.HORIZONTAL;
-		gbc_btnStop.insets = new Insets(0, 0, 5, 5);
-		gbc_btnStop.gridx = 8;
+		gbc_btnStop.insets = new Insets(0, 0, 0, 5);
+		gbc_btnStop.gridheight = 2;
+		gbc_btnStop.gridx = 3;
 		gbc_btnStop.gridy = 0;
-
-		gbc_lblWorld.anchor = GridBagConstraints.EAST;
+		panel_FUNCTIONS.add(btnStop, gbc_btnStop);
+		btnStop.addActionListener(this);
+		GridBagConstraints gbc_lblWorld = new GridBagConstraints();
+		gbc_lblWorld.anchor = GridBagConstraints.NORTHEAST;
 		gbc_lblWorld.insets = new Insets(0, 0, 0, 5);
 		gbc_lblWorld.gridx = 0;
 		gbc_lblWorld.gridy = 1;
-
-		gbc_lbl_WORLD_DATA.anchor = GridBagConstraints.WEST;
-		gbc_lbl_WORLD_DATA.gridwidth = 7;
+		panel_FUNCTIONS.add(lblWorld, gbc_lblWorld);
+		GridBagConstraints gbc_lbl_WORLD_DATA = new GridBagConstraints();
+		gbc_lbl_WORLD_DATA.anchor = GridBagConstraints.NORTH;
+		gbc_lbl_WORLD_DATA.fill = GridBagConstraints.HORIZONTAL;
 		gbc_lbl_WORLD_DATA.insets = new Insets(0, 0, 0, 5);
 		gbc_lbl_WORLD_DATA.gridx = 1;
 		gbc_lbl_WORLD_DATA.gridy = 1;
-
-		gbc_lblMemory.gridheight = 2;
-		gbc_lblMemory.anchor = GridBagConstraints.EAST;
-		gbc_lblMemory.insets = new Insets(0, 0, 0, 5);
-		gbc_lblMemory.gridx = 13;
-		gbc_lblMemory.gridy = 0;
-
-		progressBar_mem = new JProgressBar(0,
-				(int) manager.r.totalMemory() / 1024);
-		progressBar_mem.setStringPainted(true);
-		gbc_progressBar_mem.gridheight = 2;
-		gbc_progressBar_mem.gridwidth = 4;
-		gbc_progressBar_mem.fill = GridBagConstraints.HORIZONTAL;
-		gbc_progressBar_mem.gridx = 14;
-		gbc_progressBar_mem.gridy = 0;
-		panel_FUNCTIONS.add(lblPlayer, gbc_lblPlayer);
-		panel_FUNCTIONS.add(lbl_PLAYER_DATA, gbc_lbl_PLAYER_DATA);
-		panel_FUNCTIONS.add(lblWorld, gbc_lblWorld);
 		panel_FUNCTIONS.add(lbl_WORLD_DATA, gbc_lbl_WORLD_DATA);
-		panel_FUNCTIONS.add(btnStop, gbc_btnStop);
-		btnStop.addActionListener(this);
+		GridBagConstraints gbc_lblMemory = new GridBagConstraints();
+		gbc_lblMemory.anchor = GridBagConstraints.WEST;
+		gbc_lblMemory.insets = new Insets(0, 0, 0, 5);
+		gbc_lblMemory.gridx = 4;
+		gbc_lblMemory.gridy = 1;
 		panel_FUNCTIONS.add(lblMemory, gbc_lblMemory);
-		panel_FUNCTIONS.add(progressBar_mem, gbc_progressBar_mem);
+		
+				progressBar_mem = new JProgressBar(0,
+						(int) manager.r.totalMemory() / 1024);
+				progressBar_mem.setStringPainted(true);
+				GridBagConstraints gbc_progressBar_mem = new GridBagConstraints();
+				gbc_progressBar_mem.anchor = GridBagConstraints.SOUTHWEST;
+				gbc_progressBar_mem.insets = new Insets(0, 0, 0, 5);
+				gbc_progressBar_mem.gridx = 5;
+				gbc_progressBar_mem.gridy = 1;
+				panel_FUNCTIONS.add(progressBar_mem, gbc_progressBar_mem);
+				
+				GridBagConstraints gbc_btnFreeMem = new GridBagConstraints();
+				gbc_btnFreeMem.anchor = GridBagConstraints.NORTHWEST;
+				gbc_btnFreeMem.gridx = 6;
+				gbc_btnFreeMem.gridy = 1;
+				panel_FUNCTIONS.add(btnFreeMem, gbc_btnFreeMem);
 
 		manager.start();
 	}
@@ -414,6 +417,8 @@ public class SAToolsGUI extends JFrame implements ActionListener, KeyListener {
 		if (e.getSource() instanceof JButton) {
 			if (e.getSource() == btnStop) {
 				p.getServer().shutdown();
+			} else if (e.getSource() == btnFreeMem) {
+				p.freeMemory();
 			}
 		} else if (e.getSource() instanceof JMenuItem) {
 			if (e.getSource() == mnVisitThread) {

@@ -17,21 +17,21 @@ import javax.swing.JOptionPane;
 
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.util.config.Configuration;
+import org.bukkit.configuration.file.FileConfiguration;
 
 public class SATools extends JavaPlugin {
 
 	public final static Logger log = Logger.getLogger("Minecraft");
 	public PluginDescriptionFile pdfFile;
 	private SAToolsGUI gui;
-	public Configuration config;
+	public FileConfiguration config;
 	public boolean checkUpdate;
 	public static String threadURL = "http://forums.bukkit.org/threads/admn-satools-v0-34-server-administration-made-easy-1060.20621/";
 	private double confVersion;
 
 	@Override
 	public void onDisable() {
-		saveConfig();
+		saveConfiguration();
 	}
 
 	@Override
@@ -54,12 +54,11 @@ public class SATools extends JavaPlugin {
 
 	private void loadConfig() {
 		File configFile = new File(this.getDataFolder(), "config.yml");
-		config = new Configuration(configFile);
-		config.load();
+		config = getConfig();
 		if (configFile.exists()) {
 			checkUpdate = config.getBoolean("AutoUpdate", true);
 			confVersion = Double.parseDouble((String) config
-					.getProperty("Version"));
+					.getString("Version"));
 			if (updateChecked()) {
 				log.info(Double.toString(confVersion));
 				if (confVersion < Double.parseDouble(pdfFile.getVersion())) {
@@ -79,15 +78,13 @@ public class SATools extends JavaPlugin {
 			try {
 				log.severe("SATools: SATools: No configuration, creating one instead");
 				configFile.createNewFile();
-				config = new Configuration(configFile);
-				config.setHeader("#" + pdfFile.getName() + " "
+				config = getConfig();
+				config.set("SATools", "#" + pdfFile.getName() + " "
 						+ pdfFile.getVersion());
-				config.setProperty("AutoUpdate", true);
-				config.setProperty("Version",
+				config.set("AutoUpdate", true);
+				config.set("Version",
 						Double.parseDouble(pdfFile.getVersion()));
-				if (config.save()) {
-					log.info("Configuration Successfully Saved");
-				}
+				config.save(configFile);
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
@@ -171,30 +168,27 @@ public class SATools extends JavaPlugin {
 		}
 	}
 
-	private void saveConfig() {
+	private void saveConfiguration() {
 		File configFile = new File(this.getDataFolder(), "config.yml");
-		config = new Configuration(configFile);
-		config.load();
+		config = getConfig();
 		if (configFile.exists()) {
-			config.setProperty("AutoUpdate", true);
-			config.setProperty("Version", pdfFile.getVersion());
+			config.set("AutoUpdate", true);
+			config.set("Version", pdfFile.getVersion());
 		} else {
 			try {
 				log.severe("SATools: SATools: No configuration, creating one instead");
 				configFile.createNewFile();
-				config = new Configuration(configFile);
-				config.setHeader("#" + pdfFile.getName() + " "
+				config = getConfig();
+				config.set("SATools" , "#" + pdfFile.getName() + " "
 						+ pdfFile.getVersion());
-				config.setProperty("AutoUpdate", true);
-				config.setProperty("Version",
+				config.set("AutoUpdate", true);
+				config.set("Version",
 						Double.parseDouble(pdfFile.getVersion()));
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
 		}
-		if (config.save()) {
-			log.info("Configuration Successfully Saved");
-		}
+		saveConfig();
 	}
 
 	public void goToSite(String location) {
@@ -213,5 +207,14 @@ public class SATools extends JavaPlugin {
 			e.printStackTrace();
 		}
 
+	}
+
+	public void freeMemory() {
+		try {
+			Runtime r =  Runtime.getRuntime();
+			r.gc();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 }

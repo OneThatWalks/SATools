@@ -13,11 +13,11 @@ Made with Java
 Details
 -------
 
-!!!IF you are not a developer take your little cursor
+!!! If you are not a developer take your little cursor
 to the address bar and go back to the release page
 and download the jar!!!
 
-If you are a devloper feel free to download this source
+If you are a developer feel free to download this source
 and modify as you wish, after reading the License.
 
 As this is a pre-release there may be a few problems,
