@@ -26,10 +26,14 @@ import java.util.logging.Logger;
 
 import javax.swing.JOptionPane;
 
+import onethatwalks.listeners.SAToolsPlayerListener;
+
 import org.bukkit.World;
 import org.bukkit.plugin.PluginDescriptionFile;
+import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.event.Event;
 
 /**
  * @author OneThatWalks
@@ -45,12 +49,14 @@ public class SATools extends JavaPlugin {
 
 	public final static Logger log = Logger.getLogger("Minecraft");
 	public PluginDescriptionFile pdfFile;
-	private SAToolsGUI gui;
+	public SAToolsGUI gui;
 	public FileConfiguration config;
 	public boolean checkUpdate;
 	public static String threadURL = "http://forums.bukkit.org/threads/admn-satools-v0-34-server-administration-made-easy-1060.20621/";
 	private double confVersion;
 	public World world;
+	public PluginManager pm;
+	private final SAToolsPlayerListener playerListener = new SAToolsPlayerListener(this);
 
 	@Override
 	public void onDisable() {
@@ -60,6 +66,8 @@ public class SATools extends JavaPlugin {
 	@Override
 	public void onEnable() {
 		pdfFile = getDescription();
+		pm = getServer().getPluginManager();
+		pm.registerEvent(Event.Type.PLAYER_JOIN, playerListener, Event.Priority.Normal, this);
 		// Check data folder
 		if (!getDataFolder().exists()) {
 			if (getDataFolder().mkdirs()) {

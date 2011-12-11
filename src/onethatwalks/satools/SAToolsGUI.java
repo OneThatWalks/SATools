@@ -20,6 +20,8 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Logger;
 
 import javax.swing.DefaultComboBoxModel;
@@ -43,6 +45,12 @@ import javax.swing.border.EtchedBorder;
 import javax.swing.border.TitledBorder;
 
 import onethatwalks.threads.GUIManager;
+
+import org.bukkit.Location;
+import org.bukkit.TreeType;
+import org.bukkit.World;
+import org.bukkit.entity.CreatureType;
+import org.bukkit.entity.Player;
 
 /**
  * This program is a Bukkit Server Wrapper plugin. This plugin will allow the
@@ -94,7 +102,6 @@ public class SAToolsGUI extends JFrame implements ActionListener, KeyListener {
 	public final JPanel panel_Time = new JPanel();
 	public final JPanel panel_Weather = new JPanel();
 	public final JPanel panel_World = new JPanel();
-	public final JPanel panel_Message = new JPanel();
 	public JLabel lblPlayer = new JLabel("Player:");
 	public JLabel lbl_PLAYER_DATA = new JLabel("NULL");
 	public JLabel lblWorld = new JLabel(" World:");
@@ -123,14 +130,9 @@ public class SAToolsGUI extends JFrame implements ActionListener, KeyListener {
 	public JButton btnSpawnObject = new JButton("Spawn");
 	public JLabel lblUseTheXyz = new JLabel(
 			"Use the x,y,z format with custom locations");
-	public GridBagConstraints gbc_panel_Message = new GridBagConstraints();
-	public JTextField textField_Message = new JTextField();
-	public JComboBox<Object> comboBox_Color = new JComboBox<Object>();
-	public JButton btnSendMessage = new JButton("Send");
-	public JComboBox<Object> comboBox_Receiver = new JComboBox<Object>();
-	public	JLabel lblTypeAMessage = new JLabel("Message to Receiver");
 	public final JButton btnFreeMem = new JButton("Free");
-	private String[] objects = {"Oak Tree" , "Birch Tree", "Spruce Tree", "Pig", "Cow", "Chicken", "Sheep", "Creeper", "Spider", "Skeleton", "Zombie", "Pigmen", "Blaze", "Slime", "Golem", "Ghast"};
+	private List<String> objects = new ArrayList<String>();
+	private World selectedWorld;
 
 	/**
 	 * Create the frame.
@@ -154,6 +156,16 @@ public class SAToolsGUI extends JFrame implements ActionListener, KeyListener {
 
 		setJMenuBar(menuBar);
 
+		{ // creatures
+			for (CreatureType c : CreatureType.values()) {
+				objects.add(c.toString());
+			}
+			for (TreeType t : TreeType.values()) {
+				objects.add(t.toString());
+			}
+
+		}
+
 		menuBar.add(mnFile);
 
 		menuBar.add(mnInfo);
@@ -176,6 +188,12 @@ public class SAToolsGUI extends JFrame implements ActionListener, KeyListener {
 		mnFile.add(mnPlayer);
 		mnFile.add(mnExit);
 		mnExit.addActionListener(this);
+		// Worlds
+		for (World wor : p.getServer().getWorlds()) {
+			JMenuItem temp = new JMenuItem(wor.getName());
+			mnWorld.add(temp);
+			temp.addActionListener(this);
+		}
 
 		contentPane = new JPanel();
 		setContentPane(contentPane);
@@ -237,8 +255,9 @@ public class SAToolsGUI extends JFrame implements ActionListener, KeyListener {
 		panel_Time.add(lblTimeData);
 
 		comboBox_TimeValues.setEditable(true);
-		comboBox_TimeValues.setModel(new DefaultComboBoxModel<Object>(new String[] {
-				"Midnight", "Morning", "Afternoon", "Evening" }));
+		comboBox_TimeValues
+				.setModel(new DefaultComboBoxModel<Object>(new String[] {
+						"Midnight", "Morning", "Afternoon", "Evening" }));
 		comboBox_TimeValues.setBounds(10, 50, 135, 20);
 		panel_Time.add(comboBox_TimeValues);
 
@@ -266,8 +285,8 @@ public class SAToolsGUI extends JFrame implements ActionListener, KeyListener {
 		lblWeatherData.setBounds(162, 24, 132, 14);
 		panel_Weather.add(lblWeatherData);
 
-		comboBox_Conditions.setModel(new DefaultComboBoxModel<Object>(new String[] {
-				"Clear", "Rain/Snow", "Storm" }));
+		comboBox_Conditions.setModel(new DefaultComboBoxModel<Object>(
+				new String[] { "Clear", "Rain/Snow", "Storm" }));
 		comboBox_Conditions.setBounds(10, 50, 132, 20);
 		panel_Weather.add(comboBox_Conditions);
 
@@ -291,7 +310,8 @@ public class SAToolsGUI extends JFrame implements ActionListener, KeyListener {
 		lblSelectSomethingTo.setBounds(10, 25, 284, 14);
 		panel_World.add(lblSelectSomethingTo);
 
-		comboBox_SpawnObject.setModel(new DefaultComboBoxModel<Object>(objects ));
+		comboBox_SpawnObject.setModel(new DefaultComboBoxModel<Object>(objects
+				.toArray()));
 		comboBox_SpawnObject.setBounds(10, 50, 284, 20);
 		panel_World.add(comboBox_SpawnObject);
 
@@ -307,43 +327,19 @@ public class SAToolsGUI extends JFrame implements ActionListener, KeyListener {
 
 		lblUseTheXyz.setBounds(10, 132, 284, 14);
 		panel_World.add(lblUseTheXyz);
-
-		gbc_panel_Message.weightx = 1.0;
-		gbc_panel_Message.weighty = 1.0;
-		gbc_panel_Message.insets = new Insets(5, 5, 5, 5);
-		gbc_panel_Message.fill = GridBagConstraints.BOTH;
-		gbc_panel_Message.gridx = 1;
-		gbc_panel_Message.gridy = 1;
-		panel_Message.setBorder(new TitledBorder(null, "Message",
-				TitledBorder.LEADING, TitledBorder.TOP, null, null));
-		panel_Message.setLayout(null);
-		panel_SERVER.add(panel_Message, gbc_panel_Message);
-
-		textField_Message.setBounds(10, 25, 284, 20);
-		panel_Message.add(textField_Message);
-		textField_Message.setColumns(10);
-
-		comboBox_Color.setBounds(10, 56, 140, 20);
-		panel_Message.add(comboBox_Color);
-
-		btnSendMessage.setBounds(160, 55, 134, 23);
-		panel_Message.add(btnSendMessage);
-
-		comboBox_Receiver.setBounds(10, 87, 284, 20);
-		panel_Message.add(comboBox_Receiver);
-
-		lblTypeAMessage.setBounds(10, 132, 284, 14);
-		panel_Message.add(lblTypeAMessage);
 		panel_FUNCTIONS.setBounds(0, 362, 634, 49);
 
 		panel_FUNCTIONS.setBorder(new EtchedBorder(EtchedBorder.LOWERED, null,
 				null));
 		contentPane.add(panel_FUNCTIONS);
 		GridBagLayout gbl_panel_FUNCTIONS = new GridBagLayout();
-		gbl_panel_FUNCTIONS.columnWidths = new int[]{35, 146, 41, 75, 75, 146, 55, 0};
-		gbl_panel_FUNCTIONS.rowHeights = new int[]{21, 19, 0};
-		gbl_panel_FUNCTIONS.columnWeights = new double[]{1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, Double.MIN_VALUE};
-		gbl_panel_FUNCTIONS.rowWeights = new double[]{0.0, 0.0, Double.MIN_VALUE};
+		gbl_panel_FUNCTIONS.columnWidths = new int[] { 35, 146, 41, 75, 75,
+				146, 55, 0 };
+		gbl_panel_FUNCTIONS.rowHeights = new int[] { 21, 19, 0 };
+		gbl_panel_FUNCTIONS.columnWeights = new double[] { 1.0, 0.0, 0.0, 0.0,
+				0.0, 0.0, 0.0, Double.MIN_VALUE };
+		gbl_panel_FUNCTIONS.rowWeights = new double[] { 0.0, 0.0,
+				Double.MIN_VALUE };
 		panel_FUNCTIONS.setLayout(gbl_panel_FUNCTIONS);
 		GridBagConstraints gbc_lblPlayer = new GridBagConstraints();
 		gbc_lblPlayer.anchor = GridBagConstraints.EAST;
@@ -364,7 +360,7 @@ public class SAToolsGUI extends JFrame implements ActionListener, KeyListener {
 		gbc_btnStop.gridx = 3;
 		gbc_btnStop.gridy = 0;
 		panel_FUNCTIONS.add(btnStop, gbc_btnStop);
-		btnStop.addActionListener(this);
+
 		GridBagConstraints gbc_lblWorld = new GridBagConstraints();
 		gbc_lblWorld.anchor = GridBagConstraints.NORTHEAST;
 		gbc_lblWorld.insets = new Insets(0, 0, 0, 5);
@@ -384,22 +380,31 @@ public class SAToolsGUI extends JFrame implements ActionListener, KeyListener {
 		gbc_lblMemory.gridx = 4;
 		gbc_lblMemory.gridy = 1;
 		panel_FUNCTIONS.add(lblMemory, gbc_lblMemory);
-		
-				progressBar_mem = new JProgressBar(0,
-						(int) manager.r.totalMemory() / 1024);
-				progressBar_mem.setStringPainted(true);
-				GridBagConstraints gbc_progressBar_mem = new GridBagConstraints();
-				gbc_progressBar_mem.anchor = GridBagConstraints.SOUTHWEST;
-				gbc_progressBar_mem.insets = new Insets(0, 0, 0, 5);
-				gbc_progressBar_mem.gridx = 5;
-				gbc_progressBar_mem.gridy = 1;
-				panel_FUNCTIONS.add(progressBar_mem, gbc_progressBar_mem);
-				
-				GridBagConstraints gbc_btnFreeMem = new GridBagConstraints();
-				gbc_btnFreeMem.anchor = GridBagConstraints.NORTHWEST;
-				gbc_btnFreeMem.gridx = 6;
-				gbc_btnFreeMem.gridy = 1;
-				panel_FUNCTIONS.add(btnFreeMem, gbc_btnFreeMem);
+
+		progressBar_mem = new JProgressBar(0,
+				(int) manager.r.totalMemory() / 1024);
+		progressBar_mem.setStringPainted(true);
+		GridBagConstraints gbc_progressBar_mem = new GridBagConstraints();
+		gbc_progressBar_mem.weightx = 1.0;
+		gbc_progressBar_mem.fill = GridBagConstraints.BOTH;
+		gbc_progressBar_mem.insets = new Insets(0, 0, 0, 5);
+		gbc_progressBar_mem.gridx = 5;
+		gbc_progressBar_mem.gridy = 1;
+		panel_FUNCTIONS.add(progressBar_mem, gbc_progressBar_mem);
+
+		GridBagConstraints gbc_btnFreeMem = new GridBagConstraints();
+		gbc_btnFreeMem.anchor = GridBagConstraints.NORTHWEST;
+		gbc_btnFreeMem.gridx = 6;
+		gbc_btnFreeMem.gridy = 1;
+		panel_FUNCTIONS.add(btnFreeMem, gbc_btnFreeMem);
+
+		{// Register Listeners
+			btnStop.addActionListener(this);
+			btnFreeMem.addActionListener(this);
+			btnChangeTime.addActionListener(this);
+			btnChangeConditions.addActionListener(this);
+			btnSpawnObject.addActionListener(this);
+		}
 
 		manager.start();
 	}
@@ -461,8 +466,10 @@ public class SAToolsGUI extends JFrame implements ActionListener, KeyListener {
 					p.world.setThundering(true);
 				}
 			} else if (e.getSource() == btnSpawnObject) {
-				String input = comboBox_SpawnObject.getSelectedItem().toString();
-				String input2 = comboBox_SpawnLocation.getSelectedItem().toString();
+				String input = comboBox_SpawnObject.getSelectedItem()
+						.toString();
+				String input2 = comboBox_SpawnLocation.getSelectedItem()
+						.toString();
 				spawnObject(input, input2);
 			}
 		} else if (e.getSource() instanceof JMenuItem) {
@@ -490,31 +497,108 @@ public class SAToolsGUI extends JFrame implements ActionListener, KeyListener {
 								JOptionPane.INFORMATION_MESSAGE);
 			} else if (e.getSource() == mnExit) {
 				p.getServer().shutdown();
+			} else if (isWorld((JMenuItem) e.getSource())) {
+				selectedWorld = p.getServer().getWorld(
+						((JMenuItem) e.getSource()).getText());
 			}
 		}
 	}
 
-	public void spawnObject(String what, String where) {
-		switch (what) {
-		case "":
-			
-			break;
+	private boolean isWorld(JMenuItem source) {
+		for (World wor : p.getServer().getWorlds()) {
+			if (source.getText().equals(wor.getName()))
+				return true;
 		}
+		return false;
+	}
+
+	/**
+	 * Spawns an Object
+	 * 
+	 * @param what
+	 *            Object to spawn
+	 * @param where
+	 *            Where to spawn it
+	 * @reference "Oak Tree" , "Birch Tree", "Spruce Tree"
+	 */
+	public void spawnObject(String what, String where) {
+		Location loc = null;
+		if (isPlayer(where)) {
+			Player theSelPlayer = getPlayer(where);
+			loc = theSelPlayer.getTargetBlock(null, 100).getLocation();
+		} else {
+			try {
+				String[] tokens = where.trim().split(",");
+				loc = new Location(selectedWorld,
+						Double.parseDouble(tokens[0]),
+						Double.parseDouble(tokens[1]),
+						Double.parseDouble(tokens[2]));
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+		if (isCreature(what)) {
+			if (loc.getWorld().spawnCreature(loc, CreatureType.valueOf(what)) != null) {
+				log.info("Created Creature");
+			}
+		} else {
+			if (loc.getWorld().generateTree(loc, TreeType.valueOf(what))) {
+				log.info("Generated Tree");
+			}
+		}
+	}
+
+	private boolean isCreature(String what) {
+		for (CreatureType ct : CreatureType.values()) {
+			if (ct.toString().equals(what)) {
+				log.info("Yup Creature");
+				return true;
+			}
+		}
+		return false;
+	}
+
+	/**
+	 * Returns the Player with specified name if any, otherwise null.
+	 * 
+	 * @param who
+	 *            Who to check
+	 * @return PLayer that matches, otherwise null
+	 */
+	private Player getPlayer(String who) {
+		for (Player pla : p.getServer().getOnlinePlayers()) {
+			if (pla.getDisplayName().equals(who))
+				return pla;
+		}
+		return null;
+	}
+
+	/**
+	 * Checks if the input is a player
+	 * 
+	 * @param who
+	 *            String to check
+	 * @return IF the string is a player name or not
+	 */
+	private boolean isPlayer(String who) {
+		for (Player pla : p.getServer().getOnlinePlayers()) {
+			if (pla.getDisplayName().equals(who))
+				return true;
+		}
+		return false;
 	}
 
 	@Override
 	public void keyPressed(KeyEvent e) {
 
 	}
-	
+
 	public void freeMemory() {
 		try {
-			Runtime r =  Runtime.getRuntime();
-			log.info((r.totalMemory() - r
-					.freeMemory())/1024 + " Megabytes");
+			Runtime r = Runtime.getRuntime();
+			log.info((r.totalMemory() - r.freeMemory()) / 1024 + " Megabytes");
 			r.gc();
-			log.info((r.totalMemory() - r
-					.freeMemory())/1024 + " Megabytes");
+			log.info((r.totalMemory() - r.freeMemory()) / 1024 + " Megabytes");
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
