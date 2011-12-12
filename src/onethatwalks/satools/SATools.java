@@ -29,11 +29,11 @@ import javax.swing.JOptionPane;
 import onethatwalks.listeners.SAToolsPlayerListener;
 
 import org.bukkit.World;
+import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.event.Event;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.event.Event;
 
 /**
  * @author OneThatWalks
@@ -43,9 +43,9 @@ import org.bukkit.event.Event;
  * @category Admin Tools
  * 
  * @version 1
- *
+ * 
  */
-public class SATools extends JavaPlugin {
+public final class SATools extends JavaPlugin {
 
 	public final static Logger log = Logger.getLogger("Minecraft");
 	public PluginDescriptionFile pdfFile;
@@ -56,110 +56,8 @@ public class SATools extends JavaPlugin {
 	private double confVersion;
 	public World world;
 	public PluginManager pm;
-	private final SAToolsPlayerListener playerListener = new SAToolsPlayerListener(this);
-
-	@Override
-	public void onDisable() {
-		saveConfiguration();
-	}
-
-	@Override
-	public void onEnable() {
-		pdfFile = getDescription();
-		pm = getServer().getPluginManager();
-		pm.registerEvent(Event.Type.PLAYER_JOIN, playerListener, Event.Priority.Normal, this);
-		// Check data folder
-		if (!getDataFolder().exists()) {
-			if (getDataFolder().mkdirs()) {
-				log.info("SATools: Data folder created successfully");
-			} else {
-				log.warning("SATools: Could not create data folder");
-			}
-		}
-		loadConfig();
-		world = getServer().getWorlds().get(0);
-		// Create the GUI
-		gui = new SAToolsGUI(this);
-		gui.setTitle(pdfFile.getName() + " " + pdfFile.getVersion());
-		gui.mnCheckForUpdates.setSelected(checkUpdate);
-	}
-
-	private void loadConfig() {
-		File configFile = new File(this.getDataFolder(), "config.yml");
-		config = getConfig();
-		if (configFile.exists()) {
-			checkUpdate = config.getBoolean("AutoUpdate", true);
-			confVersion = Double.parseDouble((String) config
-					.getString("Version"));
-			if (updateChecked()) {
-				log.info(Double.toString(confVersion));
-				if (confVersion < Double.parseDouble(pdfFile.getVersion())) {
-					if (JOptionPane
-							.showConfirmDialog(
-									null,
-									"There are new updates added to SATools\nWould you like to view the changelog?",
-									"SATools Updated",
-									JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
-						goToSite(threadURL);
-					}
-				}
-			} else {
-				log.warning("Could not communicate with the update server");
-			}
-		} else {
-			try {
-				log.severe("SATools: SATools: No configuration, creating one instead");
-				configFile.createNewFile();
-				config = getConfig();
-				config.set("SATools", "#" + pdfFile.getName() + " "
-						+ pdfFile.getVersion());
-				config.set("AutoUpdate", true);
-				config.set("Version",
-						Double.parseDouble(pdfFile.getVersion()));
-				config.save(configFile);
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		}
-	}
-
-	public boolean updateChecked() {
-		try {
-			URL pluginInfo = new URL(
-					"https://raw.github.com/OneThatWalks/SATools/master/plugin.yml");
-			BufferedReader in = new BufferedReader(new InputStreamReader(
-					pluginInfo.openStream()));
-			String strLine;
-			while ((strLine = in.readLine()) != null) {
-				if (strLine.contains("version: ")) {
-					String[] tokens = strLine.split(" ");
-					String version = tokens[1];
-					if (Double.parseDouble(version) > Double
-							.parseDouble(pdfFile.getVersion())) {
-						if (JOptionPane
-								.showConfirmDialog(
-										null,
-										"There is an update available!\nWould you like to download this update?",
-										"Update Ready",
-										JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
-							downloadUpdate();
-						} else {
-							getServer().shutdown();
-						}
-					} else {
-						log.info("Running latest version of SATools. ");
-					}
-				}
-			}
-		} catch (MalformedURLException e) {
-			log.severe("SATools: Malformed URL");
-			return false;
-		} catch (IOException e) {
-			log.severe("SATools: Could no connect");
-			return false;
-		}
-		return true;
-	}
+	private final SAToolsPlayerListener playerListener = new SAToolsPlayerListener(
+			this);
 
 	private void downloadUpdate() {
 		OutputStream out = null;
@@ -200,27 +98,13 @@ public class SATools extends JavaPlugin {
 		}
 	}
 
-	private void saveConfiguration() {
-		File configFile = new File(this.getDataFolder(), "config.yml");
-		config = getConfig();
-		if (configFile.exists()) {
-			config.set("AutoUpdate", true);
-			config.set("Version", pdfFile.getVersion());
-		} else {
-			try {
-				log.severe("SATools: SATools: No configuration, creating one instead");
-				configFile.createNewFile();
-				config = getConfig();
-				config.set("SATools" , "#" + pdfFile.getName() + " "
-						+ pdfFile.getVersion());
-				config.set("AutoUpdate", true);
-				config.set("Version",
-						Double.parseDouble(pdfFile.getVersion()));
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
+	public void freeMemory() {
+		try {
+			Runtime r = Runtime.getRuntime();
+			r.gc();
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
-		saveConfig();
 	}
 
 	public void goToSite(String location) {
@@ -232,6 +116,92 @@ public class SATools extends JavaPlugin {
 
 	}
 
+	private void loadConfig() {
+		File configFile = new File(this.getDataFolder(), "config.yml");
+		config = getConfig();
+		if (configFile.exists()) {
+			checkUpdate = config.getBoolean("AutoUpdate", true);
+			confVersion = Double.parseDouble(config.getString("Version"));
+			if (updateChecked()) {
+				log.info(Double.toString(confVersion));
+				if (confVersion < Double.parseDouble(pdfFile.getVersion())) {
+					if (JOptionPane
+							.showConfirmDialog(
+									null,
+									"There are new updates added to SATools\nWould you like to view the changelog?",
+									"SATools Updated",
+									JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
+						goToSite(threadURL);
+					}
+				}
+			} else {
+				log.warning("Could not communicate with the update server");
+			}
+		} else {
+			try {
+				log.severe("SATools: SATools: No configuration, creating one instead");
+				configFile.createNewFile();
+				config = getConfig();
+				config.set("SATools",
+						"#" + pdfFile.getName() + " " + pdfFile.getVersion());
+				config.set("AutoUpdate", true);
+				config.set("Version", Double.parseDouble(pdfFile.getVersion()));
+				config.save(configFile);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+	}
+
+	@Override
+	public void onDisable() {
+		saveConfiguration();
+	}
+
+	@Override
+	public void onEnable() {
+		pdfFile = getDescription();
+		pm = getServer().getPluginManager();
+		pm.registerEvent(Event.Type.PLAYER_JOIN, playerListener,
+				Event.Priority.Normal, this);
+		// Check data folder
+		if (!getDataFolder().exists()) {
+			if (getDataFolder().mkdirs()) {
+				log.info("SATools: Data folder created successfully");
+			} else {
+				log.warning("SATools: Could not create data folder");
+			}
+		}
+		loadConfig();
+		world = getServer().getWorlds().get(0);
+		// Create the GUI
+		gui = new SAToolsGUI(this);
+		gui.setTitle(pdfFile.getName() + " " + pdfFile.getVersion());
+		gui.mnCheckForUpdates.setSelected(checkUpdate);
+	}
+
+	private void saveConfiguration() {
+		File configFile = new File(this.getDataFolder(), "config.yml");
+		config = getConfig();
+		if (configFile.exists()) {
+			config.set("AutoUpdate", true);
+			config.set("Version", pdfFile.getVersion());
+		} else {
+			try {
+				log.severe("SATools: SATools: No configuration, creating one instead");
+				configFile.createNewFile();
+				config = getConfig();
+				config.set("SATools",
+						"#" + pdfFile.getName() + " " + pdfFile.getVersion());
+				config.set("AutoUpdate", true);
+				config.set("Version", Double.parseDouble(pdfFile.getVersion()));
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+		saveConfig();
+	}
+
 	public void sendCommand(String text) {
 		try {
 			getServer().dispatchCommand(getServer().getConsoleSender(), text);
@@ -241,12 +211,41 @@ public class SATools extends JavaPlugin {
 
 	}
 
-	public void freeMemory() {
+	public boolean updateChecked() {
 		try {
-			Runtime r =  Runtime.getRuntime();
-			r.gc();
-		} catch (Exception e) {
-			e.printStackTrace();
+			URL pluginInfo = new URL(
+					"https://raw.github.com/OneThatWalks/SATools/master/plugin.yml");
+			BufferedReader in = new BufferedReader(new InputStreamReader(
+					pluginInfo.openStream()));
+			String strLine;
+			while ((strLine = in.readLine()) != null) {
+				if (strLine.contains("version: ")) {
+					String[] tokens = strLine.split(" ");
+					String version = tokens[1];
+					if (Double.parseDouble(version) > Double
+							.parseDouble(pdfFile.getVersion())) {
+						if (JOptionPane
+								.showConfirmDialog(
+										null,
+										"There is an update available!\nWould you like to download this update?",
+										"Update Ready",
+										JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
+							downloadUpdate();
+						} else {
+							getServer().shutdown();
+						}
+					} else {
+						log.info("Running latest version of SATools. ");
+					}
+				}
+			}
+		} catch (MalformedURLException e) {
+			log.severe("SATools: Malformed URL");
+			return false;
+		} catch (IOException e) {
+			log.severe("SATools: Could no connect");
+			return false;
 		}
+		return true;
 	}
 }

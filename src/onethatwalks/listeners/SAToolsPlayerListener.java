@@ -16,9 +16,9 @@ import onethatwalks.satools.SATools;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerListener;
 
-public class SAToolsPlayerListener extends PlayerListener {
+public final class SAToolsPlayerListener extends PlayerListener {
 
-	private SATools p;
+	private final SATools p;
 
 	public SAToolsPlayerListener(SATools instance) {
 		p = instance;

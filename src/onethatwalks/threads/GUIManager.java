@@ -18,40 +18,21 @@ import onethatwalks.satools.SATools;
 import onethatwalks.satools.SAToolsGUI;
 import onethatwalks.util.LogHandler;
 
-public class GUIManager extends Thread {
-	public final Logger log;
-	SAToolsGUI gui;
-	SATools plugin;
-	public boolean stop = false;
-	public Runtime r = Runtime.getRuntime();
-	public Handler handler;
+public final class GUIManager extends Thread {
+	private final Logger log;
+	private final SAToolsGUI gui;
+	private final SATools plugin;
+	public final boolean stop = false;
+	public final Runtime r = Runtime.getRuntime();
+	private final Handler handler;
 
 	public GUIManager(SATools instance, SAToolsGUI instance2) {
 		gui = instance2;
 		plugin = instance;
 		log = SATools.log;
+		handler = new LogHandler(gui.textArea_console);
 	}
 
-	@Override
-	public void run() {
-		handler = new LogHandler(gui.textArea_console);
-		log.addHandler(handler);
-		while (!stop) {
-			// Mem usage
-			gui.progressBar_mem.setValue((int) ((r.totalMemory() - r
-					.freeMemory()) / 1024));
-			//Server Tab
-			gui.lblTimeData.setText(Long.toString(plugin.world.getTime()));
-			gui.lblWeatherData.setText(getWeather());
-			
-			try {
-				Thread.sleep(500);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
-		}
-	}
-	
 	private String getWeather() {
 		if (plugin.getServer().getWorlds().get(0).hasStorm()) {
 			if (plugin.world.isThundering()) {
@@ -60,6 +41,19 @@ public class GUIManager extends Thread {
 			return "Rain/Snow";
 		}
 		return "Clear";
+	}
+
+	@Override
+	public void run() {
+		log.addHandler(handler);
+		while (!stop) {
+			// Mem usage
+			gui.progressBar_mem.setValue((int) ((r.totalMemory() - r
+					.freeMemory()) / 1024));
+			// Server Tab
+			gui.lblTimeData.setText(Long.toString(plugin.world.getTime()));
+			gui.lblWeatherData.setText(getWeather());
+		}
 	}
 
 }

@@ -41,6 +41,7 @@ import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
+import javax.swing.WindowConstants;
 import javax.swing.border.EtchedBorder;
 import javax.swing.border.TitledBorder;
 
@@ -63,75 +64,78 @@ import org.bukkit.entity.Player;
  * @serial 1L
  * 
  */
-public class SAToolsGUI extends JFrame implements ActionListener, KeyListener {
+public final class SAToolsGUI extends JFrame implements ActionListener, KeyListener {
 
 	/**
 	 * Top Variables
 	 */
 	private static final long serialVersionUID = 1L;
-	SATools p;
-	GUIManager manager;
+	private final SATools p;
+	private final GUIManager manager;
 	public final Logger log;
 	/**
 	 * Component Variables
 	 */
-	private JPanel contentPane;
-	JMenuBar menuBar = new JMenuBar();
-	JMenu mnFile = new JMenu("File");
-	JMenu mnInfo = new JMenu("Info");
-	JTabbedPane tabbedPane = new JTabbedPane(JTabbedPane.TOP);
-	JPanel panel_CONSOLE = new JPanel();
-	JPanel panel_FUNCTIONS = new JPanel();
-	public JTextArea textArea_console = new JTextArea();
-	public JTextField textField_console = new JTextField();
-	GridBagLayout gbl_panel_CONSOLE = new GridBagLayout();
-	GridBagConstraints gbc_textField = new GridBagConstraints();
+	private final JPanel contentPane;
+	private final JMenuBar menuBar = new JMenuBar();
+	private final JMenu mnFile = new JMenu("File");
+	private final JMenu mnInfo = new JMenu("Info");
+	private final JTabbedPane tabbedPane = new JTabbedPane(JTabbedPane.TOP);
+	private final JPanel panel_CONSOLE = new JPanel();
+	private final JPanel panel_FUNCTIONS = new JPanel();
+	public final JTextArea textArea_console = new JTextArea();
+	public final JTextField textField_console = new JTextField();
+	private final GridBagLayout gbl_panel_CONSOLE = new GridBagLayout();
+	private final GridBagConstraints gbc_textField = new GridBagConstraints();
 	private final JScrollPane scrollPane = new JScrollPane();
-	private JMenu mnOptions = new JMenu("Options");
-	private JCheckBoxMenuItem mnEnableUpdate = new JCheckBoxMenuItem(
+	private final JMenu mnOptions = new JMenu("Options");
+	private final JCheckBoxMenuItem mnEnableUpdate = new JCheckBoxMenuItem(
 			"Enable Auto Update");
-	private JMenuItem mnSubmitFeedback = new JMenuItem("Submit Feedback");
-	private JMenuItem mnAbout = new JMenuItem("About");
-	private JMenuItem mnVisitThread = new JMenuItem("Visit The Thread");
-	public JMenuItem mnCheckForUpdates = new JMenuItem("Check For Updates");
-	private JMenu mnWorld = new JMenu("Worlds");
-	private JMenu mnPlayer = new JMenu("Players");
-	private JMenuItem mnExit = new JMenuItem("Exit");
-	GridBagConstraints gbc_scrollPane = new GridBagConstraints();
+	private final JMenuItem mnSubmitFeedback = new JMenuItem("Submit Feedback");
+	private final JMenuItem mnAbout = new JMenuItem("About");
+	private final JMenuItem mnVisitThread = new JMenuItem("Visit The Thread");
+	public final JMenuItem mnCheckForUpdates = new JMenuItem(
+			"Check For Updates");
+	private final JMenu mnWorld = new JMenu("Worlds");
+	private final JMenu mnPlayer = new JMenu("Players");
+	private final JMenuItem mnExit = new JMenuItem("Exit");
+	private final GridBagConstraints gbc_scrollPane = new GridBagConstraints();
 	private final JPanel panel_SERVER = new JPanel();
 	public final JPanel panel_Time = new JPanel();
 	public final JPanel panel_Weather = new JPanel();
 	public final JPanel panel_World = new JPanel();
-	public JLabel lblPlayer = new JLabel("Player:");
-	public JLabel lbl_PLAYER_DATA = new JLabel("NULL");
-	public JLabel lblWorld = new JLabel(" World:");
-	public JLabel lbl_WORLD_DATA = new JLabel("NULL");
-	public JButton btnStop = new JButton("Stop");
-	public JLabel lblMemory = new JLabel("Memory Usage:");
-	public JProgressBar progressBar_mem;
-	public GridBagConstraints gbc_panel_Time = new GridBagConstraints();
-	public JLabel lblCurrentTime = new JLabel("Current Time:");
-	public JLabel lblTimeData = new JLabel("NULL");
-	public JComboBox<Object> comboBox_TimeValues = new JComboBox<Object>();
-	public JButton btnChangeTime = new JButton("Set");
-	public JLabel lblTimeChangesAre = new JLabel("Time changes are instant");
-	public GridBagConstraints gbc_panel_Weather = new GridBagConstraints();
-	public JLabel lblCurrentConditions = new JLabel("Current Conditions:");
-	public JLabel lblWeatherData = new JLabel("NULL");
-	public JComboBox<Object> comboBox_Conditions = new JComboBox<Object>();
-	public JButton btnChangeConditions = new JButton("Change");
-	public JLabel lblWeatherChangesTend = new JLabel(
+	public final JLabel lblPlayer = new JLabel("Player:");
+	public final JLabel lbl_PLAYER_DATA = new JLabel("NULL");
+	public final JLabel lblWorld = new JLabel(" World:");
+	public final JLabel lbl_WORLD_DATA = new JLabel("NULL");
+	public final JButton btnStop = new JButton("Stop");
+	public final JLabel lblMemory = new JLabel("Memory Usage:");
+	public final JProgressBar progressBar_mem;
+	private final GridBagConstraints gbc_panel_Time = new GridBagConstraints();
+	public final JLabel lblCurrentTime = new JLabel("Current Time:");
+	public final JLabel lblTimeData = new JLabel("NULL");
+	public final JComboBox<Object> comboBox_TimeValues = new JComboBox<Object>();
+	public final JButton btnChangeTime = new JButton("Set");
+	public final JLabel lblTimeChangesAre = new JLabel(
+			"Time changes are instant");
+	private final GridBagConstraints gbc_panel_Weather = new GridBagConstraints();
+	public final JLabel lblCurrentConditions = new JLabel("Current Conditions:");
+	public final JLabel lblWeatherData = new JLabel("NULL");
+	public final JComboBox<Object> comboBox_Conditions = new JComboBox<Object>();
+	public final JButton btnChangeConditions = new JButton("Change");
+	public final JLabel lblWeatherChangesTend = new JLabel(
 			"Weather changes tend to change slower");
-	public GridBagConstraints gbc_panel_World = new GridBagConstraints();
-	public JLabel lblSelectSomethingTo = new JLabel("Select something to spawn");
-	public JComboBox<Object> comboBox_SpawnObject = new JComboBox<Object>();
-	public JLabel lblWhere = new JLabel("Where?");
-	public JComboBox<Object> comboBox_SpawnLocation = new JComboBox<Object>();
-	public JButton btnSpawnObject = new JButton("Spawn");
-	public JLabel lblUseTheXyz = new JLabel(
+	private final GridBagConstraints gbc_panel_World = new GridBagConstraints();
+	public final JLabel lblSelectSomethingTo = new JLabel(
+			"Select something to spawn");
+	public final JComboBox<Object> comboBox_SpawnObject = new JComboBox<Object>();
+	public final JLabel lblWhere = new JLabel("Where?");
+	public final JComboBox<Object> comboBox_SpawnLocation = new JComboBox<Object>();
+	public final JButton btnSpawnObject = new JButton("Spawn");
+	public final JLabel lblUseTheXyz = new JLabel(
 			"Use the x,y,z format with custom locations");
 	public final JButton btnFreeMem = new JButton("Free");
-	private List<String> objects = new ArrayList<String>();
+	private final List<String> objects = new ArrayList<String>();
 	private World selectedWorld;
 
 	/**
@@ -142,9 +146,11 @@ public class SAToolsGUI extends JFrame implements ActionListener, KeyListener {
 		p = instance;
 		manager = new GUIManager(p, this);
 		log = SATools.log;
+		selectedWorld = p.world;
 
-		setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+		setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
 		addWindowListener(new WindowAdapter() {
+			@Override
 			public void windowClosing(WindowEvent e) {
 				p.getServer().shutdown();
 			}
@@ -410,26 +416,6 @@ public class SAToolsGUI extends JFrame implements ActionListener, KeyListener {
 	}
 
 	@Override
-	public void keyReleased(KeyEvent e) {
-		if (e.getSource() instanceof JTextField) {
-			if (e.getKeyCode() == KeyEvent.VK_ENTER) {
-				if (e.getSource() == textField_console) {
-					p.sendCommand(textField_console.getText());
-					textField_console.setText("");
-					textField_console.setFocusable(true);
-					this.requestFocusInWindow();
-				}
-			}
-		}
-	}
-
-	@Override
-	public void keyTyped(KeyEvent e) {
-		// Auto-generated method stub
-
-	}
-
-	@Override
 	public void actionPerformed(ActionEvent e) {
 		if (e.getSource() instanceof JButton) {
 			if (e.getSource() == btnStop) {
@@ -504,12 +490,88 @@ public class SAToolsGUI extends JFrame implements ActionListener, KeyListener {
 		}
 	}
 
+	public void freeMemory() {
+		try {
+			Runtime r = Runtime.getRuntime();
+			log.info((r.totalMemory() - r.freeMemory()) / 1024 + " Megabytes");
+			r.gc();
+			log.info((r.totalMemory() - r.freeMemory()) / 1024 + " Megabytes");
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	/**
+	 * Returns the Player with specified name if any, otherwise null.
+	 * 
+	 * @param who
+	 *            Who to check
+	 * @return PLayer that matches, otherwise null
+	 */
+	private Player getPlayer(String who) {
+		for (Player pla : p.getServer().getOnlinePlayers()) {
+			if (pla.getDisplayName().equals(who))
+				return pla;
+		}
+		return null;
+	}
+
+	private boolean isCreature(String what) {
+		for (CreatureType ct : CreatureType.values()) {
+			if (ct.toString().equals(what)) {
+				log.info("Yup Creature");
+				return true;
+			}
+		}
+		return false;
+	}
+
+	/**
+	 * Checks if the input is a player
+	 * 
+	 * @param who
+	 *            String to check
+	 * @return IF the string is a player name or not
+	 */
+	private boolean isPlayer(String who) {
+		for (Player pla : p.getServer().getOnlinePlayers()) {
+			if (pla.getDisplayName().equals(who))
+				return true;
+		}
+		return false;
+	}
+
 	private boolean isWorld(JMenuItem source) {
 		for (World wor : p.getServer().getWorlds()) {
 			if (source.getText().equals(wor.getName()))
 				return true;
 		}
 		return false;
+	}
+
+	@Override
+	public void keyPressed(KeyEvent e) {
+
+	}
+
+	@Override
+	public void keyReleased(KeyEvent e) {
+		if (e.getSource() instanceof JTextField) {
+			if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+				if (e.getSource() == textField_console) {
+					p.sendCommand(textField_console.getText());
+					textField_console.setText("");
+					textField_console.setFocusable(true);
+					this.requestFocusInWindow();
+				}
+			}
+		}
+	}
+
+	@Override
+	public void keyTyped(KeyEvent e) {
+		// Auto-generated method stub
+
 	}
 
 	/**
@@ -545,62 +607,6 @@ public class SAToolsGUI extends JFrame implements ActionListener, KeyListener {
 			if (loc.getWorld().generateTree(loc, TreeType.valueOf(what))) {
 				log.info("Generated Tree");
 			}
-		}
-	}
-
-	private boolean isCreature(String what) {
-		for (CreatureType ct : CreatureType.values()) {
-			if (ct.toString().equals(what)) {
-				log.info("Yup Creature");
-				return true;
-			}
-		}
-		return false;
-	}
-
-	/**
-	 * Returns the Player with specified name if any, otherwise null.
-	 * 
-	 * @param who
-	 *            Who to check
-	 * @return PLayer that matches, otherwise null
-	 */
-	private Player getPlayer(String who) {
-		for (Player pla : p.getServer().getOnlinePlayers()) {
-			if (pla.getDisplayName().equals(who))
-				return pla;
-		}
-		return null;
-	}
-
-	/**
-	 * Checks if the input is a player
-	 * 
-	 * @param who
-	 *            String to check
-	 * @return IF the string is a player name or not
-	 */
-	private boolean isPlayer(String who) {
-		for (Player pla : p.getServer().getOnlinePlayers()) {
-			if (pla.getDisplayName().equals(who))
-				return true;
-		}
-		return false;
-	}
-
-	@Override
-	public void keyPressed(KeyEvent e) {
-
-	}
-
-	public void freeMemory() {
-		try {
-			Runtime r = Runtime.getRuntime();
-			log.info((r.totalMemory() - r.freeMemory()) / 1024 + " Megabytes");
-			r.gc();
-			log.info((r.totalMemory() - r.freeMemory()) / 1024 + " Megabytes");
-		} catch (Exception e) {
-			e.printStackTrace();
 		}
 	}
 }
