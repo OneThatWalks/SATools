@@ -40,7 +40,7 @@ import org.bukkit.plugin.java.JavaPlugin;
  * 
  * @date 12/11/11
  * 
- * @category Admin Tools
+ * @category Admin Tools, GUI, MISC
  * 
  * @version 1
  * 
@@ -59,6 +59,10 @@ public final class SATools extends JavaPlugin {
 	private final SAToolsPlayerListener playerListener = new SAToolsPlayerListener(
 			this);
 
+	/**
+	 * Downloads the updated software from the server if possible. TODO needs
+	 * re-looked at sometime
+	 */
 	private void downloadUpdate() {
 		OutputStream out = null;
 		URLConnection uc = null;
@@ -98,15 +102,12 @@ public final class SATools extends JavaPlugin {
 		}
 	}
 
-	public void freeMemory() {
-		try {
-			Runtime r = Runtime.getRuntime();
-			r.gc();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
-
+	/**
+	 * Visits a URL in the default browser
+	 * 
+	 * @param location
+	 *            URL to visit
+	 */
 	public void goToSite(String location) {
 		try {
 			java.awt.Desktop.getDesktop().browse(java.net.URI.create(location));
@@ -116,6 +117,10 @@ public final class SATools extends JavaPlugin {
 
 	}
 
+	/**
+	 * loads the configuration. Appends settings based on the configuration.
+	 * TODO re-look
+	 */
 	private void loadConfig() {
 		File configFile = new File(this.getDataFolder(), "config.yml");
 		config = getConfig();
@@ -180,6 +185,9 @@ public final class SATools extends JavaPlugin {
 		gui.mnCheckForUpdates.setSelected(checkUpdate);
 	}
 
+	/**
+	 * Saves the server configuration. TODO Re-look.
+	 */
 	private void saveConfiguration() {
 		File configFile = new File(this.getDataFolder(), "config.yml");
 		config = getConfig();
@@ -202,6 +210,12 @@ public final class SATools extends JavaPlugin {
 		saveConfig();
 	}
 
+	/**
+	 * Sends the specified string to the server
+	 * 
+	 * @param text
+	 *            String to send to the server
+	 */
 	public void sendCommand(String text) {
 		try {
 			getServer().dispatchCommand(getServer().getConsoleSender(), text);
@@ -211,6 +225,11 @@ public final class SATools extends JavaPlugin {
 
 	}
 
+	/**
+	 * Checks for updates from the server
+	 * 
+	 * @return true if update checked, otherwise false
+	 */
 	public boolean updateChecked() {
 		try {
 			URL pluginInfo = new URL(

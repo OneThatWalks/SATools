@@ -33,6 +33,11 @@ public final class GUIManager extends Thread {
 		handler = new LogHandler(gui.textArea_console);
 	}
 
+	/**
+	 * Gets the current Minecraft weather conditions
+	 * 
+	 * @return the weather conditions
+	 */
 	private String getWeather() {
 		if (plugin.getServer().getWorlds().get(0).hasStorm()) {
 			if (plugin.world.isThundering()) {
@@ -47,9 +52,6 @@ public final class GUIManager extends Thread {
 	public void run() {
 		log.addHandler(handler);
 		while (!stop) {
-			// Mem usage
-			gui.progressBar_mem.setValue((int) ((r.totalMemory() - r
-					.freeMemory()) / 1024));
 			// Server Tab
 			gui.lblTimeData.setText(Long.toString(plugin.world.getTime()));
 			gui.lblWeatherData.setText(getWeather());

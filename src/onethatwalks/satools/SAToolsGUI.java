@@ -35,7 +35,6 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.JProgressBar;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
@@ -54,17 +53,19 @@ import org.bukkit.entity.CreatureType;
 import org.bukkit.entity.Player;
 
 /**
- * This program is a Bukkit Server Wrapper plugin. This plugin will allow the
- * User to administer a Bukkit Server.
+ * This program is a Bukkit Server Wrapper plugin. Bukkit is used for Minecraft
+ * servers. This program allows the user to administer a Minecraft server
+ * visually.
  * 
  * @author OneThatWalks
  * 
- * @version 0.4
+ * @version 1
  * 
  * @serial 1L
  * 
  */
-public final class SAToolsGUI extends JFrame implements ActionListener, KeyListener {
+public final class SAToolsGUI extends JFrame implements ActionListener,
+		KeyListener {
 
 	/**
 	 * Top Variables
@@ -109,8 +110,6 @@ public final class SAToolsGUI extends JFrame implements ActionListener, KeyListe
 	public final JLabel lblWorld = new JLabel(" World:");
 	public final JLabel lbl_WORLD_DATA = new JLabel("NULL");
 	public final JButton btnStop = new JButton("Stop");
-	public final JLabel lblMemory = new JLabel("Memory Usage:");
-	public final JProgressBar progressBar_mem;
 	private final GridBagConstraints gbc_panel_Time = new GridBagConstraints();
 	public final JLabel lblCurrentTime = new JLabel("Current Time:");
 	public final JLabel lblTimeData = new JLabel("NULL");
@@ -134,9 +133,10 @@ public final class SAToolsGUI extends JFrame implements ActionListener, KeyListe
 	public final JButton btnSpawnObject = new JButton("Spawn");
 	public final JLabel lblUseTheXyz = new JLabel(
 			"Use the x,y,z format with custom locations");
-	public final JButton btnFreeMem = new JButton("Free");
 	private final List<String> objects = new ArrayList<String>();
 	private World selectedWorld;
+	private Player selectedPlayer;
+	public List<Player> playerList;
 
 	/**
 	 * Create the frame.
@@ -147,6 +147,11 @@ public final class SAToolsGUI extends JFrame implements ActionListener, KeyListe
 		manager = new GUIManager(p, this);
 		log = SATools.log;
 		selectedWorld = p.world;
+		playerList = new ArrayList<Player>();
+		if (p.getServer().getOnlinePlayers().length > 0) {
+			for (Player uncaughtPlayer : p.getServer().getOnlinePlayers())
+				playerList.add(uncaughtPlayer);
+		}
 
 		setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
 		addWindowListener(new WindowAdapter() {
@@ -380,33 +385,9 @@ public final class SAToolsGUI extends JFrame implements ActionListener, KeyListe
 		gbc_lbl_WORLD_DATA.gridx = 1;
 		gbc_lbl_WORLD_DATA.gridy = 1;
 		panel_FUNCTIONS.add(lbl_WORLD_DATA, gbc_lbl_WORLD_DATA);
-		GridBagConstraints gbc_lblMemory = new GridBagConstraints();
-		gbc_lblMemory.anchor = GridBagConstraints.WEST;
-		gbc_lblMemory.insets = new Insets(0, 0, 0, 5);
-		gbc_lblMemory.gridx = 4;
-		gbc_lblMemory.gridy = 1;
-		panel_FUNCTIONS.add(lblMemory, gbc_lblMemory);
-
-		progressBar_mem = new JProgressBar(0,
-				(int) manager.r.totalMemory() / 1024);
-		progressBar_mem.setStringPainted(true);
-		GridBagConstraints gbc_progressBar_mem = new GridBagConstraints();
-		gbc_progressBar_mem.weightx = 1.0;
-		gbc_progressBar_mem.fill = GridBagConstraints.BOTH;
-		gbc_progressBar_mem.insets = new Insets(0, 0, 0, 5);
-		gbc_progressBar_mem.gridx = 5;
-		gbc_progressBar_mem.gridy = 1;
-		panel_FUNCTIONS.add(progressBar_mem, gbc_progressBar_mem);
-
-		GridBagConstraints gbc_btnFreeMem = new GridBagConstraints();
-		gbc_btnFreeMem.anchor = GridBagConstraints.NORTHWEST;
-		gbc_btnFreeMem.gridx = 6;
-		gbc_btnFreeMem.gridy = 1;
-		panel_FUNCTIONS.add(btnFreeMem, gbc_btnFreeMem);
 
 		{// Register Listeners
 			btnStop.addActionListener(this);
-			btnFreeMem.addActionListener(this);
 			btnChangeTime.addActionListener(this);
 			btnChangeConditions.addActionListener(this);
 			btnSpawnObject.addActionListener(this);
@@ -420,8 +401,6 @@ public final class SAToolsGUI extends JFrame implements ActionListener, KeyListe
 		if (e.getSource() instanceof JButton) {
 			if (e.getSource() == btnStop) {
 				p.getServer().shutdown();
-			} else if (e.getSource() == btnFreeMem) {
-				p.freeMemory();
 			} else if (e.getSource() == btnChangeTime) {
 				String input = comboBox_TimeValues.getSelectedItem().toString();
 				if (input.equalsIgnoreCase("Midnight")) {
@@ -483,13 +462,23 @@ public final class SAToolsGUI extends JFrame implements ActionListener, KeyListe
 								JOptionPane.INFORMATION_MESSAGE);
 			} else if (e.getSource() == mnExit) {
 				p.getServer().shutdown();
-			} else if (isWorld((JMenuItem) e.getSource())) {
+			} else if (getWorld(((JMenuItem) e.getSource()).getText()) != null) {
 				selectedWorld = p.getServer().getWorld(
 						((JMenuItem) e.getSource()).getText());
+				lbl_WORLD_DATA.setText(selectedWorld.getName());
+			} else if (getPlayer(((JMenuItem) e.getSource()).getText()) != null) {
+				selectedPlayer = p.getServer().getPlayer(
+						((JMenuItem) e.getSource()).getText());
+				lbl_PLAYER_DATA.setText(selectedPlayer.getName());
 			}
 		}
 	}
 
+	/**
+	 * Frees memory in the JVM
+	 * 
+	 * @unused
+	 */
 	public void freeMemory() {
 		try {
 			Runtime r = Runtime.getRuntime();
@@ -516,6 +505,14 @@ public final class SAToolsGUI extends JFrame implements ActionListener, KeyListe
 		return null;
 	}
 
+	/**
+	 * Checks if the object is a creature (BAD CODE TODO)
+	 * 
+	 * @param what
+	 *            String to check
+	 * @return True if it is a creature, otherwise false (objects like trees
+	 *         etc)
+	 */
 	private boolean isCreature(String what) {
 		for (CreatureType ct : CreatureType.values()) {
 			if (ct.toString().equals(what)) {
@@ -527,26 +524,19 @@ public final class SAToolsGUI extends JFrame implements ActionListener, KeyListe
 	}
 
 	/**
-	 * Checks if the input is a player
+	 * Gets the specified world based on a string, can return null
 	 * 
-	 * @param who
-	 *            String to check
-	 * @return IF the string is a player name or not
+	 * @param worldName
+	 *            The string to check
+	 * @return World that matches, otherwise null
 	 */
-	private boolean isPlayer(String who) {
-		for (Player pla : p.getServer().getOnlinePlayers()) {
-			if (pla.getDisplayName().equals(who))
-				return true;
-		}
-		return false;
-	}
-
-	private boolean isWorld(JMenuItem source) {
+	private World getWorld(String worldName) {
 		for (World wor : p.getServer().getWorlds()) {
-			if (source.getText().equals(wor.getName()))
-				return true;
+			if (wor.getName().equalsIgnoreCase(worldName)) {
+				return wor;
+			}
 		}
-		return false;
+		return null;
 	}
 
 	@Override
@@ -581,11 +571,10 @@ public final class SAToolsGUI extends JFrame implements ActionListener, KeyListe
 	 *            Object to spawn
 	 * @param where
 	 *            Where to spawn it
-	 * @reference "Oak Tree" , "Birch Tree", "Spruce Tree"
 	 */
 	public void spawnObject(String what, String where) {
 		Location loc = null;
-		if (isPlayer(where)) {
+		if (getPlayer(where) != null) {
 			Player theSelPlayer = getPlayer(where);
 			loc = theSelPlayer.getTargetBlock(null, 100).getLocation();
 		} else {
@@ -604,9 +593,25 @@ public final class SAToolsGUI extends JFrame implements ActionListener, KeyListe
 				log.info("Created Creature");
 			}
 		} else {
-			if (loc.getWorld().generateTree(loc, TreeType.valueOf(what))) {
+			if (loc.getWorld().generateTree(loc,
+					TreeType/* .valueOf(what) */.BIG_TREE)) {
 				log.info("Generated Tree");
+			} else {
+				log.info("Failed");
 			}
 		}
+	}
+
+	/**
+	 * Adds player to the player menu
+	 * 
+	 * @param playerJoined
+	 *            Player argument
+	 */
+	public void addPlayerToMenu(Player playerJoined) {
+		JMenuItem temp = new JMenuItem(playerJoined.getDisplayName());
+
+		mnPlayer.add(temp);
+		temp.addActionListener(this);
 	}
 }

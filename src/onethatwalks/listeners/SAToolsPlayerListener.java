@@ -27,6 +27,8 @@ public final class SAToolsPlayerListener extends PlayerListener {
 	@Override
 	public void onPlayerJoin(PlayerJoinEvent pje) {
 		p.gui.comboBox_SpawnLocation.addItem(pje.getPlayer().getDisplayName());
+		p.gui.addPlayerToMenu(pje.getPlayer());
+		p.gui.playerList.add(pje.getPlayer());
 	}
 
 }

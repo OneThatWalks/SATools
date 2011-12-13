@@ -3,6 +3,7 @@
 /.project
 /.settings
 /.git
+.jardesc
 
 # Netbeans
 /nbproject
