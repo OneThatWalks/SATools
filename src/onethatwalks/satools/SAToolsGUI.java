@@ -59,8 +59,6 @@ import org.bukkit.entity.Player;
  * 
  * @author OneThatWalks
  * 
- * @version 1
- * 
  * @serial 1L
  * 
  */

@@ -42,8 +42,6 @@ import org.bukkit.plugin.java.JavaPlugin;
  * 
  * @category Admin Tools, GUI, MISC
  * 
- * @version 1
- * 
  */
 public final class SATools extends JavaPlugin {
 
