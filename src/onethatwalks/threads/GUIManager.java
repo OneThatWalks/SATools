@@ -14,6 +14,8 @@ package onethatwalks.threads;
 import java.util.logging.Handler;
 import java.util.logging.Logger;
 
+import org.bukkit.plugin.Plugin;
+
 import onethatwalks.satools.SATools;
 import onethatwalks.satools.SAToolsGUI;
 import onethatwalks.util.LogHandler;
@@ -51,6 +53,16 @@ public final class GUIManager extends Thread {
 	@Override
 	public void run() {
 		log.addHandler(handler);
+		for (Plugin p : plugin.pm.getPlugins()) {
+			try {
+				gui.list_plugins.add(p.getDescription().getName());
+				log.info("Added: " + p.getDescription().getName());
+			} catch (Exception e) {
+				log.severe("<<" + p.toString() + "\n\n"
+						+ p.getDescription().getName() + ">>");
+				e.printStackTrace();
+			}
+		}
 		while (!stop) {
 			// Server Tab
 			gui.lblTimeData.setText(Long.toString(plugin.world.getTime()));

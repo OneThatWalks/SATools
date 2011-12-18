@@ -15,6 +15,7 @@ import onethatwalks.satools.SATools;
 
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerListener;
+import org.bukkit.event.player.PlayerQuitEvent;
 
 public final class SAToolsPlayerListener extends PlayerListener {
 
@@ -29,6 +30,14 @@ public final class SAToolsPlayerListener extends PlayerListener {
 		p.gui.comboBox_SpawnLocation.addItem(pje.getPlayer().getDisplayName());
 		p.gui.addPlayerToMenu(pje.getPlayer());
 		p.gui.playerList.add(pje.getPlayer());
+	}
+
+	@Override
+	public void onPlayerQuit(PlayerQuitEvent pje) {
+		p.gui.comboBox_SpawnLocation.removeItem(pje.getPlayer()
+				.getDisplayName());
+		p.gui.removePlayerFromMenu(pje.getPlayer());
+		p.gui.playerList.remove(pje.getPlayer());
 	}
 
 }

@@ -11,9 +11,11 @@
  */
 package onethatwalks.satools;
 
+import java.awt.Component;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
@@ -26,6 +28,7 @@ import java.util.logging.Logger;
 
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
@@ -51,6 +54,7 @@ import org.bukkit.TreeType;
 import org.bukkit.World;
 import org.bukkit.entity.CreatureType;
 import org.bukkit.entity.Player;
+import org.bukkit.plugin.Plugin;
 
 /**
  * This program is a Bukkit Server Wrapper plugin. Bukkit is used for Minecraft
@@ -135,12 +139,25 @@ public final class SAToolsGUI extends JFrame implements ActionListener,
 	private World selectedWorld;
 	private Player selectedPlayer;
 	public List<Player> playerList;
+	private final JPanel panel_PLUGINS = new JPanel();
+	public java.awt.List list_plugins = new java.awt.List();
+	protected Plugin selectedPlugin;
+	private JCheckBox chckbxEnabled;
+	private JLabel lblPlguinDescription;
+	private JTextArea txtArea_pDesc;
+	private JLabel lbl_pName;
+	private final JLabel lblAuthors = new JLabel("Authors:");
+	private final JLabel lbl_pAuthor = new JLabel("NULL");
+	private final JLabel lblVersion = new JLabel("Version:");
+	private final JLabel lbl_pVersion = new JLabel("NULL");
 
 	/**
 	 * Create the frame.
 	 */
 	public SAToolsGUI(SATools instance) {
 		super();
+		setIconImage(Toolkit.getDefaultToolkit().getImage(
+				SAToolsGUI.class.getResource("/resources/icon.png")));
 		p = instance;
 		manager = new GUIManager(p, this);
 		log = SATools.log;
@@ -336,6 +353,58 @@ public final class SAToolsGUI extends JFrame implements ActionListener,
 
 		lblUseTheXyz.setBounds(10, 132, 284, 14);
 		panel_World.add(lblUseTheXyz);
+
+		tabbedPane.addTab("Plugins", null, panel_PLUGINS, null);
+		panel_PLUGINS.setLayout(null);
+
+		JLabel lblPluginSettings = new JLabel("Plugin Settings");
+		lblPluginSettings.setHorizontalAlignment(SwingConstants.CENTER);
+		lblPluginSettings.setBounds(441, 11, 178, 14);
+		panel_PLUGINS.add(lblPluginSettings);
+
+		chckbxEnabled = new JCheckBox("Enabled");
+		chckbxEnabled.addActionListener(this);
+		chckbxEnabled.setBounds(436, 32, 97, 23);
+		panel_PLUGINS.add(chckbxEnabled);
+
+		JScrollPane scrollPane_plugins = new JScrollPane();
+		scrollPane_plugins.setBounds(10, 11, 425, 314);
+		panel_PLUGINS.add(scrollPane_plugins);
+
+		list_plugins = new java.awt.List();
+		list_plugins.setMultipleMode(false);
+		list_plugins.addActionListener(this);
+		scrollPane_plugins.setViewportView(list_plugins);
+
+		JLabel lblPluginName = new JLabel("Plugin Name:");
+		lblPluginName.setBounds(441, 62, 178, 14);
+		panel_PLUGINS.add(lblPluginName);
+
+		lbl_pName = new JLabel("NULL");
+		lbl_pName.setBounds(451, 87, 168, 14);
+		panel_PLUGINS.add(lbl_pName);
+
+		txtArea_pDesc = new JTextArea();
+		txtArea_pDesc.setEditable(false);
+		txtArea_pDesc.setText("NULL");
+		txtArea_pDesc.setBounds(441, 227, 178, 98);
+		panel_PLUGINS.add(txtArea_pDesc);
+
+		lblPlguinDescription = new JLabel("Plguin Description:");
+		lblPlguinDescription.setBounds(441, 202, 178, 14);
+		panel_PLUGINS.add(lblPlguinDescription);
+		lblAuthors.setBounds(441, 112, 46, 14);
+
+		panel_PLUGINS.add(lblAuthors);
+		lbl_pAuthor.setBounds(451, 137, 168, 14);
+
+		panel_PLUGINS.add(lbl_pAuthor);
+		lblVersion.setBounds(441, 162, 46, 14);
+
+		panel_PLUGINS.add(lblVersion);
+		lbl_pVersion.setBounds(497, 162, 122, 14);
+
+		panel_PLUGINS.add(lbl_pVersion);
 		panel_FUNCTIONS.setBounds(0, 362, 634, 49);
 
 		panel_FUNCTIONS.setBorder(new EtchedBorder(EtchedBorder.LOWERED, null,
@@ -469,6 +538,34 @@ public final class SAToolsGUI extends JFrame implements ActionListener,
 						((JMenuItem) e.getSource()).getText());
 				lbl_PLAYER_DATA.setText(selectedPlayer.getName());
 			}
+		} else if (e.getSource() instanceof java.awt.List) {
+			if (e.getSource() == list_plugins) {
+				selectedPlugin = p.pm.getPlugin(list_plugins.getSelectedItem());
+				lbl_pName.setText(selectedPlugin.getDescription().getName());
+				txtArea_pDesc.setText(selectedPlugin.getDescription()
+						.getDescription());
+				String authors = "";
+				for (String author : selectedPlugin.getDescription()
+						.getAuthors()) {
+					authors = authors + author + ", ";
+				}
+				lbl_pAuthor.setText(authors);
+				lbl_pVersion.setText(selectedPlugin.getDescription()
+						.getVersion());
+				if (selectedPlugin.isEnabled()) {
+					chckbxEnabled.setSelected(true);
+				} else {
+					chckbxEnabled.setSelected(false);
+				}
+			}
+		} else if (e.getSource() instanceof JCheckBox) {
+			if (e.getSource() == chckbxEnabled) {
+				if (chckbxEnabled.isSelected()) {
+					p.pm.enablePlugin(selectedPlugin);
+				} else {
+					p.pm.disablePlugin(selectedPlugin);
+				}
+			}
 		}
 	}
 
@@ -504,21 +601,19 @@ public final class SAToolsGUI extends JFrame implements ActionListener,
 	}
 
 	/**
-	 * Checks if the object is a creature (BAD CODE TODO)
+	 * Gets the creature
 	 * 
 	 * @param what
 	 *            String to check
-	 * @return True if it is a creature, otherwise false (objects like trees
-	 *         etc)
+	 * @return CreatureType of the creature, otherwise null if not found
 	 */
-	private boolean isCreature(String what) {
+	private CreatureType getCreature(String what) {
 		for (CreatureType ct : CreatureType.values()) {
 			if (ct.toString().equals(what)) {
-				log.info("Yup Creature");
-				return true;
+				return ct;
 			}
 		}
-		return false;
+		return null;
 	}
 
 	/**
@@ -586,13 +681,12 @@ public final class SAToolsGUI extends JFrame implements ActionListener,
 				e.printStackTrace();
 			}
 		}
-		if (isCreature(what)) {
+		if (getCreature(what) != null) {
 			if (loc.getWorld().spawnCreature(loc, CreatureType.valueOf(what)) != null) {
 				log.info("Created Creature");
 			}
 		} else {
-			if (loc.getWorld().generateTree(loc,
-					TreeType/* .valueOf(what) */.BIG_TREE)) {
+			if (loc.getWorld().generateTree(loc, TreeType.valueOf(what))) {
 				log.info("Generated Tree");
 			} else {
 				log.info("Failed");
@@ -611,5 +705,23 @@ public final class SAToolsGUI extends JFrame implements ActionListener,
 
 		mnPlayer.add(temp);
 		temp.addActionListener(this);
+	}
+
+	/**
+	 * Removes player to the player menu
+	 * 
+	 * @param playerQuit
+	 *            Player argument
+	 */
+	public void removePlayerFromMenu(Player playerQuit) {
+		for (Component c : mnPlayer.getMenuComponents()) {
+			if (c != null && c instanceof JMenuItem) {
+				if (((JMenuItem) c).getText().equals(
+						playerQuit.getDisplayName())) {
+					mnPlayer.remove(c);
+				}
+			}
+		}
+
 	}
 }

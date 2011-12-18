@@ -58,8 +58,8 @@ public final class SATools extends JavaPlugin {
 			this);
 
 	/**
-	 * Downloads the updated software from the server if possible. TODO needs
-	 * re-looked at sometime
+	 * Downloads the updated software from the server if possible. re-looked at
+	 * sometime
 	 */
 	private void downloadUpdate() {
 		OutputStream out = null;
@@ -117,7 +117,6 @@ public final class SATools extends JavaPlugin {
 
 	/**
 	 * loads the configuration. Appends settings based on the configuration.
-	 * TODO re-look
 	 */
 	private void loadConfig() {
 		File configFile = new File(this.getDataFolder(), "config.yml");
@@ -167,6 +166,8 @@ public final class SATools extends JavaPlugin {
 		pm = getServer().getPluginManager();
 		pm.registerEvent(Event.Type.PLAYER_JOIN, playerListener,
 				Event.Priority.Normal, this);
+		pm.registerEvent(Event.Type.PLAYER_QUIT, playerListener,
+				Event.Priority.Normal, this);
 		// Check data folder
 		if (!getDataFolder().exists()) {
 			if (getDataFolder().mkdirs()) {
@@ -184,7 +185,7 @@ public final class SATools extends JavaPlugin {
 	}
 
 	/**
-	 * Saves the server configuration. TODO Re-look.
+	 * Saves the server configuration.
 	 */
 	private void saveConfiguration() {
 		File configFile = new File(this.getDataFolder(), "config.yml");
